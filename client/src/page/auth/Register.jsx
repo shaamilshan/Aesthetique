@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import SignUpBG from "../../assets/register.png";
+import SignUpBG from "../../assets/authentication/register.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signUpUser } from "../../redux/actions/userActions";
@@ -112,14 +112,14 @@ const Register = () => {
 
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-gray-100">
-      {/* Left Side - Image */}
-      <div className="hidden lg:block lg:w-1/2">
-        <img
-          src={SignUpBG}
-          alt="Sign Up Background"
-          className="w-full h-full object-cover"
-        />
-      </div>
+{/* Left Side - Image */}
+<div className="hidden lg:block lg:w-1/2 h-screen">
+  <img
+    src={SignUpBG}
+    alt="Sign Up Background"
+    className="w-full h-full object-cover"
+  />
+</div>
 
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 lg:px-16">
@@ -131,70 +131,95 @@ const Register = () => {
           <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
 
           {emailSec && (
-            <Formik
-              initialValues={initialValues}
-              onSubmit={handleRegister}
-              validationSchema={validationSchema}
-            >
-              {({ values, setFieldValue }) => (
-                <Form className="space-y-6">
-                  {/* <div className="flex justify-center">
-                    <CustomSingleFileInput
-                      onChange={(file) => setFieldValue("profileImgURL", file)}
-                    />
-                    <ErrorMessage
-                      className="text-sm text-red-500"
-                      name="profileImgURL"
-                      component="span"
-                    />
-                  </div> */}
-                  <InputWithIcon
-                    icon={<AiOutlineUser />}
-                    title="First Name"
-                    name="firstName"
-                    placeholder="Enter your first name"
-                  />
-                  <InputWithIcon
-                    icon={<AiOutlineUser />}
-                    title="Last Name"
-                    name="lastName"
-                    placeholder="Enter your last name"
-                  />
-                  <InputWithIcon
-                    icon={<AiOutlineMail />}
-                    title="Email"
-                    name="email"
-                    placeholder="Enter your email"
-                  />
-                  <PasswordInputWithIcon
-                    icon={<AiOutlineLock />}
-                    title="Password"
-                    name="password"
-                    placeholder="Enter your password"
-                  />
-                  <PasswordInputWithIcon
-                    icon={<AiOutlineLock />}
-                    title="Confirm Password"
-                    name="passwordAgain"
-                    placeholder="Confirm your password"
-                  />
-                  <InputWithIcon
-                    icon={<AiOutlinePhone />}
-                    title="Phone Number"
-                    name="phoneNumber"
-                    placeholder="Enter your phone number"
-                  />
-                  <button
-                    type="submit"
-                    className="h-12 w-full bg-[#C84332] text-white hover:bg-red-500 rounded-md"
-                    disabled={otpLoading}
-                  >
-                    {otpLoading ? "Loading..." : "Sign Up"}
-                  </button>
-                  {error && <p className="text-red-500 text-sm">{error}</p>}
-                </Form>
-              )}
-            </Formik>
+          <Formik
+          initialValues={initialValues}
+          onSubmit={handleRegister}
+          validationSchema={validationSchema}
+        >
+          {({ values, setFieldValue }) => (
+            <Form className="space-y-6">
+              {/* Profile Image Upload */}
+              {/* Uncomment if needed */}
+              {/* <div className="flex justify-center">
+                <CustomSingleFileInput
+                  onChange={(file) => setFieldValue("profileImgURL", file)}
+                />
+                <ErrorMessage
+                  className="text-sm text-red-500"
+                  name="profileImgURL"
+                  component="span"
+                />
+              </div> */}
+        
+              {/* First Name Field */}
+              <InputWithIcon
+                icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                title="First Name"
+                name="firstName"
+                placeholder="Enter your first name"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+        
+              {/* Last Name Field */}
+              <InputWithIcon
+                icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                title="Last Name"
+                name="lastName"
+                placeholder="Enter your last name"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+              {/* Phone Number Field */}
+              <InputWithIcon
+                icon={<AiOutlinePhone className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                title="Phone Number"
+                name="phoneNumber"
+                placeholder="Enter your phone number"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+        
+              {/* Email Field */}
+              <InputWithIcon
+                icon={<AiOutlineMail className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                title="Email"
+                name="email"
+                placeholder="Enter your email"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+        
+              {/* Password Field */}
+              <PasswordInputWithIcon
+                icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                title="Password"
+                name="password"
+                placeholder="Enter your password"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+        
+              {/* Confirm Password Field */}
+              <PasswordInputWithIcon
+                icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                title="Confirm Password"
+                name="passwordAgain"
+                placeholder="Confirm your password"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+        
+        
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="h-12 w-full bg-gradient-to-r from-[#C84332] to-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-300"
+                disabled={otpLoading}
+              >
+                {otpLoading ? "Loading..." : "Sign Up"}
+              </button>
+        
+              {/* Error Message */}
+              {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            </Form>
+          )}
+        </Formik>
+        
           )}
 
           {otpSec && (

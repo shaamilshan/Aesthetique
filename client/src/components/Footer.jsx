@@ -5,7 +5,7 @@ function Footer() {
     <footer className="bg-[#C84332] text-white py-8">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start">
         <div className="ml-12 mb-6 md:mb-0">
-          <h4 className="text-lg font-medium mb-4">TrendKart</h4>
+          <h4 className="text-lg font-medium mb-4">BM AESTHETIQUE</h4>
           <p className="text-sm">
            Karassery Junction, Mukkam, Calicut, India 673602
           </p>
@@ -77,7 +77,7 @@ function Footer() {
         </div>
       </div>
       <div className="mt-8 text-center text-sm">
-        <p>&copy; 2024 TrendKart. All rights revered</p>
+        <p>&copy; 2025 BM Aesthetique. All rights revered</p>
       </div>
     </footer>
   );
