@@ -1,0 +1,45 @@
+.fixed-bottom-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    z-index: 1000;
+  }
+  
+  .fixed-bottom-panel button {
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  .fixed-bottom-panel .buy-now-btn {
+    background-color: #CC4254;
+    color: white;
+  }
+  
+  .fixed-bottom-panel .wishlist-btn {
+    background-color: #f0f0f0;
+    color: #CC4254;
+    border: 1px solid #CC4254;
+  }
+  
+  .fixed-bottom-panel .share-btn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  @media (min-width: 768px) {
+    .fixed-bottom-panel {
+      display: none;
+    }
+  }
+  

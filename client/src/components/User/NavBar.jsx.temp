@@ -1,0 +1,181 @@
+
+    <nav>
+      <div className="bg-[#d7d9da] px-2 sm:px-4 py-2.5 h-[120px] w-full dark:bg-gray-800">
+        <div className="container flex flex-nowrap justify-between w-full h-full items-center">
+          <div className="flex w-1/2 h-full items-center justify-start bg-contain bg-no-repeat bg-center">
+            <Link to="/">
+              <img
+                alt="Logo"
+                width={"100%"}
+                height={"100%"}
+                className="object-contain h-16 sm:h-16 lg:w-[250px] w-[150px]"
+                src={logo}
+              />
+            </Link>
+          </div>
+
+          <div className="flex md:order-2 w-1/2 justify-end">
+            {/* Button container */}
+            <div className="hidden md:flex w-full md:justify-end items-center">
+              <div>
+                {/* <div className="flex w-72 bg-[#F5F5F5] rounded-3xl items-center pl-5 border-[0.5px] border-[#D0D0D0]"> */}
+                <SearchBar
+                  handleClick={handleClick}
+                  search={search}
+                  setSearch={setSearch}
+                />
+                {/* <SearchIcon className="text-gray-700" /> */}
+                {/* <input
+                  className="flex h-10 w-full rounded-md border border-slate-200  px-3 py-2 text-sm ring-offset-white bg-transparent border-none focus:ring-0 focus:outline-none focus:border-none w-72 font-sans text-[#9A9A9A]"
+                  placeholder="Search for"
+                  type="search"
+                /> */}
+              </div>
+              <div className="pl-5">
+                <NavLink to="/dashboard/wishlist">
+                  <HeartIcon className="text-gray-700 ml-7 pl-5" />
+                </NavLink>
+              </div>
+              <div className="pl-5">
+                <NavLink to="/dashboard/profile">
+                  <UserIcon className="text-gray-700 ml-7 pl-5" />
+                </NavLink>
+              </div>
+              <div className="pl-5">
+                <NavLink to="/cart">
+                  <ShoppingBagIcon className="text-gray-700 ml-4" />
+                </NavLink>
+              </div>
+            </div>
+            <div className="flex justify-center items-center p-2 md:hidden">
+              <div className="">
+                <NavLink
+                  to="/dashboard/profile"
+                  className="inline-flex items-center p-2 text-sm text-gray-700 rounded-lg  focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                >
+                  <UserIcon className="w-6 h-6" />
+                </NavLink>
+              </div>
+              <div className="">
+                <NavLink
+                  to="/cart"
+                  className="inline-flex items-center p-2 text-sm text-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                >
+                  <ShoppingBagIcon className="w-6 h-6" />
+                </NavLink>
+              </div>
+              <div className="">
+                <button
+                  aria-controls="mobile-menu-2"
+                  aria-expanded="false"
+                  className="inline-flex items-center p-2 text-sm text-white rounded-lg  focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                  data-collapse-toggle="mobile-menu-2"
+                  type="button"
+                  onClick={toggleSideNavbar}
+                >
+                  <span className="sr-only">Open main menu</span>
+                  <MenuIcon className="w-8 h-8" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showSideNavbar && (
+        <div id="mobile-menu-2" className="mobile-menu-class bg-[#CC4254]">
+          {/* Your mobile menu items here */}
+          <ul>
+            <li className="flex justify-center items-center p-2">
+              <SearchBar
+                handleClick={handleClick}
+                search={search}
+                setSearch={setSearch}
+              />
+            </li>
+            {/* <li className="flex justify-start items-center p-2">
+              <div className="pl-5">
+                <NavLink to="/dashboard/wishlist">
+                  <HeartIcon className="text-gray-700 ml-7 pl-5" />
+                </NavLink>
+              </div>
+              <div className="pl-5">
+                <NavLink to="/dashboard/profile">
+                  <UserIcon className="text-gray-700 ml-7 pl-5" />
+                </NavLink>
+              </div>
+              <div className="pl-5">
+                <NavLink to="/cart">
+                  <ShoppingBagIcon className="text-gray-700 ml-4" />
+                </NavLink>
+              </div>
+            </li> */}
+            <li>
+              <NavLink
+                className="block py-2 pr-4 pl-3 text-xl text-white font-semibold rounded md:bg-transparent md:p-0 "
+                to="/dashboard/wishlist"
+              >
+                Wishlist
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className="block py-2 pr-4 pl-3 text-xl text-white font-semibold  rounded md:bg-transparent md:p-0 dark:text-white"
+                to="/collections"
+              >
+                Collections
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                aria-current="page"
+                className="block py-2 pr-4 pl-3 text-xl text-white font-semibold  rounded md:bg-transparent md:p-0 dark:text-white"
+                to="/contact-us"
+              >
+                Contact Us
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className="block py-2 pr-4 pl-3 text-xl text-white font-semibold  rounded md:bg-transparent md:p-0 dark:text-white"
+                to="/about-us"
+              >
+                About Us
+              </NavLink>
+            </li>
+          </ul>
+        </div>
+      )}
+
+      {/* <div className="hidden md:flex justify-center items-center h-16 bg-[#F6F6F6]"> 
+         <div className="hidden justify-between items-center w-full md:flex md:w-auto md:order-1">
+          <ul className="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-normal">
+            <li>
+              <NavLink
+                className="block py-2 pr-4 pl-3 text-xl text-[#2C2C2C] rounded md:bg-transparent md:p-0 dark:text-white"
+                to="/collections"
+              >
+                Collections
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className="block py-2 pr-4 pl-3 text-xl text-[#2C2C2C] rounded md:bg-transparent md:p-0 dark:text-white"
+                to="/about-us"
+              >
+                About Us
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                aria-current="page"
+                className="block py-2 pr-4 pl-3 text-xl text-[#2C2C2C] rounded md:bg-transparent md:p-0 dark:text-white"
+                to="/contact-us"
+              >
+                Contact Us
+              </NavLink>
+            </li>
+          </ul>
+        </div>
+      </div> */}
+    </nav>
