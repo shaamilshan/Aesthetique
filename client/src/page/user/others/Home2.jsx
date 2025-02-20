@@ -1,15 +1,17 @@
-import CategoriesGroup from "@/components/Home/CategoriesGroup";
+// import CategoriesGroup from "@/components/Home/CategoriesGroup";
 import ImageSlider from "@/components/Home/ImageSlider";
-import LogoSlider from "@/components/Home/LogoSlider";
-import NewArrivals from "@/components/Home/NewArrivals";
-import OurProducts from "@/components/Home/OurProducts";
-import ReviewSlider from "@/components/Home/ReviewSlider";
+// import LogoSlider from "@/components/Home/LogoSlider";
+// import NewArrivals from "@/components/Home/NewArrivals";
+// import OurProducts from "@/components/Home/OurProducts";
+// import ReviewSlider from "@/components/Home/ReviewSlider";
 // import BestSellers from "@/components/Others/BestSellers";
 // import CategorySection from "../../../components/Home/CategoryBar";
-import BannerSection from "../../../components/Home/InstaBanner"
+// import BannerSection from "../../../components/Home/InstaBanner"
 // import ShopCatogories from "@/components/Others/ShopCatogories";
 // import Marquee from "@/components/Home/Marquee";
-import RedBanner from "@/components/Home/redBanner";
+// import RedBanner from "@/components/Home/redBanner";
+import AboutUs from "@/components/Home/AboutUs";
+import CounterStats from "@/components/Home/CounterStats";
 
 
 export default function Home2() {
@@ -19,15 +21,16 @@ export default function Home2() {
     {/* <ShopCatogories /> */}
     {/* <Marquee/> */}
       <ImageSlider />
-      <LogoSlider />
-      <NewArrivals />
-     
-      <RedBanner/>
-      <OurProducts />
-      <CategoriesGroup />
+      {/* <LogoSlider /> */}
+      {/* <NewArrivals /> */}
+      <AboutUs/>
+      {/* <RedBanner/> */}
+      {/* <OurProducts /> */}
+     <CounterStats/>
+      {/* <CategoriesGroup /> */}
       {/* <BestSellers /> */}
-      <BannerSection/>
-      <ReviewSlider />
+      {/* <BannerSection/> */}
+      {/* <ReviewSlider /> */}
     </>
   );
 }

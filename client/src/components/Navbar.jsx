@@ -202,12 +202,12 @@
 //   );
 // }
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { debounce } from "time-loom";
 import { logout } from "../redux/actions/userActions";
-import { Heart, Search, ShoppingCart, User } from "lucide-react";
+import { Heart, ShoppingCart, User, Menu, X } from "lucide-react";
 import logo from "../assets/others/Logo.svg";
 import SearchBar from "./SearchBar";
 
@@ -218,15 +218,12 @@ const Navbar = ({ usercheck }) => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
-  const [dropDown, setDropDown] = useState(false);
-  const [showSideNavbar, setShowSideNavbar] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const toggleDropDown = debounce(() => {
-    setDropDown(!dropDown);
-  }, 100);
+  const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const handleLogout = () => {
-    toggleDropDown();
+    setMenuOpen(false);
     dispatch(logout());
     navigate("/");
   };
@@ -250,7 +247,7 @@ const Navbar = ({ usercheck }) => {
             <img src={logo} alt="logo" className="h-8 w-32" />
           </Link>
 
-          {/* Navigation Links (Centered) */}
+          {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex gap-8">
             {["Home", "About", "Products", "Services", "Contact Us"].map((item, index) => (
               <Link
@@ -265,34 +262,75 @@ const Navbar = ({ usercheck }) => {
 
           {/* Icons & Search Bar (Right Side) */}
           <div className="flex items-center gap-4 lg:gap-6">
-
-            {/* Search Bar Moved Next to Wishlist */}
+            {/* Search Bar (Next to Wishlist) */}
             <div className="relative hidden max-w-xs lg:block">
               <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} />
             </div>
 
             {/* Wishlist Icon */}
-            <Link to="/dashboard/wishlist" variant="ghost" size="icon">
+            <Link to="/dashboard/wishlist">
               <Heart className="h-5 w-5" />
             </Link>
-            
+
             {/* Profile Icon */}
-            <Link to="/dashboard/profile" variant="ghost" size="icon">
+            <Link to="/dashboard/profile">
               <User className="h-5 w-5" />
             </Link>
 
             {/* Cart Icon (Only If Logged In) */}
             {usercheck && (
-              <Link to="/cart" variant="ghost" size="icon">
+              <Link to="/cart">
                 <ShoppingCart className="h-5 w-5" />
               </Link>
             )}
+
+            {/* Hamburger Menu for Mobile */}
+            <button onClick={toggleMenu} className="lg:hidden">
+              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
 
-        {/* Mobile Search Bar (Unchanged) */}
+        {/* Mobile Search Bar */}
         <div className="relative w-full lg:hidden mt-4">
           <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} />
+        </div>
+      </div>
+
+      {/* Mobile Navigation Menu (Slide-in effect) */}
+      <div
+  className={`fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-50 transform ${
+    menuOpen ? "translate-x-0" : "-translate-x-full"
+  } transition-transform duration-300 ease-in-out lg:hidden`}
+>
+
+        <div className="p-5 flex flex-col gap-6">
+          {/* Close Button */}
+          <button onClick={toggleMenu} className="self-end">
+            <X className="h-6 w-6" />
+          </button>
+
+          {/* Mobile Navigation Links */}
+          {["Home", "About", "Products", "Services", "Contact Us"].map((item, index) => (
+            <Link
+              key={index}
+              to={`/${item.toLowerCase().replace(/\s/g, "")}`}
+              className="text-gray-700 hover:text-black text-lg font-medium"
+              onClick={toggleMenu}
+            >
+              {item}
+            </Link>
+          ))}
+
+          {/* Logout Button (If Logged In) */}
+          {user && (
+            <button
+              onClick={handleLogout}
+              className="text-red-500 hover:text-red-700 text-lg font-medium"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </div>
     </header>
