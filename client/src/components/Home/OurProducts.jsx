@@ -27,9 +27,9 @@ const OurProducts = () => {
   const shuffledProducts = userProducts ? shuffleArray(userProducts) : [];
 
   return (
-    <div className="container mx-auto px-4 py-8" data-aos="fade-up">
+    <div className=" mx-0 px-4 py-8 bg-[#A53030]" data-aos="fade-up">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-xl md:text-3xl font-bold">Our Products</h1>
+        <h1 className="text-xl md:text-3xl font-bold text-[white]">Our Products</h1>
       </div>
 
       {loading ? (

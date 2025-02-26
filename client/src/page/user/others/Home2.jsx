@@ -2,7 +2,7 @@
 import ImageSlider from "@/components/Home/ImageSlider";
 // import LogoSlider from "@/components/Home/LogoSlider";
 // import NewArrivals from "@/components/Home/NewArrivals";
-// import OurProducts from "@/components/Home/OurProducts";
+import OurProducts from "@/components/Home/OurProducts";
 // import ReviewSlider from "@/components/Home/ReviewSlider";
 // import BestSellers from "@/components/Others/BestSellers";
 // import CategorySection from "../../../components/Home/CategoryBar";
@@ -12,6 +12,8 @@ import ImageSlider from "@/components/Home/ImageSlider";
 // import RedBanner from "@/components/Home/redBanner";
 import AboutUs from "@/components/Home/AboutUs";
 import CounterStats from "@/components/Home/CounterStats";
+import TestimonialSection from "@/components/Home/testimonials";
+import ContactSection from "@/components/Home/ContactSection";
 
 
 export default function Home2() {
@@ -25,8 +27,10 @@ export default function Home2() {
       {/* <NewArrivals /> */}
       <AboutUs/>
       {/* <RedBanner/> */}
-      {/* <OurProducts /> */}
+      <OurProducts />
      <CounterStats/>
+     <TestimonialSection/>
+     <ContactSection/>
       {/* <CategoriesGroup /> */}
       {/* <BestSellers /> */}
       {/* <BannerSection/> */}
