@@ -8,8 +8,12 @@ const FilterUserDashboard = ({ filters, price, handleClick, clearFilters }) => {
   const [categories, setCategories] = useState([]);
 
   const loadCategories = async () => {
-    const { data } = await axios.get(`${URL}/user/categories`, config);
-    setCategories(data.categories);
+    try {
+      const { data } = await axios.get(`${URL}/user/categories`, config);
+      setCategories(data.categories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
   };
 
   useEffect(() => {
@@ -17,103 +21,60 @@ const FilterUserDashboard = ({ filters, price, handleClick, clearFilters }) => {
   }, []);
 
   return (
-    <div className="lg:w-1/5">
-      <ul className="hidden lg:block">
-        <li className="uppercase">Category</li>
-
-        {categories.map((item) => {
-          return (
-            <li className="category-li" key={item._id}>
+    <div className="lg:w-1/5 bg-white p-5 mr-4 rounded-xl shadow-md">
+      <ul className="space-y-4">
+        {/* Category Filter */}
+        <li className="text-lg font-medium border-b pb-2">Category</li>
+        <div className="space-y-2">
+          {categories.map((item) => (
+            <li key={item._id} className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 name="category"
                 value={item._id}
                 checked={filters.includes(item._id)}
                 onChange={(e) => handleClick("category", e.target.value)}
-              />{" "}
-              {item.name}
+                className="w-4 h-4 accent-blue-600"
+              />
+              <span className="text-gray-700">{item.name}</span>
             </li>
-          );
-        })}
+          ))}
+        </div>
 
-        <li className="uppercase">Price Range</li>
-        <li className="category-li">
-          <input
-            type="radio"
-            name="priceRange"
-            value=""
-            checked={price === ""}
-            onChange={(e) => handleClick("price", e.target.value)}
-          />{" "}
-          All Price
-        </li>
-        <li className="category-li">
-          <input
-            type="radio"
-            name="priceRange"
-            value="Under 25000"
-            checked={price === "Under 25000"}
-            onChange={(e) => handleClick("price", e.target.value)}
-          />{" "}
-          Under 25000₹
-        </li>
-        <li className="category-li">
-          <input
-            type="radio"
-            name="priceRange"
-            value="25000-50000"
-            checked={price === "25000-50000"}
-            onChange={(e) => handleClick("price", e.target.value)}
-          />{" "}
-          25000₹ - 50000₹
-        </li>
-        <li className="category-li">
-          <input
-            type="radio"
-            name="priceRange"
-            value="50000-100000"
-            checked={price === "50000-100000"}
-            onChange={(e) => handleClick("price", e.target.value)}
-          />{" "}
-          50000₹ - 100000₹
-        </li>
-        <li className="category-li">
-          <input
-            type="radio"
-            name="priceRange"
-            value="100000-150000"
-            checked={price === "100000-150000"}
-            onChange={(e) => handleClick("price", e.target.value)}
-          />{" "}
-          100000₹ - 150000₹
-        </li>
-        <li className="category-li">
-          <input
-            type="radio"
-            name="priceRange"
-            value="200000-300000"
-            checked={price === "200000-300000"}
-            onChange={(e) => handleClick("price", e.target.value)}
-          />{" "}
-          200000₹ - 300000₹
-        </li>
-        <li className="category-li">
-          <input
-            type="radio"
-            name="priceRange"
-            value="Above 300000"
-            checked={price === "Above 300000"}
-            onChange={(e) => handleClick("price", e.target.value)}
-          />{" "}
-          Above 300000₹{" "}
-        </li>
-        <li>
+        {/* Price Filter */}
+        <li className="text-lg font-semibold border-b pb-2">Price Range</li>
+        <div className="space-y-2">
+          {[
+            { label: "All Price", value: "" },
+            { label: "Under 25000₹", value: "Under 25000" },
+            { label: "25000₹ - 50000₹", value: "25000-50000" },
+            { label: "50000₹ - 100000₹", value: "50000-100000" },
+            { label: "100000₹ - 150000₹", value: "100000-150000" },
+            { label: "200000₹ - 300000₹", value: "200000-300000" },
+            { label: "Above 300000₹", value: "Above 300000" },
+          ].map((item) => (
+            <li key={item.value} className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="priceRange"
+                value={item.value}
+                checked={price === item.value}
+                onChange={(e) => handleClick("price", e.target.value)}
+                className="w-4 h-4 accent-blue-600"
+              />
+              <span className="text-gray-700">{item.label}</span>
+            </li>
+          ))}
+        </div>
+
+        {/* Clear Filters Button */}
+        <li className="pt-4">
           <button
             onClick={clearFilters}
-            className=" bg-blue-100 hover:bg-red-200 active:bg-red-300 outline-none px-5 py-2 rounded font-semibold flex items-center gap-2"
+            className="w-full flex items-center justify-center gap-2 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-700 px-4 py-2 rounded-md font-semibold transition"
           >
-            <BiTrash />
-            <p className="text-xs">Clear All filters</p>
+            <BiTrash className="text-lg" />
+            <span className="text-sm">Clear All Filters</span>
           </button>
         </li>
       </ul>

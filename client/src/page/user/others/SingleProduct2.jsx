@@ -109,7 +109,7 @@ const SingleProduct2 = () => {
                 </div>
                 <div className="flex justify-ce space-x-2  w-full pt-10">
                   <Button className=" bg-[#CC4254] mt-3 w-1/2 md:w-auto h-12 rounded-[10px] font-Inter text-[16px] text-white px-10  ">
-                    Add to Bag
+                    Add to Cart
                   </Button>
                   <Button className="  bg-white mt-3 w-1/2 md:w-auto h-12 rounded-[10px] font-Inter text-[16px] text-black px-10 border-[1px] border-[#777777] ">
                     Wishlist

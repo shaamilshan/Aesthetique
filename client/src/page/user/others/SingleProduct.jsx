@@ -628,7 +628,7 @@ const SingleProduct = () => {
       onClick={addToCart}
       className="hover:bg-[#CC4254] mt-3 w-1/2 md:w-auto bg-white outline text-[#CC4254] outline-[#CC4254] h-12 rounded-[10px] font-Inter text-[16px] hover:text-white px-10"
     >
-      {cartLoading ? "Loading" : "Add to Cart"}
+      {cartLoading ? "Loading" : "Add to cart"}
     </Button>
   )}
   {isOutOfStock && (

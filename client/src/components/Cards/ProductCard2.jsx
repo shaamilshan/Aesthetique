@@ -21,6 +21,7 @@ const StarRating = ({ rating }) => {
   );
 };
 
+
 const ProductCard2 = ({ product }) => {
   const navigate = useNavigate();
   const originalPrice = product.offer
@@ -30,7 +31,7 @@ const ProductCard2 = ({ product }) => {
   return (
     <div
       onClick={() => navigate(`/product/${product._id}`)}
-      className="cursor-pointer space-y-3    "
+      className="cursor-pointer space-y-3 bg-white p-8 rounded-lg "
     >
       <div className="aspect-[3/4] w-full overflow-hidden">
         <img
@@ -43,10 +44,10 @@ const ProductCard2 = ({ product }) => {
         <h3 className="text-sm font-medium uppercase tracking-wide">
           {product.name}
         </h3>
-        {/* <p className="text-sm text-gray-600 line-clamp-2">
+        <p className="text-sm text-gray-600 line-clamp-2">
           {product.description ||
-            "Contrary To Popular Belief, Lorem Ipsum Is Not Simply Random Text."}
-        </p> */}
+            "no To Popular Belief, Lorem Ipsum Is Not Simply Random Text."}
+        </p>
         <div className="flex items-center gap-[6px]">
           <span className="text-[11px] sm:text-[12px] lg:text-[18px] font-semibold line-through">
             {product.offer && (
@@ -62,13 +63,13 @@ const ProductCard2 = ({ product }) => {
           <span className="text-[11px] sm:text-[12px] lg:text-[18px] font-semibold text-red-500">
             ₹{product.price.toLocaleString()}
           </span>
-          <div className="ml-2 px-1 w-auto h-auto md:ml-4 bg-[#C84253] rounded-[2px] text-white text-[10px] sm:text-[12px] lg:text-[13px] flex  justify-center items-center text-center">
+          {/* <div className="ml-2 px-1 w-auto h-auto md:ml-4 bg-[#C84253] rounded-[2px] text-white text-[10px] sm:text-[12px] lg:text-[13px] flex  justify-center items-center text-center">
             {product.offer && (
               <>
                 {parseInt(((product.offer - product.price) * 100) / product.offer)}%Off
               </>
             )}
-          </div>
+          </div> */}
 
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import SignUpBG from "../../assets/authentication/register.jpg";
+import SignUpBG from "../../assets/authentication/registerbg.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signUpUser } from "../../redux/actions/userActions";
@@ -111,136 +111,115 @@ const Register = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-gray-100">
-{/* Left Side - Image */}
-<div className="hidden lg:block lg:w-1/2 h-screen">
-  <img
-    src={SignUpBG}
-    alt="Sign Up Background"
-    className="w-full h-full object-cover"
-  />
-</div>
+    <div className="relative flex items-center justify-center min-h-screen bg-gray-50">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={SignUpBG}
+          alt="Sign Up Background"
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-      {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12 lg:px-16">
-        <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-lg">
-          <div className="flex items-center justify-center mb-6">
-            {/* <img src={Logo} alt="Logo" className="w-12" /> */}
-            {/* <p className="text-3xl font-bold ml-3">ex.iphones.</p> */}
-          </div>
-          <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
+      {/* Form Container */}
+      <div className="relative z-10 bg-white p-8 rounded-none shadow-lg w-full max-w-lg mx-4" style={{ borderRadius: 0 }}>
+        <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
 
-          {emailSec && (
+        {emailSec && (
           <Formik
-          initialValues={initialValues}
-          onSubmit={handleRegister}
-          validationSchema={validationSchema}
-        >
-          {({ values, setFieldValue }) => (
-            <Form className="space-y-6">
-              {/* Profile Image Upload */}
-              {/* Uncomment if needed */}
-              {/* <div className="flex justify-center">
-                <CustomSingleFileInput
-                  onChange={(file) => setFieldValue("profileImgURL", file)}
+            initialValues={initialValues}
+            onSubmit={handleRegister}
+            validationSchema={validationSchema}
+          >
+            {({ values, setFieldValue }) => (
+              <Form className="space-y-6">
+                {/* First Name Field */}
+                <InputWithIcon
+                  icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                  // title="First Name"
+                  name="firstName"
+                  placeholder="Enter your first name"
+                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
                 />
-                <ErrorMessage
-                  className="text-sm text-red-500"
-                  name="profileImgURL"
-                  component="span"
-                />
-              </div> */}
-        
-              {/* First Name Field */}
-              <InputWithIcon
-                icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                title="First Name"
-                name="firstName"
-                placeholder="Enter your first name"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-        
-              {/* Last Name Field */}
-              <InputWithIcon
-                icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                title="Last Name"
-                name="lastName"
-                placeholder="Enter your last name"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-              {/* Phone Number Field */}
-              <InputWithIcon
-                icon={<AiOutlinePhone className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                title="Phone Number"
-                name="phoneNumber"
-                placeholder="Enter your phone number"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-        
-              {/* Email Field */}
-              <InputWithIcon
-                icon={<AiOutlineMail className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                title="Email"
-                name="email"
-                placeholder="Enter your email"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-        
-              {/* Password Field */}
-              <PasswordInputWithIcon
-                icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                title="Password"
-                name="password"
-                placeholder="Enter your password"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-        
-              {/* Confirm Password Field */}
-              <PasswordInputWithIcon
-                icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                title="Confirm Password"
-                name="passwordAgain"
-                placeholder="Confirm your password"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-        
-        
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="h-12 w-full bg-gradient-to-r from-[#C84332] to-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-300"
-                disabled={otpLoading}
-              >
-                {otpLoading ? "Loading..." : "Sign Up"}
-              </button>
-        
-              {/* Error Message */}
-              {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-            </Form>
-          )}
-        </Formik>
-        
-          )}
 
-          {otpSec && (
-            <OTPEnterSection
-              email={data.email}
-              setOTPExpired={setOTPExpired}
-              setOTPSec={setOTPSec}
-              dispatchSignUp={dispatchSignUp}
-            />
-          )}
-          {otpExpired && <OTPExpired />}
-          <p className="mt-6 text-center text-sm">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-medium text-primary hover:underline"
-            >
-              Login now
-            </Link>
-          </p>
-        </div>
+                {/* Last Name Field */}
+                <InputWithIcon
+                  icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                  // title="Last Name"
+                  name="lastName"
+                  placeholder="Enter your last name"
+                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                />
+
+                {/* Phone Number Field */}
+                <InputWithIcon
+                  icon={<AiOutlinePhone className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                  // title="Phone Number"
+                  name="phoneNumber"
+                  placeholder="Enter your phone number"
+                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                />
+
+                {/* Email Field */}
+                <InputWithIcon
+                  icon={<AiOutlineMail className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                  // title="Email"
+                  name="email"
+                  placeholder="Enter your email"
+                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                />
+
+                {/* Password Field */}
+                <PasswordInputWithIcon
+                  icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                  // title="Password"
+                  name="password"
+                  placeholder="Enter your password"
+                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                />
+
+                {/* Confirm Password Field */}
+                <PasswordInputWithIcon
+                  icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                  // title="Confirm Password"
+                  name="passwordAgain"
+                  placeholder="Confirm your password"
+                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                />
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  className="h-12 w-full bg-gradient-to-r from-[#C84332] to-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-300"
+                  disabled={otpLoading}
+                >
+                  {otpLoading ? "Loading..." : "Sign Up"}
+                </button>
+
+                {/* Error Message */}
+                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+              </Form>
+            )}
+          </Formik>
+        )}
+
+        {otpSec && (
+          <OTPEnterSection
+            email={data.email}
+            setOTPExpired={setOTPExpired}
+            setOTPSec={setOTPSec}
+            dispatchSignUp={dispatchSignUp}
+          />
+        )}
+
+        {otpExpired && <OTPExpired />}
+
+        <p className="mt-6 text-center text-sm">
+          Already have an account?{" "}
+          <Link to="/login" className="font-medium text-primary hover:underline">
+            Login now
+          </Link>
+        </p>
       </div>
     </div>
   );
