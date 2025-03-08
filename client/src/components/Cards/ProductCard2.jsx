@@ -1,14 +1,17 @@
 import { URL } from "@/Common/api";
 import React, { useState } from "react";
-import { FaRegHeart } from "react-icons/fa";
+import { FaRegHeart, FaHeart } from "react-icons/fa"; // Import filled heart icon
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { addToWishlist } from "@/redux/actions/user/wishlistActions"; // Import the wishlist action
 
 const ProductCard2 = ({ product }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user); // Get user state from Redux
+  const { wishlist } = useSelector((state) => state.wishlist); // Get wishlist state from Redux
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -16,6 +19,34 @@ const ProductCard2 = ({ product }) => {
     ? Math.round(product.price / (1 - product.offer / 100))
     : product.price;
 
+  // Check if the product is already in the wishlist
+  const isProductInWishlist = wishlist.some((item) => item.product._id === product._id);
+
+  // Add to wishlist function
+  const handleAddToWishlist = async () => {
+    if (!user) {
+      toast.error("Please log in to add items to your wishlist.");
+      navigate("/login");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Dispatch the addToWishlist action
+      await dispatch(addToWishlist({ product: product._id }));
+      toast.success("Product added to wishlist!");
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      setError(error.message);
+      toast.error("Failed to add product to wishlist.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add to cart function
   const addToCart = async () => {
     if (!user) {
       toast.error("Please log in to add items to your cart.");
@@ -86,9 +117,22 @@ const ProductCard2 = ({ product }) => {
           </span>
         </div>
         <div className="flex gap-3">
-          <div className="outline outline-1 p-3 rounded-lg">
-            <FaRegHeart className="text-[22px] text-[#A53030]" />
-          </div>
+          {/* Wishlist Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent the card's onClick from firing
+              handleAddToWishlist();
+            }}
+            disabled={loading || isProductInWishlist}
+            className="outline outline-1 p-3 rounded-lg hover:bg-red-50 transition-colors duration-300"
+          >
+            {isProductInWishlist ? (
+              <FaHeart className="text-[22px] text-[#A53030]" /> // Filled heart if in wishlist
+            ) : (
+              <FaRegHeart className="text-[22px] text-[#A53030]" /> // Outlined heart if not in wishlist
+            )}
+          </button>
+          {/* Add to Cart Button */}
           <button
             onClick={(e) => {
               e.stopPropagation(); // Prevent the card's onClick from firing
