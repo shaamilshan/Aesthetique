@@ -316,34 +316,46 @@ const Navbar = ({ usercheck }) => {
   } transition-transform duration-300 ease-in-out lg:hidden`}
 >
 
-        <div className="p-5 flex flex-col gap-6">
-          {/* Close Button */}
-          <button onClick={toggleMenu} className="self-end">
-            <X className="h-6 w-6" />
-          </button>
+<div className="p-5 flex flex-col gap-6">
+  {/* Close Button */}
+  <button onClick={toggleMenu} className="self-end">
+    <X className="h-6 w-6" />
+  </button>
 
-          {/* Mobile Navigation Links */}
-          {["Home", "About", "Products", "Services", "Contact Us"].map((item, index) => (
-            <Link
-              key={index}
-              to={`/${item.toLowerCase().replace(/\s/g, "")}`}
-              className="text-gray-700 hover:text-black text-lg font-medium"
-              onClick={toggleMenu}
-            >
-              {item}
-            </Link>
-          ))}
+  {/* Mobile Navigation Links */}
+  {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => (
+    <a
+      key={index}
+      href={`#${item.toLowerCase().replace(/\s/g, "")}`} // Link to the section ID
+      onClick={(e) => {
+        e.preventDefault(); // Prevent default anchor behavior
+        const targetId = item.toLowerCase().replace(/\s/g, "");
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: "smooth", // Smooth scrolling
+          });
+        } else {
+          console.error(`Element with id "${targetId}" not found.`);
+        }
+        toggleMenu(); // Close the mobile menu after clicking a link
+      }}
+      className="text-gray-700 hover:text-black text-lg font-medium cursor-pointer"
+    >
+      {item}
+    </a>
+  ))}
 
-          {/* Logout Button (If Logged In) */}
-          {user && (
-            <button
-              onClick={handleLogout}
-              className="text-red-500 hover:text-red-700 text-lg font-medium"
-            >
-              Logout
-            </button>
-          )}
-        </div>
+  {/* Logout Button (If Logged In) */}
+  {user && (
+    <button
+      onClick={handleLogout}
+      className="text-red-500 hover:text-red-700 text-lg font-medium"
+    >
+      Logout
+    </button>
+  )}
+</div>
       </div>
     </header>
   );
