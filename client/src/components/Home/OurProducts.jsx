@@ -15,7 +15,7 @@ const shuffleArray = (array) => {
   return shuffled;
 };
 
-const OurProducts = () => {
+const OurProducts = ({id}) => {
   const navigate = useNavigate();
   const { userProducts, loading } = useSelector((state) => state.userProducts);
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ const OurProducts = () => {
   const shuffledProducts = userProducts ? shuffleArray(userProducts) : [];
 
   return (
-    <div className=" mx-0 px-4 py-8 bg-[#A53030]" data-aos="fade-up">
+    <div className=" mx-0 px-4 py-8 bg-[#A53030]" data-aos="fade-up" id={id}>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-xl md:text-3xl font-bold text-[white]">Our Products</h1>
       </div>

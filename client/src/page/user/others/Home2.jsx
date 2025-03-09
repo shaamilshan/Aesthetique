@@ -25,12 +25,12 @@ export default function Home2() {
       <ImageSlider />
       {/* <LogoSlider /> */}
       {/* <NewArrivals /> */}
-      <AboutUs/>
+      <AboutUs id="about"/>
       {/* <RedBanner/> */}
-      <OurProducts />
+      <OurProducts id="products" />
      <CounterStats/>
-     <TestimonialSection/>
-     <ContactSection/>
+     <TestimonialSection id="testimonials"/>
+     <ContactSection id="contact"/>
       {/* <CategoriesGroup /> */}
       {/* <BestSellers /> */}
       {/* <BannerSection/> */}

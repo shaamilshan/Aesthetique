@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import aboutusimg from "../../assets/others/aboutus.png";
 
-const AboutUs = () => {
+const AboutUs = ({id}) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section className="container mx-auto px-4 py-12">
+    <section className="container mx-auto px-4 py-12" id={id}>
       <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
         {/* Left Side (Text) */}
         <div className="lg:w-1/2 text-center lg:text-left">

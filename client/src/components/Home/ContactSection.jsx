@@ -1,8 +1,8 @@
 import React from "react";
 
-export default function ContactSection() {
+export default function ContactSection({id}) {
   return (
-    <section className="p-8 bg-gray-50">
+    <section className="p-8 bg-gray-50" id={id} >
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Side: Contact Form and Information */}
         <div>

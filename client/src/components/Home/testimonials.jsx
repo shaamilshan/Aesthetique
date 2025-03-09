@@ -19,7 +19,7 @@ const testimonials = [
   },
 ];
 
-export default function TestimonialSection() {
+export default function TestimonialSection({id}) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const nextTestimonial = () => {
@@ -31,6 +31,7 @@ export default function TestimonialSection() {
       className="relative px-12 py-0 my-0 rounded-3xl mx-auto max-w-5xl text-center min-h-screen flex items-center justify-center
       bg-center bg-contain bg-no-repeat"
       style={{ backgroundImage: `url(${bgImage})` }} // Ensures full background image
+      id={id}
     >
       {/* Overlay */}
       <div className="absolute inset-0 bg-white bg-opacity-60 rounded-3xl"></div>

@@ -210,6 +210,7 @@ import { logout } from "../redux/actions/userActions";
 import { Heart, ShoppingCart, User, Menu, X } from "lucide-react";
 import logo from "../assets/others/Logo.svg";
 import SearchBar from "./SearchBar";
+import { Link as ScrollLink } from "react-scroll";
 
 const Navbar = ({ usercheck }) => {
   const { user } = useSelector((state) => state.user);
@@ -249,17 +250,28 @@ const Navbar = ({ usercheck }) => {
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex gap-8">
-            {["Home", "About", "Products", "Services", "Contact Us"].map((item, index) => (
-              <Link
-                key={index}
-                to={`/${item.toLowerCase().replace(/\s/g, "")}`}
-                className="text-gray-700 hover:text-black text-sm font-medium transition-colors"
-              >
-                {item}
-              </Link>
-            ))}
-          </nav>
-
+  {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => (
+    <a
+      key={index}
+      href={`#${item.toLowerCase().replace(/\s/g, "")}`} // Ensure this matches the section IDs
+      onClick={(e) => {
+        e.preventDefault(); // Prevent default anchor behavior
+        const targetId = item.toLowerCase().replace(/\s/g, "");
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: "smooth", // Smooth scrolling
+          });
+        } else {
+          console.error(`Element with id "${targetId}" not found.`);
+        }
+      }}
+      className="text-gray-700 hover:text-black text-sm font-medium transition-colors cursor-pointer"
+    >
+      {item}
+    </a>
+  ))}
+</nav>
           {/* Icons & Search Bar (Right Side) */}
           <div className="flex items-center gap-4 lg:gap-6">
             {/* Search Bar (Next to Wishlist) */}
