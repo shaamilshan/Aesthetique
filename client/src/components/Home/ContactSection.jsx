@@ -1,81 +1,89 @@
-import { useState } from "react";
-import bgImage from "../../assets/others/formbg.png"; // Import your image
+import React from "react";
 
-const testimonials = [
-  {
-    name: "Ramesh",
-    role: "Co-founder of Forpeople",
-    image: "https://randomuser.me/api/portraits/men/1.jpg",
-  },
-  {
-    name: "Gokul Sahaya",
-    role: "Design director of Perfect Illustration",
-    image: "https://randomuser.me/api/portraits/men/2.jpg",
-  },
-  {
-    name: "Abhay",
-    role: "Sr. Designer",
-    image: "https://randomuser.me/api/portraits/men/3.jpg",
-  },
-];
-
-export default function TestimonialSection() {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const nextTestimonial = () => {
-    setActiveIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-  };
-
+export default function ContactSection() {
   return (
-    <section
-      className="relative px-12 py-0 my-0 rounded-3xl mx-auto max-w-5xl text-center min-h-screen flex items-center justify-center
-      bg-center bg-contain bg-no-repeat"
-      style={{ backgroundImage: `url(${bgImage})` }} // Ensures full background image
-    >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-white bg-opacity-60 rounded-3xl"></div>
+    <section className="p-8 bg-gray-50">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Side: Contact Form and Information */}
+        <div>
+          {/* Section Title */}
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Get in Touch</h2>
+          <p className="text-gray-600 mb-6">
+            Enim tempor eget pharetra facilisis sed maceenas adipiscing. Eu leo molestie vel, ornare non id blandit netus.
+          </p>
 
-      <div className="relative z-10">
-        {/* Title and Description */}
-        <h2 className="text-sm text-gray-500 uppercase">Our Client</h2>
-        <h3 className="text-3xl font-bold text-gray-900 mt-1">Testimonial</h3>
-        <p className="text-gray-600 mt-3 text-sm max-w-lg mx-auto">
-        When applied to building block a website or similar work product, a Visual Guide can be an intermediate step toward the end goal of a complete website. By creating a visual guide along the way, the designer or developer can get input from the other people involved in the website such as the customer, their manager, and other members of the team.
-        </p>
-
-        {/* Testimonials */}
-        <div className="mt-8 flex overflow-hidden justify-center gap-4">
-          {testimonials.map((testimonial, index) => (
-            <div
-              key={index}
-              className={`transition-all duration-500 p-4 rounded-xl bg-gray-100 flex items-center gap-4 w-64 ${
-                activeIndex === index ? "scale-105 shadow-md" : "opacity-60"
-              }`}
-            >
-              <img src={testimonial.image} alt={testimonial.name} className="w-12 h-12 rounded-full object-cover" />
-              <div>
-                <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
-                <p className="text-sm text-red-500">{testimonial.role}</p>
-              </div>
+          {/* Contact Form */}
+          <form className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Name *</label>
+              <input
+                type="text"
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                required
+              />
             </div>
-          ))}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Phone number *</label>
+              <input
+                type="tel"
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">How did you find us?</label>
+              <input
+                type="text"
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              SEND
+            </button>
+          </form>
+
+          {/* Contact Information */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <div>
+              <h3 className="text-sm font-medium text-gray-700">PHONE</h3>
+              <p className="text-gray-600">03 5432 1234</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-700">FAX</h3>
+              <p className="text-gray-600">03 5432 1234</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-700">EMAIL</h3>
+              <p className="text-gray-600">info@marcc.com.au</p>
+            </div>
+          </div>
         </div>
 
-        {/* Progress Indicator */}
-        <div className="relative mt-6 w-full h-1 bg-gray-300 rounded-full">
-          <div
-            className="absolute top-0 left-0 h-1 bg-red-500 rounded-full transition-all duration-500"
-            style={{ width: `${((activeIndex + 1) / testimonials.length) * 100}%` }}
-          ></div>
+        {/* Right Side: Map */}
+        <div className="h-full">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Our Locations</h3>
+          <div className="rounded-lg overflow-hidden shadow-lg">
+            <iframe
+              title="Google Map"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.8354345093747!2d144.9537353153166!3d-37.816279742021665!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf577d6a32f7f1f8e!2sMelbourne%20VIC%2C%20Australia!5e0!3m2!1sen!2sus!4v1633033226785!5m2!1sen!2sus"
+              width="100%"
+              height="450"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+            ></iframe>
+          </div>
         </div>
-
-        {/* Auto-scroll (simulating slider behavior) */}
-        <button
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-red-500 text-white p-2 rounded-full"
-          onClick={nextTestimonial}
-        >
-          ➜
-        </button>
       </div>
     </section>
   );
