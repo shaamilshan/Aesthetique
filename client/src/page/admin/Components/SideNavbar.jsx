@@ -59,21 +59,21 @@ const SideNavbar = () => {
           <BsCreditCard />
           Payments
         </NavLink>
-        <p className="side-nav-sub-title">User Management</p>
-        {user && user.role === "superAdmin" && (
+        {/* <p className="side-nav-sub-title">User Management</p> */}
+        {/* {user && user.role === "superAdmin" && (
           <NavLink className="side-nav-link-sp" to="manageAdmins">
             <FaUsersCog />
             Manage Admins
           </NavLink>
-        )}
-        <NavLink className="side-nav-link-sp" to="managers">
+        )} */}
+        {/* <NavLink className="side-nav-link-sp" to="managers">
           <FaUsers />
           Managers
-        </NavLink>
-        <NavLink className="side-nav-link-sp" to="customers">
+        </NavLink> */}
+        {/* <NavLink className="side-nav-link-sp" to="customers">
           <FaUsers />
           Customers
-        </NavLink>
+        </NavLink> */}
         {/* <p className="side-nav-sub-title">Other</p> */}
         {/* <NavLink className="side-nav-link-sp" to="settings">
           <FiSettings />
