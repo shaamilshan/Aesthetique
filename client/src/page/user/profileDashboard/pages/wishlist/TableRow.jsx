@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { deleteOneProductFromWishlist } from "../../../../../redux/actions/user/wishlistActions";
 import { useDispatch } from "react-redux";
 import JustLoading from "../../../../../components/JustLoading";
+import { ShoppingCart } from "lucide-react";
 
 const TableRow = ({ item }) => {
   const dispatch = useDispatch();
@@ -72,7 +73,7 @@ const TableRow = ({ item }) => {
           {cartLoading ? (
             <JustLoading size={5} />
           ) : (
-            <FaCartPlus
+            <ShoppingCart
               className="hover:text-gray-700 cursor-pointer"
               onClick={() => {
                 addToCart(item.product._id);

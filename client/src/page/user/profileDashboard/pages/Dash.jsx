@@ -98,9 +98,9 @@ const Dash = () => {
               </h1>
               <div className="p-5">
                 <div className="flex gap-2 items-center pb-3">
-                  <div className="h-12 w-12 shrink-0">
+                  {/* <div className="h-12 w-12 shrink-0">
                     <ProfileImage user={user} />
-                  </div>
+                  </div> */}
                   <p className="font-semibold">
                     {user.firstName} {user.lastName}
                   </p>
