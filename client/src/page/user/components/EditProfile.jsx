@@ -137,7 +137,7 @@ const EditProfile = ({ closeToggle }) => {
         {({ values, setFieldValue }) => (
           <Form className="lg:flex items-start gap-5 p-5">
             <div>
-              {values.profileImgURL &&
+              {/* {values.profileImgURL &&
               typeof values.profileImgURL === "string" ? (
                 <div className="bg-gray-100 py-5 rounded-lg text-center h-80">
                   <div className="h-56 w-56">
@@ -164,7 +164,7 @@ const EditProfile = ({ closeToggle }) => {
                     setFieldValue("profileImgURL", file);
                   }}
                 />
-              )}
+              )} */}
               <ErrorMessage
                 className="text-sm text-red-500"
                 name="profileImgURL"
