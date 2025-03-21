@@ -25,10 +25,10 @@ const DashSideNavbar = () => {
 
   return (
     <div className="sm:w-1/5 bg-white h-fit shrink-0 rounded lg:block">
-      <NavLink className="side-nav-link-sp" to="/dashboard/">
+      {/* <NavLink className="side-nav-link-sp" to="/dashboard/">
         <RiDashboardLine />
         Dashboard
-      </NavLink>
+      </NavLink> */}
       <NavLink className="side-nav-link-sp" to="profile">
         <BiUser />
         Account Details

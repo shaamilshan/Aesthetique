@@ -29,7 +29,7 @@ const WishList = () => {
           <h1 className="uppercase text-lg font-semibold py-3 ">Wishlist</h1>
           <button
             onClick={clearWishlist}
-            className="flex items-center bg-gray-100 px-2 py-1 rounded hover:bg-gray-300 gap-2"
+            className="flex items-center  px-2 py-1 rounded hover:border gap-2"
           >
             Clear Wishlist <BiTrashAlt />
           </button>

@@ -51,13 +51,13 @@ const OurProducts = ({id}) => {
       )}
 
       <div className="flex justify-center mt-10">
-        <div
+        {/* <div
           onClick={() => navigate(`/collections`)}
           className="flex items-center bg-[#C84332] py-3 px-4 rounded-md text-white hover:text-gray-200 cursor-pointer"
         >
           View all
           <ChevronRight className="h-5 w-5 ml-1" />
-        </div>
+        </div> */}
       </div>
     </div>
   );
