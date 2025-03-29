@@ -318,7 +318,7 @@ const DescReview = ({ product: initialProduct, id }) => {
                           className="text-red-500 hover:text-red-700 text-sm transition-colors p-1"
                         >
                           {isDeleting ? (
-                            "Deleting..."
+                            "Deleting..." 
                           ) : (
                             <HiTrash className="w-5 h-5" />
                           )}

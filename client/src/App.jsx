@@ -98,7 +98,6 @@ function App() {
     if (!user) {
       dispatch(getUserDataFirst());
     }
-    console.log(user);
   }, [dispatch, user]);
 
   const ProtectedRoute = ({ element }) => {
