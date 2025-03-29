@@ -142,11 +142,10 @@ router.delete("/wishlist-delete-item/:productId", deleteOneProductFromWishlist);
 router.get("/coupons", getCoupons);
 router.post("/coupon-apply", applyCoupon);
 router.get("/coupon-remove", removeCoupon);
-
 // Reviews
 router.get("/reviews/:id", readProductReviews);
 router.get("/review/:id", readProductReview);
-router.post("/review", createNewReview);
+router.post("/review/:id", createNewReview);
 router.delete("/review/:id", deleteReview);
 router.patch("/review/:id", editReview);
 // Review on order details page
