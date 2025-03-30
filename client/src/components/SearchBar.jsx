@@ -17,12 +17,12 @@ const SearchBar = ({ handleClick, search, setSearch, placeholder, label }) => {
 
       {/* Search bar */}
       <form
-        className="flex items-center bg-gray-200 py-2 px-4 rounded-lg border border-gray-300 flex-grow"
+        className="flex items-center bg-white py-2 px-4 rounded-lg border border-gray-300 flex-grow"
         onSubmit={(e) => handleSubmit(e)}
       >
         <input
           type="text"
-          className="outline-none w-full bg-gray-200 rounded px-2 py-1 placeholder-gray-500 text-gray-800"
+          className="outline-none w-full rounded px-2 py-1 placeholder-gray-500 text-gray-800"
           placeholder={placeholder || "Search for Products..."}
           value={search}
           onChange={(e) => {

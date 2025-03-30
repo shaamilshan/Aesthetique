@@ -245,7 +245,7 @@ const Navbar = ({ usercheck }) => {
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
-            <img src={logo} alt="logo" className="h-8 w-32" />
+            <img src={logo} alt="logo" className="h-10 w-32" />
           </Link>
 
           {/* Desktop Navigation Links */}
@@ -275,8 +275,8 @@ const Navbar = ({ usercheck }) => {
           {/* Icons & Search Bar (Right Side) */}
           <div className="flex items-center gap-4 lg:gap-6">
             {/* Search Bar (Next to Wishlist) */}
-            <div className="relative hidden max-w-xs lg:block">
-              <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} />
+            <div className=" className='bg-white' relative hidden max-w-xs lg:block">
+              <SearchBar  handleClick={handleClick} search={search}  setSearch={setSearch} />
             </div>
 
             {/* Wishlist Icon */}

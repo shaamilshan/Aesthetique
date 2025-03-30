@@ -18,11 +18,13 @@ import ContactSection from "@/components/Home/ContactSection";
 
 export default function Home2() {
   return (
-    <>
+    <div>
+
+      <ImageSlider />
+    <div className="max-w-screen-2xl mx-auto px-4">
     {/* <CategorySection/> */}
     {/* <ShopCatogories /> */}
     {/* <Marquee/> */}
-      <ImageSlider />
       {/* <LogoSlider /> */}
       {/* <NewArrivals /> */}
       <AboutUs id="about"/>
@@ -35,6 +37,7 @@ export default function Home2() {
       {/* <BestSellers /> */}
       {/* <BannerSection/> */}
       {/* <ReviewSlider /> */}
-    </>
+    </div>
+    </div>
   );
 }
