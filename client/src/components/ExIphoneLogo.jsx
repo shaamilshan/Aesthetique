@@ -1,11 +1,11 @@
 import React from "react";
-import Logo from "../assets/logoGrey.png";
+import Logo from "../assets/others/Logo.svg";
 
 const ExIphoneLogo = () => {
   return (
     <>
-      {/* <img src={Logo} alt="Helah. logo" /> */}
-      <p>TrendKart</p>
+      <img src={Logo} alt="BM. logo" />
+      {/* <p>TrendKart</p> */}
     </>
   );
 };

@@ -95,7 +95,7 @@ const Products = () => {
           </div>
           <div className="flex gap-3">
             <button
-              className="admin-button-fl bg-blue-700 text-white"
+              className="admin-button-fl bg-[#A53030] text-white"
               onClick={() => navigate("add")}
             >
               <AiOutlinePlus />

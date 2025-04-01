@@ -26,11 +26,11 @@ const SideNavbar = () => {
 
   return (
     <>
-      <div className="w-7 flex items-center cursor-pointer opacity-70 hover:opacity-100">
+      <div className="w-14 mt-4 flex items-center cursor-pointer opacity-70 hover:opacity-100">
         <ExIphoneLogo />
       </div>
       <div className="text-gray-600 font-semibold mt-5">
-        <p className="side-nav-sub-title">Menu</p>
+        {/* <p className="side-nav-sub-title">Menu</p> */}
         <NavLink className="side-nav-link-sp" to="/admin/">
           <RiDashboardLine />
           Dashboard
@@ -59,7 +59,7 @@ const SideNavbar = () => {
           <BsCreditCard />
           Payments
         </NavLink>
-        <p className="side-nav-sub-title">User Management</p>
+        {/* <p className="side-nav-sub-title">User Management</p>
         {user && user.role === "superAdmin" && (
           <NavLink className="side-nav-link-sp" to="manageAdmins">
             <FaUsersCog />
@@ -73,7 +73,7 @@ const SideNavbar = () => {
         <NavLink className="side-nav-link-sp" to="customers">
           <FaUsers />
           Customers
-        </NavLink>
+        </NavLink> */}
         {/* <p className="side-nav-sub-title">Other</p> */}
         {/* <NavLink className="side-nav-link-sp" to="settings">
           <FiSettings />
