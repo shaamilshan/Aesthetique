@@ -6,9 +6,9 @@ function Footer() {
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start">
         <div className="ml-12 mb-6 md:mb-0">
           <h4 className="text-lg font-medium mb-4">BM AESTHETIQUE</h4>
-          <p className="text-sm">
+          {/* <p className="text-sm">
            Karassery Junction, Mukkam, Calicut, India 673602
-          </p>
+          </p> */}
         </div>
         <div className="ml-6 grid grid-cols-2 md:grid-cols-4 gap-6">
           <div>

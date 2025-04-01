@@ -11,7 +11,7 @@ const productsSchema = new Schema(
     },
     managerId: {
       type: String,
-      required: [true, "Manager ID is required"],
+      required: [false, "Manager ID is required"],
     },
     description: {
       type: String,
