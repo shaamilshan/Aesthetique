@@ -82,7 +82,7 @@ const ProductCard2 = ({ product }) => {
   };
 
   return (
-    <div
+    <div data-aos="fade-left" 
       onClick={() => navigate(`/product/${product._id}`)}
       className="cursor-pointer space-y-3 bg-white p-8 rounded-lg "
     >

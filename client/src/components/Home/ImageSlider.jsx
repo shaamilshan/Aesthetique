@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import HomeImg from "../../assets/others/Homebanner.png";
 // import Image2 from "../../assets/trendskart/home/1Artboard 3_1.jpg";
 // import Image3 from "../../assets/trendskart/home/1Artboard 3_2.jpg";
@@ -9,7 +8,7 @@ import HomeImg from "../../assets/others/Homebanner.png";
 const images = [HomeImg /*, Image2, Image3*/];
 
 function ImageSlider() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0); 
   const totalImages = images.length;
 
   // Prevent auto-slide if only one image exists
@@ -36,7 +35,7 @@ function ImageSlider() {
   return (
     <div className="flex flex-col">
       <main>
-        <section className="relative bg-[#C84332] lg:h-[75vh] sm:h-[50vh] w-full overflow-hidden">
+        <section  className="relative bg-[#a43030] lg:h-[75vh] sm:h-[50vh] w-full overflow-hidden">
           <div className="relative h-full w-full">
             {/* Navigation Buttons */}
             {totalImages > 1 && (
@@ -73,7 +72,7 @@ function ImageSlider() {
                   <img
                     key={index}
                     alt={`Slide ${index}`}
-                    className="h-full w-full object-cover flex-shrink-0"
+                    className="h-full w-full object-contain flex-shrink-0"
                     src={image}
                     style={{ width: "100%" }}
                   />

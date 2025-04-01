@@ -30,16 +30,16 @@ const OurProducts = ({ id }) => {
   const loadMore = () => {
     setVisibleProducts((prev) => Math.min(prev + 4, shuffledProducts.length));
   };
-
-  return (
+  
+  return (  
     <section 
-      className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#A53030] to-[#8A2929]" 
-      data-aos="fade-up" 
+      className=" py-7 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#A53030] to-[#8A2929]" 
+      // data-aos="fade-up" 
       id={id}
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">
+          <h2 data-aos="fade-right"  className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">
             Our Products
             <div className="h-1 w-20 bg-[#FF9E80] mt-2 rounded-full"></div>
           </h2>

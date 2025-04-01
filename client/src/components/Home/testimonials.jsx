@@ -27,7 +27,7 @@ export default function TestimonialSection({id}) {
   };
 
   return (
-    <section
+    <section  
       className="relative px-12 py-0 my-0 rounded-3xl mx-auto max-w-5xl text-center min-h-screen flex items-center justify-center
       bg-center bg-contain bg-no-repeat"
       style={{ backgroundImage: `url(${bgImage})` }} // Ensures full background image
@@ -38,14 +38,14 @@ export default function TestimonialSection({id}) {
 
       <div className="relative z-10">
         {/* Title and Description */}
-        <h2 className="text-sm text-gray-500 uppercase">Our Client</h2>
-        <h3 className="text-3xl font-bold text-gray-900 mt-1">Testimonial</h3>
-        <p className="text-gray-600 mt-3 text-sm max-w-lg mx-auto">
+        <h2 data-aos="fade-up" className="text-sm text-gray-500 uppercase">Our Client</h2>
+        <h3 data-aos="fade-up" className="text-3xl font-bold text-gray-900 mt-1">Testimonial</h3>
+        <p data-aos="fade-up" className="text-gray-600 mt-3 text-sm max-w-lg mx-auto">
         When applied to building block a website or similar work product, a Visual Guide can be an intermediate step toward the end goal of a complete website. By creating a visual guide along the way, the designer or developer can get input from the other people involved in the website such as the customer, their manager, and other members of the team.
         </p>
 
         {/* Testimonials */}
-        <div className="mt-8 flex overflow-hidden justify-center gap-4">
+        <div data-aos="fade-up" className="mt-8 flex overflow-hidden justify-center gap-4">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
