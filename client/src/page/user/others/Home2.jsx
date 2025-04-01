@@ -19,25 +19,20 @@ import ContactSection from "@/components/Home/ContactSection";
 export default function Home2() {
   return (
     <div>
-
       <ImageSlider />
-    <div className="max-w-screen-2xl mx-auto px-4">
-    {/* <CategorySection/> */}
-    {/* <ShopCatogories /> */}
-    {/* <Marquee/> */}
-      {/* <LogoSlider /> */}
-      {/* <NewArrivals /> */}
-      <AboutUs id="about"/>
-      {/* <RedBanner/> */}
+
+      <div className="max-w-screen-2xl mx-auto px-4">
+        <AboutUs id="about"/>
+      </div>
+
+      {/* Full-width OurProducts section */}
       <OurProducts id="products" />
-     <CounterStats/>
-     <TestimonialSection id="testimonials"/>
-     <ContactSection id="contact"/>
-      {/* <CategoriesGroup /> */}
-      {/* <BestSellers /> */}
-      {/* <BannerSection/> */}
-      {/* <ReviewSlider /> */}
-    </div>
+
+      <div className="max-w-screen-2xl mx-auto px-4">
+        <CounterStats/>
+        <TestimonialSection id="testimonials"/>
+        <ContactSection id="contact"/>
+      </div>
     </div>
   );
 }

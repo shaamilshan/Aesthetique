@@ -5,15 +5,15 @@ export default function ContactSection({id}) {
     <section className="p-8 bg-gray-50" id={id} >
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Side: Contact Form and Information */}
-        <div>
+        <div >
           {/* Section Title */}
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Get in Touch</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 data-aos="fade-up"  className="text-2xl font-bold text-gray-800 mb-4">Get in Touch</h2>
+          <p data-aos="fade-up" className="text-gray-600 mb-6">
             Enim tempor eget pharetra facilisis sed maceenas adipiscing. Eu leo molestie vel, ornare non id blandit netus.
           </p>
 
           {/* Contact Form */}
-          <form className="space-y-4">
+          <form data-aos="fade-up" className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Name *</label>
               <input
@@ -70,9 +70,9 @@ export default function ContactSection({id}) {
         </div>
 
         {/* Right Side: Map */}
-        <div className="h-full">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Our Locations</h3>
-          <div className="rounded-lg overflow-hidden shadow-lg">
+        <div    className="h-full">
+          <h3 data-aos="fade-up" className="text-lg font-bold text-gray-800 mb-4">Our Locations</h3>
+          <div data-aos="fade-up" className="rounded-lg overflow-hidden shadow-lg">
             <iframe
               title="Google Map"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.8354345093747!2d144.9537353153166!3d-37.816279742021665!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf577d6a32f7f1f8e!2sMelbourne%20VIC%2C%20Australia!5e0!3m2!1sen!2sus!4v1633033226785!5m2!1sen!2sus"
