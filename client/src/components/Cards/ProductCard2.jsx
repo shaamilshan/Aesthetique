@@ -102,16 +102,16 @@ const ProductCard2 = ({ product }) => {
             "no To Popular Belief, Lorem Ipsum Is Not Simply Random Text."}
         </p>
         <div className="flex items-center gap-[6px]">
-          <span className="text-[11px] sm:text-[12px] lg:text-[18px] font-semibold line-through">
-            {product.offer && (
-              <>
-                {product.offer} {/* ₹{originalPrice.toLocaleString()} */}
-              </>
-            )}
-          </span>
-          {product.offer && (
+          {/* <span className="text-[11px] sm:text-[12px] lg:text-[18px] font-semibold line-through"> */}
+            {/* {product.offer && ( */}
+              {/* <> */}
+                {/* {product.offer} ₹{originalPrice.toLocaleString()} */}
+              {/* </> */}
+            {/* )} */}
+          {/* </span> */}
+          {/* {product.offer && (
             <span className="text-[11px] sm:text-[12px] lg:text-[18px] text-gray-500">From</span>
-          )}
+          )} */}
           <span className="text-[11px] sm:text-[12px] lg:text-[18px] font-semibold text-red-500">
             ₹{product.price.toLocaleString()}
           </span>
