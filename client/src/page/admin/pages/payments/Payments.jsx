@@ -89,7 +89,7 @@ const Payments = () => {
             <BreadCrumbs list={["Dashboard", "Payments"]} />
           </div>
           <div className="flex gap-3">
-            <button className="admin-button-fl bg-gray-200 text-blue-700">
+            <button className="admin-button-fl bg-gray-200 text-[#A53030]">
               <FiDownload />
               Export
             </button>

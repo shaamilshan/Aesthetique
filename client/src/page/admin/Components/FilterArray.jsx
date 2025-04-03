@@ -18,7 +18,7 @@ const FilterArray = ({ list, handleClick }) => {
           key={status}
           className={
             activeStatusFilter === status
-              ? "bg-gray-100 rounded px-2 py-1 text-blue-600 cursor-pointer"
+              ? "bg-gray-100 rounded px-2 py-1 text-[#A53030] cursor-pointer"
               : "admin-status"
           }
           onClick={() => {

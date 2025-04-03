@@ -37,7 +37,7 @@ const MostSoldChart = ({ numberOfDates }) => {
             {
               label: "Most Sold Items",
               data: data,
-              backgroundColor: "#3B82F6",
+              backgroundColor: "#A53030",
               borderRadius: 10,
               barThickness: 15,
             },

@@ -29,7 +29,7 @@ const ReturnRequestsButtonInOrders = () => {
         </div>
       )}
       <button
-        className="admin-button-fl bg-blue-700 text-white"
+        className="admin-button-fl bg-[#A53030] text-white"
         onClick={() => navigate("return-requests")}
       >
         <HiOutlineReceiptRefund />

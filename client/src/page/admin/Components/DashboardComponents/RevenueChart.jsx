@@ -45,7 +45,7 @@ const RevenueChart = ({ numberOfDates }) => {
             {
               label: "Revenue",
               data: data,
-              backgroundColor: "#3B82F6",
+              backgroundColor: "#A53030",
               borderRadius: 3,
             },
             {
