@@ -13,11 +13,11 @@ import { BiUser, BiHistory } from "react-icons/bi";
 import { GiMailbox } from "react-icons/gi";
 import { useDispatch } from "react-redux";
 import { FiSettings } from "react-icons/fi";
-import { clearUserState } from "@/redux/reducers/userSlice";
 
 const DashSideNavbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
@@ -25,10 +25,20 @@ const DashSideNavbar = () => {
 
   return (
     <div className="sm:w-1/5 bg-white h-fit shrink-0 rounded lg:block">
-      <NavLink className="side-nav-link-sp" to="/dashboard/">
+      {/* Dashboard NavLink - `end` prevents staying active on sub-routes */}
+      <NavLink
+        to="/dashboard/"
+        end
+        className={({ isActive }) =>
+          `side-nav-link-sp ${
+            isActive ? "text-[#A53030] font-semibold bg-gray-200" : ""
+          }`
+        }
+      >
         <RiDashboardLine />
         Dashboard
       </NavLink>
+
       <NavLink className="side-nav-link-sp" to="profile">
         <BiUser />
         Account Details
@@ -63,7 +73,7 @@ const DashSideNavbar = () => {
       </NavLink> */}
       <button className="side-nav-link-sp w-full" onClick={handleLogout}>
         <AiOutlineLogout />
-        Logout 
+        Logout
       </button>
     </div>
   );

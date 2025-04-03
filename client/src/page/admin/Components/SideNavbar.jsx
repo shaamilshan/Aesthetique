@@ -1,7 +1,6 @@
 import React from "react";
 import ExIphoneLogo from "../../../components/ExIphoneLogo";
 import { NavLink, useNavigate } from "react-router-dom";
-
 import { RiDashboardLine } from "react-icons/ri";
 import { FiBox, FiSettings, FiHelpCircle, FiLogOut } from "react-icons/fi";
 import { ImStack } from "react-icons/im";
@@ -15,7 +14,6 @@ import { clearUserState } from "@/redux/reducers/userSlice";
 
 const SideNavbar = () => {
   const { user } = useSelector((state) => state.user);
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -30,61 +28,70 @@ const SideNavbar = () => {
         <ExIphoneLogo />
       </div>
       <div className="text-gray-600 font-semibold mt-5">
-        {/* <p className="side-nav-sub-title">Menu</p> */}
-        <NavLink className="side-nav-link-sp" to="/admin/">
-          <RiDashboardLine />
-          Dashboard
-        </NavLink>
-        <NavLink className="side-nav-link-sp" to="products">
+      <NavLink
+  to="/admin/"
+  end
+  className={({ isActive }) =>
+    `flex px-3 py-2 rounded items-center gap-4 hover:bg-gray-300 hover:text-[#A53030] ${
+      isActive ? "bg-gray-200 text-[#A53030] font-semibold" : "text-black"
+    }`
+  }
+>
+  <RiDashboardLine />
+  Dashboard
+</NavLink>
+
+
+        <NavLink
+          to="/admin/products"
+          className={({ isActive }) =>
+            `flex px-3 py-2 rounded items-center gap-4 hover:bg-gray-300 hover:text-[#A53030] ${
+              isActive ? "bg-gray-200 text-[#A53030] font-semibold" : "text-black"
+            }`
+          }
+        >
           <FiBox />
           Products
         </NavLink>
-        <NavLink className="side-nav-link-sp" to="categories">
+
+        <NavLink
+          to="/admin/categories"
+          className={({ isActive }) =>
+            `flex px-3 py-2 rounded items-center gap-4 hover:bg-gray-300 hover:text-[#A53030] ${
+              isActive ? "bg-gray-200 text-[#A53030] font-semibold" : "text-black"
+            }`
+          }
+        >
           <ImStack />
           Category
         </NavLink>
-        <NavLink className="side-nav-link-sp" to="orders">
+
+        <NavLink
+          to="/admin/orders"
+          className={({ isActive }) =>
+            `flex px-3 py-2 rounded items-center gap-4 hover:bg-gray-300 hover:text-[#A53030] ${
+              isActive ? "bg-gray-200 text-[#A53030] font-semibold" : "text-black"
+            }`
+          }
+        >
           <BsCardChecklist />
           Orders
         </NavLink>
-        {/* <NavLink className="side-nav-link-sp" to="coupon">
-          <HiOutlineTicket />
-          Coupon
-        </NavLink> */}
-        {/* <NavLink className="side-nav-link-sp" to="banner">
-          <AiOutlineTags />
-          Banner
-        </NavLink> */}
-        <NavLink className="side-nav-link-sp" to="payments">
+
+        <NavLink
+          to="/admin/payments"
+          className={({ isActive }) =>
+            `flex px-3 py-2 rounded items-center gap-4 hover:bg-gray-300 hover:text-[#A53030] ${
+              isActive ? "bg-gray-200 text-[#A53030] font-semibold" : "text-black"
+            }`
+          }
+        >
           <BsCreditCard />
           Payments
         </NavLink>
-        {/* <p className="side-nav-sub-title">User Management</p>
-        {user && user.role === "superAdmin" && (
-          <NavLink className="side-nav-link-sp" to="manageAdmins">
-            <FaUsersCog />
-            Manage Admins
-          </NavLink>
-        )}
-        <NavLink className="side-nav-link-sp" to="managers">
-          <FaUsers />
-          Managers
-        </NavLink>
-        <NavLink className="side-nav-link-sp" to="customers">
-          <FaUsers />
-          Customers
-        </NavLink> */}
-        {/* <p className="side-nav-sub-title">Other</p> */}
-        {/* <NavLink className="side-nav-link-sp" to="settings">
-          <FiSettings />
-          Settings
-        </NavLink> */}
-        {/* <NavLink className="side-nav-link-sp" to="help">
-          <FiHelpCircle />
-          Help
-        </NavLink> */}
+
         <button
-          className="side-nav-link-sp cursor-pointer w-full"
+          className="flex px-3 py-2 rounded items-center gap-4 hover:bg-gray-200 hover:text-[#A53030] w-full"
           onClick={handleLogout}
         >
           <FiLogOut />

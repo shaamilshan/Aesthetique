@@ -164,7 +164,7 @@ scrollbar-width: none; /* or 'thin' or 'auto' */
   }
   
   .side-nav-link-sp {
-    @apply flex px-3 py-2 rounded items-center gap-4 active:bg-gray-200 active:text-[#A53030] hover:text-[#A53030] hover:bg-gray-300;
+    @apply flex px-3 py-2 rounded items-center gap-4 active:bg-gray-200 active:text-[#A53030] hover:text-[#A53030] hover:bg-gray-200;
   }
   
   .side-nav-sub-title {
