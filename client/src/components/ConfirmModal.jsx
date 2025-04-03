@@ -7,13 +7,13 @@ const ConfirmModal = ({ title, positiveAction, negativeAction }) => {
         <h1>{title}</h1>
         <div className="flex gap-5 mt-5">
           <button
-            className="admin-button-fl bg-gray-200 text-blue-700"
+            className="admin-button-fl bg-gray-200 text-[#A53030]"
             onClick={negativeAction}
           >
             Cancel
           </button>
           <button
-            className="admin-button-fl bg-blue-700 text-white"
+            className="admin-button-fl bg-[#A53030] text-white"
             onClick={positiveAction}
           >
             Yes

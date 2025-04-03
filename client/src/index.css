@@ -217,7 +217,7 @@ scrollbar-width: none; /* or 'thin' or 'auto' */
   /* Admin Page */
   
   .admin-button-fl {
-    @apply flex items-center gap-2 p-2 rounded-lg;
+    @apply flex items-center gap-2 py-2 px-6 rounded-lg;
   }
   
   .admin-status {
