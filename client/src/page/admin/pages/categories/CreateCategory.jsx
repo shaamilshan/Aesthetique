@@ -71,7 +71,7 @@ const CreateCategories = () => {
           <div className="flex gap-3">
             <button
               type="button"
-              className="admin-button-fl bg-gray-200 text-blue-700"
+              className="admin-button-fl bg-gray-200 text-[#A53030]"
               onClick={() => navigate(-1)}
             >
               <AiOutlineClose />
@@ -79,7 +79,7 @@ const CreateCategories = () => {
             </button>
             <button
               type="submit"
-              className="admin-button-fl bg-blue-700 text-white"
+              className="admin-button-fl bg-[#A53030] text-white"
               onClick={() => {
                 formikRef.current.submitForm();
               }}

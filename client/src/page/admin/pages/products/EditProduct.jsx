@@ -218,14 +218,14 @@ const EditProduct = () => {
           </div>
           <div className="flex gap-3">
             <button
-              className="admin-button-fl bg-gray-200 text-blue-700"
+              className="admin-button-fl bg-gray-200 text-[#A53030]"
               onClick={() => navigate(-1)}
             >
               <AiOutlineClose />
               Cancel
             </button>
             <button
-              className="admin-button-fl bg-blue-700 text-white"
+              className="admin-button-fl bg-[#A53030] text-white"
               onClick={toggleConfirm}
             >
               <AiOutlineSave />
@@ -250,7 +250,7 @@ const EditProduct = () => {
                       />
                     </div>
                     <button
-                      className="mt-4 bg-red-500 text-white font-bold py-2 px-4 rounded"
+                      className="mt-4 bg-[#A53030] text-white font-bold py-2 px-4 rounded"
                       onClick={() =>
                         setFetchedData({
                           ...fetchedData,
@@ -323,7 +323,7 @@ const EditProduct = () => {
                     ))}
                   </div>
                   <button
-                    className="mt-4 bg-red-500 text-white font-bold py-2 px-4 rounded"
+                    className="mt-4 bg-[#A53030] text-white font-bold py-2 px-4 rounded"
                     onClick={() =>
                       setFetchedData({
                         ...fetchedData,
@@ -394,7 +394,7 @@ const EditProduct = () => {
                 </div>
                 <input
                   type="submit"
-                  className="admin-button-fl w-full lg:w-auto bg-blue-700 text-white cursor-pointer"
+                  className="admin-button-fl w-full lg:w-auto bg-[#A53030] text-white cursor-pointer"
                   value="Add"
                 />
               </form>
