@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import HomeImg from "../../assets/others/Homebanner.png";
-// import Image2 from "../../assets/trendskart/home/1Artboard 3_1.jpg";
+import HomeImg from "../../assets/others/main-bg.jpg";
+import Image2 from "../../assets/others/main-bg2.jpg";
 // import Image3 from "../../assets/trendskart/home/1Artboard 3_2.jpg";
 
-const images = [HomeImg /*, Image2, Image3*/];
+const images = [HomeImg , Image2,/* Image3*/];
 
 function ImageSlider() {
   const [currentIndex, setCurrentIndex] = useState(0); 
@@ -35,13 +35,13 @@ function ImageSlider() {
   return (
     <div className="flex flex-col">
       <main>
-        <section  className="relative bg-[#a43030] lg:h-[75vh] sm:h-[50vh] w-full overflow-hidden">
+        <section  className="relative bg-[#a43030] lg:h-[75vh] sm:h-[50vh] w-full overflow-hidden items-center justify-center">
           <div className="relative h-full w-full">
             {/* Navigation Buttons */}
             {totalImages > 1 && (
               <>
                 <Button
-                  className="absolute left-5 top-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-transform hover:scale-110 opacity-70"
+                  className="absolute z-10 left-5 top-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-transform hover:scale-110 opacity-70"
                   size="icon"
                   variant="ghost"
                   onClick={handlePrev}
@@ -49,7 +49,7 @@ function ImageSlider() {
                   <ChevronLeft className="h-8 w-8 text-black" />
                 </Button>
                 <Button
-                  className="absolute right-5 top-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-transform hover:scale-110 opacity-70"
+                  className="absolute z-10 right-5 top-1/2 -translate-y-1/2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-transform hover:scale-110 opacity-70"
                   size="icon"
                   variant="ghost"
                   onClick={handleNext}
@@ -62,19 +62,19 @@ function ImageSlider() {
             {/* Sliding Image Container */}
             <div className="h-full w-full overflow-hidden">
               <div
-                className="flex h-full w-full transition-transform duration-500 ease-in-out"
+                className="flex h-full w-full transition-transform duration-500 ease-in-out whitespace-nowrap"
                 style={{
                   transform: `translateX(-${currentIndex * 100}%)`,
-                  width: `${totalImages * 100}%`,
+                  // width: `${totalImages * 100}%`,
                 }}
               >
                 {images.map((image, index) => (
                   <img
                     key={index}
                     alt={`Slide ${index}`}
-                    className="h-full w-full object-contain flex-shrink-0"
+                    className="h-full w-full object-cover flex-shrink-0"
                     src={image}
-                    style={{ width: "100%" }}
+                    style={{ maxWidth: "100%", height: "auto", objectFit: "" }}
                   />
                 ))}
               </div>
