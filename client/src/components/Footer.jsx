@@ -2,7 +2,7 @@ import React from 'react';
 
 function Footer() {
   return (
-    <footer className="bg-[#C84332] text-white py-8">
+    <footer className="bg-[#A53030] text-white py-8">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start">
         <div className="ml-12 mb-6 md:mb-0">
           <h4 className="text-lg font-medium mb-4">BM AESTHETIQUE</h4>

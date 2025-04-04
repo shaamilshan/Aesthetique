@@ -9,7 +9,7 @@ export default function ContactSection({id}) {
           {/* Section Title */}
           <h2 data-aos="fade-up"  className="text-2xl font-bold text-gray-800 mb-4">Get in Touch</h2>
           <p data-aos="fade-up" className="text-gray-600 mb-6">
-            Enim tempor eget pharetra facilisis sed maceenas adipiscing. Eu leo molestie vel, ornare non id blandit netus.
+          Feel free to get in touch if you have any questions or need assistance!
           </p>
 
           {/* Contact Form */}
@@ -46,7 +46,7 @@ export default function ContactSection({id}) {
             </div>
             <button
               type="submit"
-              className="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full bg-[#A53030] text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               SEND
             </button>
