@@ -375,7 +375,6 @@ const Collections = () => {
                     )}
                   </div>
                 )}
-
                 {/* Pagination */}
                 <div className="flex justify-center items-center my-6">
                   <button
