@@ -380,7 +380,7 @@ const SingleProduct = () => {
   return (
     <div className="max-w-screen-2xl mx-auto px-4 flex flex-col justify-start items-center">
       {/* Fixed bottom panel for mobile devices */}
-      {isMobile && (
+      {/* {isMobile && (
         <div className="fixed-bottom-panel">
           <button
             className="buy-now-btn"
@@ -400,7 +400,7 @@ const SingleProduct = () => {
             {copied ? "Link Copied!" : "Share"}
           </button>
         </div>
-      )}
+      )} */}
 
       {/* Breadcrumb navigation */}
       <div className="container w-full flex my-3 sm:my-6 px-2">
@@ -674,7 +674,7 @@ const SingleProduct = () => {
               <JustLoading size={10} />
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {filteredProducts && filteredProducts.length > 0 ? (
                 filteredProducts
                   .slice(0, 4)
