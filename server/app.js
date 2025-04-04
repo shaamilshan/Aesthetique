@@ -16,7 +16,7 @@ app.use(logger("dev"));
 // Setting up CORS
 const allowedOrigins = [
   "http://localhost:5173",
- " https://aesthetique.vercel.app",
+ "https://aesthetique.vercel.app",
 ];
 
 const corsOptions = {
