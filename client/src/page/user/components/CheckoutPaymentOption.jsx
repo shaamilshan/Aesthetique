@@ -39,7 +39,7 @@ const CheckoutPaymentOption = ({
             />
           </div>
         </label>
-        <label className="cursor-pointer" htmlFor="razorPay">
+        {/* <label className="cursor-pointer" htmlFor="razorPay">
           <div className="border-r px-5 flex flex-col items-center">
             <div className="w-10 h-10">
               <img
@@ -58,7 +58,7 @@ const CheckoutPaymentOption = ({
               checked={selectedPayment === "razorPay"}
             />
           </div>
-        </label>
+        </label> */}
         {/* <label className="cursor-pointer" htmlFor="myWallet">
           <div className="flex items-center">
             <div className="px-5 flex flex-col items-center">
