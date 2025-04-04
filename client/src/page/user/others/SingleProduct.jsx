@@ -262,21 +262,61 @@ const SingleProduct = () => {
     }
   };
   
-  const buyNow = () => {
+  const buyNow = async () => {
     if (!user) {
       window.scrollTo({ top: 0, behavior: "smooth" });
       navigate("/login");
       return;
     }
-    
+  
     if (!validateAttributesSelection()) {
       toast.error("Please select all required options");
       return;
     }
   
-    navigate("/cart");
+    setCartLoading(true);
+    try {
+      // Fetch cart items
+      const response = await axios.get(`${URL}/user/cart`, {
+        ...config,
+        withCredentials: true,
+      });
+  
+      const cartItems = response.data?.cart?.items || [];
+  
+      if (!Array.isArray(cartItems)) {
+        throw new Error("Invalid cart data structure");
+      }
+  
+      // Check if the product with the same attributes is already in the cart
+      const isProductInCart = cartItems.some((item) => 
+        item.product?._id === id && 
+        JSON.stringify(Object.entries(item.attributes || {}).sort()) === 
+        JSON.stringify(Object.entries(selectedAttributes).sort())
+      );
+  
+      if (isProductInCart) {
+        
+      } else {
+        await axios.post(
+          `${URL}/user/cart`,
+          {
+            product: id,
+            quantity: count,
+            attributes: selectedAttributes,
+          },
+          { ...config, withCredentials: true }
+        );
+        
+      }
+    } catch (error) {
+    } finally {
+      setCartLoading(false);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
+    navigate("/cart");
   };
+  
   
 
   const handleClick = (div) => {
