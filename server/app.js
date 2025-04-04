@@ -15,12 +15,8 @@ app.use(logger("dev"));
 
 // Setting up CORS
 const allowedOrigins = [
-  "https://www.trendkartonline.com",
-  "https://trendkartonline.com",
-  "https://trends-kart.vercel.app",
-  "https://trends-kart-production.vercel.app",
   "http://localhost:5173",
-  "https://ideal-lamp-74gr4wv97vv3p575-5173.app.github.dev",
+ " https://aesthetique.vercel.app",
 ];
 
 const corsOptions = {
