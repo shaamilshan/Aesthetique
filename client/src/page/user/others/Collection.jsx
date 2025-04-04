@@ -26,6 +26,7 @@ const Collections = () => {
   const [price, setPrice] = useState("");
   const [sort, setSort] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   useEffect(() => {
     window.scrollTo({
@@ -49,12 +50,28 @@ const Collections = () => {
   const [categories, setCategories] = useState([]);
 
   const loadCategories = async () => {
-    const { data } = await axios.get(`${URL}/user/categories`, config);
-    setCategories(data.categories);
-    console.log(data.categories);
+    try {
+      const { data } = await axios.get(`${URL}/user/categories`, config);
+      setCategories(data.categories);
+    } catch (error) {
+      console.error("Failed to load categories:", error);
+    }
   };
+  
   useEffect(() => {
     loadCategories();
+    
+    // Set filter visibility based on screen width
+    const handleResize = () => {
+      setIsFilterVisible(window.innerWidth >= 1024); // Show filter by default on >= lg screens
+    };
+    
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const handleClick = (param, value) => {
@@ -117,6 +134,11 @@ const Collections = () => {
     }
 
     setSearchParams(params.toString() ? "?" + params.toString() : "");
+    
+    // Auto-close modal after selection on mobile
+    if (window.innerWidth < 768) {
+      setIsModalOpen(false);
+    }
   };
 
   // Handle sub-item clicks
@@ -131,24 +153,22 @@ const Collections = () => {
     const params = new URLSearchParams(window.location.search);
     const pageNumber = params.get("page");
     setPage(parseInt(pageNumber || 1));
-  }, [searchParams]);
+  }, [searchParams, dispatch]);
 
   // Clear all filters
   const clearFilters = () => {
     const params = new URLSearchParams();
 
-    params.delete("category");
-    params.delete("price");
-    params.delete("search");
-    params.delete("sort");
-    params.delete("page");
-
     setSearchParams(params);
-
     setSearch("");
     setPrice("");
     setCategory([]);
     setPage(1);
+  };
+
+  // Mobile Filter toggle
+  const toggleFilters = () => {
+    setIsFilterVisible(!isFilterVisible);
   };
 
   // Modal component
@@ -163,41 +183,62 @@ const Collections = () => {
     if (!isOpen) return null;
 
     return (
-      <div className=" fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white w-full max-w-md p-4 rounded-lg">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl  font-semibold">Filter & Sort</h2>
-            <button onClick={onClose} className="text-gray-700">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-white w-full max-w-md p-4 rounded-lg max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-4 sticky top-0 bg-white pb-2 border-b">
+            <h2 className="text-xl font-semibold">Filter & Sort</h2>
+            <button 
+              onClick={onClose} 
+              className="text-white bg-gray-700 hover:bg-gray-800 px-3 py-1 rounded-md"
+            >
               Close
             </button>
           </div>
           <div className="space-y-4">
             <div className="mt-4 space-y-2">
-              <div className="flex items-center w-[300px] h-[60px] pl-4 bg-[#F2F2F2] rounded-[10px]">
+              <div className="flex items-center h-[50px] pl-4 bg-[#F2F2F2] rounded-[10px]">
                 <FilterIcon />
-                <h1 className="font-Inter text-[22px] ml-4">Filter</h1>
+                <h1 className="font-Inter text-lg sm:text-xl ml-4">Filter</h1>
               </div>
               <DropDown
                 title="price"
                 text="Price"
                 subItems={[
                   { name: "All Price", _id: "" },
-                  { name: "Under 25000", _id: "Under 25000" },
-                  { name: "25000-50000", _id: "25000-50000" },
-                  { name: "50000-100000", _id: "50000-100000" },
-                  { name: "Above 300000₹", _id: "Above 300000" },
+                  { name: "Under 2500", _id: "Under 2500" },
+                  { name: "2500-5000", _id: "2500-5000" },
+                  { name: "5000-10000", _id: "5000-10000" },
+                  { name: "Above 10000₹", _id: "Above 10000" },
                 ]}
                 onSubItemClick={handleSubItemClick}
               />
               <DropDownCheckbox
                 title="category"
-                text=" Type"
+                text="Type"
                 filters={category}
                 subItems={categories}
                 onSubItemClick={handleClick}
               />
+              
+              <div className="pt-4 border-t mt-4">
+                <SortButton handleClick={handleClick} sort={sort} />
+              </div>
+              
+              <div className="pt-4 flex justify-between">
+                <button 
+                  onClick={clearFilters}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Clear All
+                </button>
+                <button 
+                  onClick={onClose}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
-            {/* <SortButton handleClick={handleClick} sort={sort} /> */}
           </div>
         </div>
       </div>
@@ -206,23 +247,43 @@ const Collections = () => {
 
   return (
     <div className="w-full">
-      <div className="w-full px-2 md:px-10 lg:px-20 flex flex-col justify-center">
+      <div className="w-full px-2 sm:px-6 md:px-10 lg:px-20 flex flex-col justify-center">
         <div>
-          <div className="flex flex-col md:flex-row min-h-screen mt-10">
-            <aside className="w-full hidden lg:block md:w-80 bg-white overflow-y-auto py-6">
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center w-[300px] h-[60px] pl-4 bg-[#F2F2F2] rounded-[10px]">
+          <div className="flex flex-col md:flex-row min-h-screen mt-4 md:mt-6 lg:mt-10">
+            {/* Sidebar filter - desktop */}
+            <aside 
+              className={`
+                w-full lg:w-72 xl:w-80 bg-white overflow-y-auto 
+                transition-all duration-300 ease-in-out
+                ${isFilterVisible ? 'block' : 'hidden'} 
+                lg:block 
+                ${isFilterVisible && !isModalOpen ? 'fixed lg:static inset-0 z-40 p-4 bg-white' : ''}
+              `}
+            >
+              {isFilterVisible && !isModalOpen && window.innerWidth < 1024 && (
+                <div className="flex justify-between items-center mb-4 sticky top-0 bg-white pb-2 border-b">
+                  <h2 className="text-xl font-semibold">Filters</h2>
+                  <button 
+                    onClick={toggleFilters} 
+                    className="text-white bg-gray-700 hover:bg-gray-800 px-3 py-1 rounded-md"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+              
+              <div className="mt-4 space-y-4 px-2">
+                <div className="flex items-center h-[50px] pl-4 bg-[#F2F2F2] rounded-[10px]">
                   <FilterIcon />
-                  <h1 className="font-Inter text-[22px] ml-4">Filter</h1>
+                  <h1 className="font-Inter text-lg sm:text-xl ml-4">Filter</h1>
                 </div>
                 <DropDown
                   title="price"
                   text="Price"
-                  //change here filters
                   subItems={[
-                    { name: "All Price", _id: "" }, 
+                    { name: "All Price", _id: "" },
                     { name: "Under 2500", _id: "Under 2500" },
-                    { name: "25000-5000", _id: "2500-5000" },
+                    { name: "2500-5000", _id: "2500-5000" },
                     { name: "5000-10000", _id: "5000-10000" },
                     { name: "Above 10000₹", _id: "Above 10000" },
                   ]}
@@ -230,77 +291,110 @@ const Collections = () => {
                 />
                 <DropDownCheckbox
                   title="category"
-                  text=" Type"
+                  text="Category"
                   filters={category}
                   subItems={categories}
                   onSubItemClick={handleClick}
                 />
+                
+                {window.innerWidth < 1024 && (
+                  <div className="pt-4 flex justify-between">
+                    <button 
+                      onClick={clearFilters}
+                      className="px-4 py-2 bg-[#A53030] text-white rounded hover:bg-red-800"
+                    >
+                      Clear All
+                    </button>
+                    <button 
+                      onClick={toggleFilters}
+                      className="px-4 py-2 bg-[#A53030] text-white rounded hover:bg-red-800"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                )}
               </div>
             </aside>
 
+            {/* Main content area */}
             <main className="flex-1 overflow-y-auto">
-              <div className="md:p-5">
-                <div className="flex flex-col lg:flex-row gap-5 items-center justify-between">
-                  {/* <SearchBar
-                    handleClick={handleClick}
-                    search={search}
-                    setSearch={setSearch}
-                  /> */}
-                  <div className="flex items-center justify-between">
-                    <SortButton handleClick={handleClick} sort={sort} />
-                    <div
-                      className="mx-8 md:hidden"
-                      onClick={() => setIsModalOpen(true)}
+              <div className="p-2 sm:p-3 md:p-5">
+                {/* Top controls */}
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center">
+                    <button
+                      className="lg:hidden flex items-center justify-center p-2 bg-gray-100 rounded-md mr-3"
+                      onClick={toggleFilters}
                     >
                       <FilterIcon />
+                      <span className="ml-2">Filters</span>
+                    </button>
+                    <SortButton handleClick={handleClick} sort={sort} />
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={clearFilters}
+                      className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50"
+                    >
+                      Clear Filters
+                    </button>
+                    <div className="shrink-0 text-sm">
+                      <span className="hidden sm:inline">{userProducts?.length || 0}/{totalAvailableProducts || 0} Results</span>
+                      <span className="sm:hidden">{userProducts?.length || 0}/{totalAvailableProducts || 0}</span>
                     </div>
                   </div>
-                  <div className="shrink-0 hidden lg:block">
-                    {userProducts.length}/{totalAvailableProducts} Results
-                    Loaded
-                  </div>
                 </div>
+
+                {/* Products grid */}
                 {loading ? (
-                  <div className="flex justify-center items-center h-96">
+                  <div className="flex justify-center items-center h-64 sm:h-80 md:h-96">
                     <JustLoading size={10} />
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 py-5 m-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 py-3">
                     {userProducts && userProducts.length > 0 ? (
                       userProducts.map((pro, index) => (
-                       
                         <ProductCard2
                           star
-                          className="{w-[15%]}"
+                          className="w-full"
                           product={pro}
                           key={index}
                         />
                       ))
                     ) : (
-                      <div className="h-96 flex justify-center items-center">
+                      <div className="col-span-full h-48 sm:h-64 md:h-80 lg:h-96 flex flex-col justify-center items-center text-gray-500">
                         <p>No products found</p>
+                        <button 
+                          onClick={clearFilters}
+                          className="mt-4 px-4 py-2 bg-[#A53030] text-white rounded hover:bg-red-600"
+                        >
+                          Clear Filters
+                        </button>
                       </div>
                     )}
                   </div>
                 )}
-                <div className="flex justify-center items-center mb-5">
+
+                {/* Pagination */}
+                <div className="flex justify-center items-center my-6">
                   <button
-                    className={`px-4 py-2 border rounded ${
+                    className={`px-3 py-1 sm:px-4 sm:py-2 border rounded text-sm sm:text-base ${
                       page === 1
-                        ? "text-gray-400 border-gray-400 cursor-not-allowed"
-                        : "text-blue-600 border-blue-600"
+                        ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                        : "text-red-600 border-red-500 hover:bg-blue-50"
                     }`}
                     onClick={() => page > 1 && handleClick("page", page - 1)}
                     disabled={page === 1}
                   >
                     Previous
                   </button>
-                  <span className="mx-4">{page}</span>
+                  <span className="mx-3 sm:mx-4 text-sm sm:text-base">Page {page}</span>
                   <button
-                    className={`px-4 py-2 border rounded ${
+                    className={`px-3 py-1 sm:px-4 sm:py-2 border rounded text-sm sm:text-base ${
                       userProducts.length === 0
-                        ? "text-gray-400 border-gray-400 cursor-not-allowed"
-                        : "text-blue-600 border-blue-600"
+                        ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                        : "text-red-600 border-red-500 hover:bg-blue-50"
                     }`}
                     onClick={() =>
                       userProducts.length > 0 && handleClick("page", page + 1)
@@ -316,7 +410,7 @@ const Collections = () => {
         </div>
       </div>
 
-      {/* Modal for filter and sort options */}
+      {/* Modal for filter and sort options on mobile */}
       <FilterSortModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

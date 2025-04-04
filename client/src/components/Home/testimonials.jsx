@@ -137,7 +137,7 @@ export default function TestimonialSection({ id }) {
         <div className="flex justify-between mt-6">
           <button
             className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center transform transition-transform hover:scale-110"
-            onClick={prevTestimonial}
+            onClick={prevTestimonial} 
             aria-label="Previous testimonial"
           >
             <span className="transform rotate-180">➜</span>

@@ -139,7 +139,7 @@ const ProductCard2 = ({ product }) => {
               addToCart();
             }}
             disabled={loading}
-            className="bg-[#A53030] text-white text-sm px-12 py-2 rounded-md w-3/4 disabled:opacity-50"
+            className="bg-[#A53030] text-white text-sm px-3 py-2 rounded-md w-3/4 disabled:opacity-50"
           >
             {loading ? "Adding..." : "Add to Cart"}
           </button>
