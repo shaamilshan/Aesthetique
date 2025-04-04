@@ -36,12 +36,28 @@ check indexcss tst file 🤣😢🎶😎
 }
 
 /* Hide scrollbar for Firefox */
-scrollbar-width: none; /* or 'thin' or 'auto' */
+/* Hide scrollbar for Firefox */
+*{
+  scrollbar-width: none;
+  overflow: hidden;
+}
+/* or 'thin' or 'auto' */
 
 /* For Webkit browsers */
 .my-container::-webkit-scrollbar {
   display: none;
 }
+
+* {
+  scrollbar-width: none; /* Hides scrollbar in Firefox */
+  overflow-x: auto; /* Allows horizontal scrolling */
+  overflow-y: scroll; /* Enables vertical scrolling but hides scrollbar */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Hides scrollbar in Chrome, Edge, and Safari */
+}
+
 
 /* For Firefox */
 .my-container {
