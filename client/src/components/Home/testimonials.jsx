@@ -136,7 +136,7 @@ export default function TestimonialSection({ id }) {
         {/* Navigation Buttons */}
         <div className="flex justify-between mt-6">
           <button
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded-full w-10 h-10 flex items-center justify-center transform transition-transform hover:scale-110"
+            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full w-10 h-10 flex items-center justify-center transform transition-transform hover:scale-110"
             onClick={prevTestimonial}
             aria-label="Previous testimonial"
           >
@@ -150,7 +150,7 @@ export default function TestimonialSection({ id }) {
           >
             ➜
           </button>
-        </div>
+        </div> 
       </div>
     </section>
   );
