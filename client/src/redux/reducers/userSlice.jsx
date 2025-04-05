@@ -39,12 +39,16 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.user = null;
+        localStorage.removeItem("token"); // 👈 this line is the key!
       })
+      
       .addCase(logout.rejected, (state, { payload }) => {
         state.loading = false;
         state.user = null;
         state.error = payload;
+        localStorage.removeItem("token"); // just in case
       })
+      
 
       // Get User data when user comes back later to website after closing the browser.
       .addCase(getUserDataFirst.pending, (state) => {
@@ -69,7 +73,9 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.user = payload;
+        localStorage.setItem("token", payload.token); // 👈 store the token here if not already
       })
+      
       .addCase(loginUser.rejected, (state, { payload }) => {
         state.loading = false;
         state.user = null;
