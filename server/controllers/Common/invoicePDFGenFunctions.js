@@ -45,13 +45,13 @@ const generateInvoicePDF = async (order) => {
 
       // Header for the PDF
       doc
-        .image("public/official/TrendKart.png", 50, 45, { width: 50 })
+        .image("public/official/Logo.svg", 50, 45, { width: 50 })
         .fillColor("#444444")
         .fontSize(20)
-        .text("TrendKart Inc.", 110, 65)
+        .text("BM Aesthetique Inc.", 110, 65)
         .fontSize(10)
-        .text("Trend Kart, Karassery junction, Mukkam", 200, 65, { align: "right" })
-        .text("Calicut, Kerala, India 673602", 200, 80, { align: "right" })
+        .text("Location Details", 200, 65, { align: "right" })
+        .text("Place, pincode, contact", 200, 80, { align: "right" })
         .moveDown();
 
       // Invoice details section

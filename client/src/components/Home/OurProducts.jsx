@@ -56,11 +56,12 @@ const OurProducts = ({ id }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                   {shuffledProducts.slice(0, visibleProducts).map((product, index) => (
                     <div 
-                      key={index} 
-                      className="transform transition-all duration-300 hover:scale-105"
-                    >
-                      <ProductCard2 product={product} />
-                    </div>
+                    key={index} 
+                    className="transform transition-all duration-300 hover:scale-105 w-full max-w-[280px] mx-auto"
+                  >
+                    <ProductCard2 product={product} />
+                  </div>
+                  
                   ))}
                 </div>
                 
