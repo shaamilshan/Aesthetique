@@ -9,10 +9,9 @@ import { URL } from "../../Common/api";
 
 export const logout = createAsyncThunk(
   "user/logout",
-  async (userCredentials, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${URL}/user/logout`, config);
-
       return data;
     } catch (error) {
       return handleError(error, rejectWithValue);

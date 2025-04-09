@@ -2,10 +2,10 @@ export const GOOGLE_ID =
   "628424458787-qkhchkq95n7ht13oneer3692talfp63f.apps.googleusercontent.com";
 
 export const config = {
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
 };
 export const appJson = {
   "Content-Type": "application/json",
