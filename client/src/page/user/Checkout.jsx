@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-
-import axios from "axios";
+import { TiTick } from "react-icons/ti";
+import { BsArrowRight } from "react-icons/bs";
+import axios from "axios"; 
 import { URL } from "../../Common/api";
 import { config } from "../../Common/configurations";
 import CheckoutCartRow from "./components/CheckoutCartRow";
 import AddressCheckoutSession from "./components/AddressCheckoutSession";
 import TotalAndSubTotal from "./components/TotalAndSubTotal";
 import Loading from "../../components/Loading";
-import OrderConfirmation from "./components/OrderConfirmation";
 import { clearCartOnOrderPlaced } from "../../redux/reducers/user/cartSlice";
 import CheckoutPaymentOption from "./components/CheckoutPaymentOption";
 
@@ -49,22 +49,17 @@ const Checkout = () => {
 
   // Page switching
   const [orderPlacedLoading, setOrderPlacedLoading] = useState(false);
-  const [orderData, setOrderData] = useState(false);
-
-  // Navigate to order-confirmation
-
-  const navigateToOrderConfirmation = (orderD) => {
-    if (orderD) {
-      navigate("/order-confirmation", { state: orderD });
-    }
-  };
+  
+  // Order confirmation state
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
+  const [orderData, setOrderData] = useState({});
 
   // Cash on delivery or wallet balance
-  const saveOrderOnCashDeliveryOrMyWallet = async (response) => {
+  const saveOrderOnCashDeliveryOrMyWallet = async () => {
     setOrderPlacedLoading(true);
 
     try {
-      const order = await axios.post(
+      const response = await axios.post(
         `${URL}/user/order`,
         {
           notes: additionalNotes,
@@ -73,16 +68,34 @@ const Checkout = () => {
         },
         config
       );
-      console.log("entireTotal");
-      console.log(order);
+      
+      console.log("API Response:", response); // Debug logging
+      const order = response.data.order;
+      
+      // Format order data for the confirmation page
+      const formattedOrderData = {
+        orderId: order.orderId || order._id,
+        _id: order._id,
+        totalPrice: order.totalPrice.toFixed(2),
+        deliveryDate: order.deliveryDate,
+      };
+      
+      console.log("Formatted order data:", formattedOrderData); // Debug logging
+      
       // Updating user side
-      setOrderData(true);
       toast.success("Order Placed");
-      setOrderPlacedLoading(false);
-      navigateToOrderConfirmation(order.data.order);
       dispatch(clearCartOnOrderPlaced());
+      
+      // Show confirmation UI
+      setOrderData(formattedOrderData);
+      setOrderConfirmed(true);
+      setOrderPlacedLoading(false);
+      
+      console.log("Order confirmed state set to:", true); // Debug logging
+      
     } catch (error) {
       // Error Handling
+      console.error("Order placement error:", error);
       const errorMessage =
         error.response?.data?.error ||
         "Something went wrong. Please try again.";
@@ -117,16 +130,26 @@ const Checkout = () => {
         config
       );
 
+      // Format order data for the confirmation page
+      const formattedOrderData = {
+        orderId: order.orderId || order._id,
+        _id: order._id,
+        totalPrice: order.totalPrice.toFixed(2),
+        deliveryDate: order.deliveryDate,
+      };
+
       // Updating user side
-      setOrderData(true);
       toast.success("Order Placed");
-      setOrderPlacedLoading(false);
-      // setConfirmationPage(true);
-      navigateToOrderConfirmation(order);
       dispatch(clearCartOnOrderPlaced());
+      
+      // Show confirmation UI
+      setOrderData(formattedOrderData);
+      setOrderConfirmed(true);
+      setOrderPlacedLoading(false);
+      
     } catch (error) {
       // Error Handling
-      console.log(error);
+      console.error("Order placement error:", error);
       const errorMessage =
         error.response?.data?.error ||
         "Something went wrong. Please try again.";
@@ -137,61 +160,67 @@ const Checkout = () => {
 
   // Initiating razor pay payment method or window
   const initiateRazorPayPayment = async () => {
-    // Getting razor-pay secret key
-    const {
-      data: { key },
-    } = await axios.get(`${URL}/user/razor-key`, config);
+    try {
+      // Getting razor-pay secret key
+      const {
+        data: { key },
+      } = await axios.get(`${URL}/user/razor-key`, config);
 
-    // making razor-pay order
-    const {
-      data: { order },
-    } = await axios.post(
-      `${URL}/user/razor-order`,
-      { amount: parseInt(finalTotal * 100) },
-      config
-    );
+      // making razor-pay order
+      const {
+        data: { order },
+      } = await axios.post(
+        `${URL}/user/razor-order`,
+        { amount: parseInt(finalTotal * 100) },
+        config
+      );
 
-    // setting razor pay configurations
-    let options = {
-      key: key,
-      amount: parseInt(finalTotal * 100),
-      currency: "INR",
-      name: "TrendKart",
-      description: "Test Transaction",
-      image: `${URL}/off/logo.png`,
-      order_id: order.id,
-      handler: function (response) {
-        saveOrder(response);
-      },
-      prefill: {
-        name: "Gaurav Kumar",
-        email: "gaurav.kumar@example.com",
-        contact: "9000090000",
-      },
-      notes: {
-        address: "Razor pay Corporate Office",
-      },
-      theme: {
-        color: "#2b2b30",
-      },
-    };
+      // setting razor pay configurations
+      let options = {
+        key: key,
+        amount: parseInt(finalTotal * 100),
+        currency: "INR",
+        name: "TrendKart",
+        description: "Test Transaction",
+        image: `${URL}/off/logo.png`,
+        order_id: order.id,
+        handler: function (response) {
+          saveOrder(response);
+        },
+        prefill: {
+          name: "Gaurav Kumar",
+          email: "gaurav.kumar@example.com",
+          contact: "9000090000",
+        },
+        notes: {
+          address: "Razor pay Corporate Office",
+        },
+        theme: {
+          color: "#2b2b30",
+        },
+      };
 
-    // enabling razor-pay payment screen
-    const razor = new window.Razorpay(options);
+      // enabling razor-pay payment screen
+      const razor = new window.Razorpay(options);
 
-    razor.open();
+      razor.open();
 
-    // If failed toast it.
-    razor.on("payment.failed", function (response) {
-      toast.error(response.error.code);
-      toast.error(response.error.description);
-      toast.error(response.error.source);
-      toast.error(response.error.step);
-      toast.error(response.error.reason);
-      toast.error(response.error.metadata.order_id);
-      toast.error(response.error.metadata.payment_id);
+      // If failed toast it.
+      razor.on("payment.failed", function (response) {
+        toast.error(response.error.code);
+        toast.error(response.error.description);
+        toast.error(response.error.source);
+        toast.error(response.error.step);
+        toast.error(response.error.reason);
+        toast.error(response.error.metadata.order_id);
+        toast.error(response.error.metadata.payment_id);
+        setOrderPlacedLoading(false);
+      });
+    } catch (error) {
+      console.error("Error initiating payment:", error);
+      toast.error("Failed to initiate payment. Please try again.");
       setOrderPlacedLoading(false);
-    });
+    }
   };
 
   // Order placing
@@ -212,11 +241,11 @@ const Checkout = () => {
 
     if (selectedPayment === "myWallet") {
       let entireTotal =
-        Number(totalPrice) + Number(discount) + Number(tax) - Number(offer);
+        Number(totalPrice) + Number(shipping) + Number(tax) - Number(offer);
+      console.log("entireTotal", entireTotal);
     
-        
       if (walletBalance < entireTotal) {
-        toast.error("Not balance in your wallet");
+        toast.error("Not enough balance in your wallet");
         return;
       }
     }
@@ -230,15 +259,50 @@ const Checkout = () => {
       selectedPayment === "cashOnDelivery" ||
       selectedPayment === "myWallet"
     ) {
-      saveOrderOnCashDeliveryOrMyWallet();
+      saveOrderOnCashDeliveryOrMyWallet(); 
     }
   };
 
-  useEffect(() => {
-    if (orderData) {
-      navigate(-1);
-    }
-  }, [orderData]);
+  console.log("Current orderConfirmed state:", orderConfirmed); // Debug logging
+  console.log("Current orderData:", orderData); // Debug logging
+
+  if (orderConfirmed && orderData) {
+    return (
+      <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
+        <div className="bg-white p-8 rounded text-center">
+          <div className="mb-6">
+            <div className="flex justify-center text-9xl text-green-600 animate-pulse">
+              <TiTick />
+            </div>
+            <h2 className="text-3xl font-semibold text-green-600 mb-2">
+              Order Confirmed!
+            </h2>
+            <p className="text-gray-700">
+              Thank you for your order. Your order has been successfully placed.
+            </p>
+          </div>
+          <div className="mb-8">
+            <div className="py-3 border-b">
+              <h3 className="text-lg font-semibold mb-2">Order Details</h3>
+              <p>Order ID: {orderData.orderId}</p>
+              <p>Order Total: ₹{orderData.totalPrice}</p>
+              <p>
+                <Link
+                  to={`/dashboard/order-history/detail/${orderData._id}`}
+                  className="flex items-center justify-center gap-2 text-sm py-2 text-blue-500 hover:underline"
+                >
+                  View Details <BsArrowRight />
+                </Link>
+              </p>
+            </div>
+          </div>
+          <Link to="/" className="text-blue-500 hover:underline">
+            Continue Shopping
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -274,10 +338,9 @@ const Checkout = () => {
             ></textarea>
           </div>
 
-          {/* Order Summery Session */}
-
+          {/* Order Summary Session */}
           <div className="lg:w-1/4 bg-white px-5 py-3 border border-gray-200 rounded shrink-0">
-            <h1 className="font-semibold py-2">Order Summery</h1>
+            <h1 className="font-semibold py-2">Order Summary</h1>
             <div className="py-1">
               {cart &&
                 cart.map((item, index) => (
