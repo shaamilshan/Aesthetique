@@ -10,7 +10,6 @@ import CheckoutCartRow from "./components/CheckoutCartRow";
 import AddressCheckoutSession from "./components/AddressCheckoutSession";
 import TotalAndSubTotal from "./components/TotalAndSubTotal";
 import Loading from "../../components/Loading";
-import OrderConfirmation from "./components/OrderConfirmation";
 import { clearCartOnOrderPlaced } from "../../redux/reducers/user/cartSlice";
 import CheckoutPaymentOption from "./components/CheckoutPaymentOption";
 
