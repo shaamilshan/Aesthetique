@@ -1,5 +1,5 @@
 import { URL } from "@/Common/api";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   addToWishlist,
   deleteOneProductFromWishlist,
+  getWishlist
 } from "@/redux/actions/user/wishlistActions";
 
 const ProductCard2 = ({ product }) => {
@@ -19,14 +20,31 @@ const ProductCard2 = ({ product }) => {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [cartLoading, setCartLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+
+  // Check if product is in wishlist
+  useEffect(() => {
+    if (wishlist && wishlist.length > 0) {
+      const found = wishlist.some(item => 
+        item.product._id === product._id || 
+        (item.product && item.product === product._id)
+      );
+      setIsInWishlist(found);
+    } else {
+      setIsInWishlist(false);
+    }
+  }, [wishlist, product._id]);
+
+  // Initial fetch of wishlist when component mounts if user is logged in
+  useEffect(() => {
+    if (user && user._id && wishlist.length === 0) {
+      dispatch(getWishlist());
+    }
+  }, [user, dispatch, wishlist.length]);
 
   const originalPrice = product.offer
     ? Math.round(product.price / (1 - product.offer / 100))
     : product.price;
-
-  const isProductInWishlist = wishlist.some(
-    (item) => item.product._id === product._id
-  );
 
   const handleWishlistClick = async () => {
     if (!user) {
@@ -39,12 +57,12 @@ const ProductCard2 = ({ product }) => {
     setError(null);
 
     try {
-      if (isProductInWishlist) {
+      if (isInWishlist) {
         await dispatch(deleteOneProductFromWishlist(product._id)).unwrap();
-       
+        setIsInWishlist(false);
       } else {
         await dispatch(addToWishlist({ product: product._id })).unwrap();
-       
+        setIsInWishlist(true);
       }
     } catch (error) {
       console.error("Wishlist Error:", error);
@@ -104,7 +122,7 @@ const ProductCard2 = ({ product }) => {
         </h3>
         <p className="text-sm text-gray-600 line-clamp-2">
           {product.description ||
-            "no To Popular Belief, Lorem Ipsum Is Not Simply Random Text."}
+            "No To Popular Belief, Lorem Ipsum Is Not Simply Random Text."}
         </p>
         <div className="flex items-center gap-[6px]">
           <span className="text-[11px] sm:text-[12px] lg:text-[18px] font-semibold text-red-500">
@@ -114,22 +132,21 @@ const ProductCard2 = ({ product }) => {
         <div className="flex gap-3">
           {/* Wishlist Button */}
           <button
-            onClick={(e) => {
+            onClick={(e) => { 
               e.stopPropagation();
               handleWishlistClick();
             }}
             disabled={wishlistLoading}
             className={`p-3 rounded-lg border border-[#A53030] transition-all duration-300
-              ${isProductInWishlist ? "bg-red-100" : "hover:bg-red-50"}
+              ${isInWishlist ? "bg-red-100" : "hover:bg-red-50"}
               ${wishlistLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            {isProductInWishlist ? (
+            {isInWishlist ? (
               <FaHeart className="text-[22px] text-[#A53030] scale-110 transition-transform duration-200" />
             ) : (
               <FaRegHeart className="text-[22px] text-[#A53030] hover:scale-110 transition-transform duration-200" />
             )}
           </button>
-
           {/* Add to Cart Button */}
           <button
             onClick={(e) => {
