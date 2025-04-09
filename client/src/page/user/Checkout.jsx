@@ -52,8 +52,8 @@ const Checkout = () => {
   const [orderData, setOrderData] = useState(false);
 
   // Navigate to order-confirmation
-
   const navigateToOrderConfirmation = (orderD) => {
+    console.log(orderD)
     if (orderD) {
       navigate("/order-confirmation", { state: orderD });
     }
@@ -235,10 +235,11 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-    if (orderData) {
-      navigate(-1);
+    if (!orderData) {
+      navigate("/cart"); 
     }
   }, [orderData]);
+  
 
   return (
     <>
