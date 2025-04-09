@@ -95,10 +95,11 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-  // res.cookie("user_token", "", cookieConfig);
-
-  res.clearCookie("user_token");
-  // console.log({ msg: "Logged out Successfully" });
+  res.clearCookie("user_token", {
+    httpOnly: true,
+    secure: true,        // required on HTTPS (Render)
+    sameSite: 'None',    // required for cross-origin
+  });
 
   res.status(200).json({ msg: "Logged out Successfully" });
 };
