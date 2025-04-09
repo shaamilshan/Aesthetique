@@ -3,81 +3,60 @@ import React from 'react';
 function Footer() {
   return (
     <footer className="bg-[#A53030] text-white py-8">
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-start">
-        <div className="ml-12 mb-6 md:mb-0">
+      <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-start gap-8">
+        {/* Brand Section */}
+        <div className="md:w-1/4">
           <h4 className="text-lg font-medium mb-4">BM AESTHETIQUE</h4>
-          {/* <p className="text-sm">
-           Karassery Junction, Mukkam, Calicut, India 673602
-          </p> */}
+          {/* <p className="text-sm">Karassery Junction, Mukkam, Calicut, India 673602</p> */}
         </div>
-        <div className="ml-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+
+        {/* Grid Links */}
+        <div className="w-full md:flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {/* Links */}
           <div>
             <h4 className="text-lg font-medium mb-4">Links</h4>
             <ul className="space-y-2">
-              <li>
-                <a href="/" className="hover:text-gray-400 transition-colors">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="/collections" className="hover:text-gray-400 transition-colors">
-                  Shop
-                </a>
-              </li>
-              <li>
-                <a href="/about-us" className="hover:text-gray-400 transition-colors">
-                  About
-                </a>
-              </li>
-              <li>
-                <a href="/contact-us" className="hover:text-gray-400 transition-colors">
-                  Contact
-                </a>
-              </li>
+              <li><a href="/" className="hover:text-gray-300">Home</a></li>
+              <li><a href="/collections" className="hover:text-gray-300">Shop</a></li>
+              <li><a href="/about-us" className="hover:text-gray-300">About</a></li>
+              <li><a href="/contact-us" className="hover:text-gray-300">Contact</a></li>
             </ul>
           </div>
+
+          {/* Help */}
           <div>
             <h4 className="text-lg font-medium mb-4">Help</h4>
             <ul className="space-y-2">
-              <li>
-                <a href="/" className="hover:text-gray-400 transition-colors">
-                  Payment Options
-                </a>
-              </li>
-              <li>
-                <a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/refund" className="hover:text-gray-400 transition-colors">
-                  Returns
-                </a>
-              </li>
-              <li>
-                <a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/terms" className="hover:text-gray-400 transition-colors">
-                  Privacy Policies
-                </a>
-              </li>
-              <li>
-                <a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/shipping" className="hover:text-gray-400 transition-colors">
-                Shipping & Delivery Policy
-                </a>
-              </li>
+              <li><a href="/" className="hover:text-gray-300">Payment Options</a></li>
+              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/refund" className="hover:text-gray-300">Returns</a></li>
+              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/terms" className="hover:text-gray-300">Privacy Policies</a></li>
+              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/shipping" className="hover:text-gray-300">Shipping & Delivery Policy</a></li>
             </ul>
           </div>
-          <div>
+
+          {/* Newsletter */}
+          <div className=''>
             <h4 className="text-lg font-medium mb-4">Newsletter</h4>
-            <div className="flex gap-1 items-center">
+            <form className="flex sm:flex-col flex-row gap-2 sm:gap-1">
               <input
                 type="email"
-                placeholder="Enter Your Email Address"
-                className="bg-white border-none rounded-l-md py-2 px-4 text-sm flex-1"
+                placeholder="Enter Your Email"
+                className="bg-white text-black rounded-md px-4 py-2 text-sm w-full"
               />
-              <button className="bg-white border-none text-red-500 rounded-r-md py-2 px-4 text-sm hover:bg-gray-700 transition-colors">
+              <button
+                type="submit"
+                className="bg-white text-red-600 font-semibold rounded-md px-4 py-2 text-sm hover:bg-gray-200 transition"
+              >
                 SUBSCRIBE
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
-      <div className="mt-8 text-center text-sm">
-        <p>&copy; 2025 BM Aesthetique. All rights revered</p>
+
+      {/* Copyright */}
+      <div className="mt-8 text-center text-sm text-white/80 px-4">
+        <p>&copy; 2025 BM Aesthetique. All rights reserved.</p>
       </div>
     </footer>
   );

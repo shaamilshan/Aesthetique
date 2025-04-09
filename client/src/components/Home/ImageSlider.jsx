@@ -5,7 +5,7 @@ import HomeImg from "../../assets/others/main-bg.jpg";
 import Image2 from "../../assets/others/main-bg2.jpg";
 // import Image3 from "../../assets/trendskart/home/1Artboard 3_2.jpg";
 
-const images = [HomeImg , Image2,/* Image3*/];
+const images = [HomeImg ];
 
 function ImageSlider() {
   const [currentIndex, setCurrentIndex] = useState(0); 

@@ -57,7 +57,7 @@ const CounterStats = () => {
     <section
       id="counter-stats"
       data-aos="fade-up"
-      className="container mx-auto px-4 py-12"
+      className="container mx-auto px-4 py-14"
     >
       <div className="flex flex-col md:flex-row items-center justify-around gap-8 text-center">
         {/* Customers */}

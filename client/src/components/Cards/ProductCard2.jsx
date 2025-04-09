@@ -107,9 +107,9 @@ const ProductCard2 = ({ product }) => {
     <div
       data-aos="fade-left"
       onClick={() => navigate(`/product/${product._id}`)}
-      className="cursor-pointer space-y-3 bg-white p-8 rounded-lg"
+      className="cursor-pointer space-y-3 bg-white p-8 rounded-lg h-full"
     >
-      <div className="aspect-[3/4] w-full overflow-hidden">
+      <div className="aspect-[3/4] w-full ">
         <img
           src={`${URL}/img/${product?.imageURL}`}
           alt={product.name}

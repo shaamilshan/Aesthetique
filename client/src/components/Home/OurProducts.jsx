@@ -33,7 +33,7 @@ const OurProducts = ({ id }) => {
   
   return (  
     <section 
-      className=" py-7 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#A53030] to-[#8A2929]" 
+      className=" py-7 px-4 sm:px-6 lg:px-8 bg-gradient-to-b  from-[#A53030] to-[#8A2929]" 
       // data-aos="fade-up" 
       id={id}
     >
@@ -53,14 +53,15 @@ const OurProducts = ({ id }) => {
           <>
             {shuffledProducts && shuffledProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 ">
                   {shuffledProducts.slice(0, visibleProducts).map((product, index) => (
-                    <div 
-                    key={index} 
-                    className="transform transition-all duration-300 hover:scale-105 w-full max-w-[280px] mx-auto"
-                  >
-                    <ProductCard2 product={product} />
-                  </div>
+                 <div 
+                 key={index} 
+                 className="relative transform transition-all duration-300 hover:scale-105 hover:z-10 w-full my-5 max-w-[280px] mx-auto"
+               >
+                 <ProductCard2 product={product} />
+               </div>
+               
                   
                   ))}
                 </div>
