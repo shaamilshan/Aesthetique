@@ -53,11 +53,11 @@ const Checkout = () => {
 
   // Navigate to order-confirmation
 
-  const navigateToOrderConfirmation = (orderD) => {
-    if (orderD) {
-      navigate("/order-confirmation", { state: orderD });
-    }
-  };
+  // const navigateToOrderConfirmation = (orderD) => {
+  //   if (orderD) {
+  //     navigate("/order-confirmation", { state: orderD });
+  //   }
+  // };
 
   // Cash on delivery or wallet balance
   const saveOrderOnCashDeliveryOrMyWallet = async (response) => {
@@ -225,13 +225,14 @@ const Checkout = () => {
       initiateRazorPayPayment();
       return;
     }
-
+    
     if (
       selectedPayment === "cashOnDelivery" ||
       selectedPayment === "myWallet"
-    ) {
-      saveOrderOnCashDeliveryOrMyWallet();
-    }
+      ) {
+        saveOrderOnCashDeliveryOrMyWallet();
+      }
+      navigate("/order-confirmation");
   };
 
   useEffect(() => {
