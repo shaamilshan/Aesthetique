@@ -46,7 +46,7 @@ const Login = () => {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="relative flex items-center justify-center min-h-screen bg-gray-50  ">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -57,7 +57,7 @@ const Login = () => {
       </div>
 
       {/* Form Container */}
-      <div className="relative z-10 bg-white p-8 rounded-none shadow-lg w-full max-w-lg mx-4" style={{ borderRadius: 0 }}>
+      <div className="relative z-10  bg-white p-8  shadow-lg w-full max-w-lg mx-4" style={{ borderRadius: 0 }}>
         <h1 className="text-4xl font-bold mb-6 text-center">Welcome Back</h1>
         <Formik
           initialValues={initialValues}

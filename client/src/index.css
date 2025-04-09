@@ -58,6 +58,12 @@ check indexcss tst file 🤣😢🎶😎
   display: none; /* Hides scrollbar in Chrome, Edge, and Safari */
 }
 
+input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: #ccc !important;
+}
+
 
 /* For Firefox */
 .my-container {

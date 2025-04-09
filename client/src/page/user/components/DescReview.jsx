@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { renderStars } from "../../../Common/functions";
 import axios from "axios";
 import { HiTrash } from "react-icons/hi";
-
+import { URL } from "@/Common/api";
 const DescReview = ({ product: initialProduct, id }) => {
   const [activeTab, setActiveTab] = useState("description");
   const [reviews, setReviews] = useState([]);
@@ -18,13 +18,13 @@ const DescReview = ({ product: initialProduct, id }) => {
   const [userReviewId, setUserReviewId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const URL = "http://localhost:3000/api";
+  const URLapi = URL;
 
   const loadReviews = async () => {
     if (!id) return;
     
     try { 
-      const { data } = await axios.get(`${URL}/user/reviews/${id}`, {
+      const { data } = await axios.get(`${URLapi}/user/reviews/${id}`, {
         withCredentials: true,
       });
 
@@ -99,7 +99,7 @@ const DescReview = ({ product: initialProduct, id }) => {
   
     try {
       const { data } = await axios.post(
-        `${URL}/user/review/${product._id}`,
+        `${URLapi}/user/review/${product._id}`,
         {
           product: id,
           rating: newReview.rating,
@@ -128,7 +128,7 @@ const DescReview = ({ product: initialProduct, id }) => {
     setIsDeleting(true);
     
     try {
-      await axios.delete(`${URL}/user/review/${reviewId}`, {
+      await axios.delete(`${URLapi}/user/review/${reviewId}`, {
         withCredentials: true,
       });
       
@@ -390,7 +390,7 @@ const DescReview = ({ product: initialProduct, id }) => {
                   )}
 
                   <div>
-                    <label className="block mb-2 text-sm sm:text-base text-gray-700">
+                    <label className="block mb-2 text-sm  sm:text-base text-gray-700">
                       Your Review
                     </label>
                     <textarea
@@ -398,7 +398,7 @@ const DescReview = ({ product: initialProduct, id }) => {
                       onChange={(e) =>
                         setNewReview({ ...newReview, body: e.target.value })
                       }
-                      className="w-full border border-gray-300 p-3 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="w-full border border-gray-300 p-3 rounded-lg text-xs sm:text-sm focus:outline-none "
                       rows="4"
                       placeholder="Share your detailed experience..."
                       required
