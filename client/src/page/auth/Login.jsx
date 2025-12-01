@@ -30,11 +30,7 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      if (!user.isEmailVerified) {
-        navigate("/otp");
-      } else {
-        navigate("/");
-      }
+      navigate("/");
     }
     return () => {
       dispatch(updateError(""));

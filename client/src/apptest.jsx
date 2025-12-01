@@ -20,7 +20,7 @@ import Footer from "./components/Footer";
 // Auth
 import Login from "./page/auth/Login";
 import Register from "./page/auth/Register";
-import ValidateOTP from "./page/auth/ValidateOTP";
+// ...existing code...
 import ForgetPassword from "./page/auth/ForgetPassword";
 
 // User
@@ -131,7 +131,7 @@ function App() {
 
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
-          <Route path="otp" element={<ValidateOTP />} />
+// ...existing code...
           <Route path="forgot-password" element={<ForgetPassword />} />
 
           {/* General Pages */}

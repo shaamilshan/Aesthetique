@@ -8,8 +8,7 @@ import * as Yup from "yup";
 import InputWithIcon from "../../components/InputWithIcon";
 import PasswordInputWithIcon from "../../components/PasswordInputWithIcon";
 import CustomSingleFileInput from "../../components/CustomSingleFileInput";
-import OTPEnterSection from "./Register/OTPEnterSection";
-import OTPExpired from "./components/OTPExpired";
+// ...existing code...
 import { toast } from "react-hot-toast";
 import { appJson } from "../../Common/configurations";
 import { commonRequest } from "../../Common/api";
@@ -26,11 +25,7 @@ const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [emailSec, setEmailSec] = useState(true);
-  const [otpSec, setOTPSec] = useState(false);
-  const [otpExpired, setOTPExpired] = useState(false);
-  const [otpLoading, setOTPLoading] = useState(false);
-  const [data, setData] = useState({});
+  const [loadingLocal, setLoadingLocal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -69,44 +64,26 @@ const Register = () => {
       .moreThan(999999999, "Not valid phone number"),
   });
 
-  const dispatchSignUp = () => {
-    let formData = new FormData();
-    formData.append("firstName", data.firstName);
-    formData.append("lastName", data.lastName);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("passwordAgain", data.passwordAgain);
-    formData.append("phoneNumber", data.phoneNumber);
-    if (data.profileImgURL) {
-      formData.append("profileImgURL", data.profileImgURL);
-    }
-
-    dispatch(signUpUser(formData));
-  };
+  // ...existing code...
 
   const handleRegister = async (value) => {
-    setOTPLoading(true);
-    setData(value);
-
+    setLoadingLocal(true);
     try {
-      const res = await commonRequest(
-        "POST",
-        "/auth/send-otp",
-        { email: value.email },
-        appJson
-      );
-
-      if (res.success) {
-        setEmailSec(false);
-        setOTPSec(true);
-        toast.success("OTP sent successfully!");
-      } else {
-        throw new Error(res.response.data.error || "OTP request failed");
+      let formData = new FormData();
+      formData.append("firstName", value.firstName);
+      formData.append("lastName", value.lastName);
+      formData.append("email", value.email);
+      formData.append("password", value.password);
+      formData.append("passwordAgain", value.passwordAgain);
+      formData.append("phoneNumber", value.phoneNumber);
+      if (value.profileImgURL) {
+        formData.append("profileImgURL", value.profileImgURL);
       }
+      dispatch(signUpUser(formData));
     } catch (err) {
-      toast.error(err.message || "An error occurred while sending OTP");
+      toast.error(err.message || "An error occurred while signing up");
     } finally {
-      setOTPLoading(false);
+      setLoadingLocal(false);
     }
   };
 
@@ -125,94 +102,68 @@ const Register = () => {
       <div className="relative z-10 bg-white p-8 rounded-none shadow-lg w-full max-w-lg mx-4" style={{ borderRadius: 0 }}>
         <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
 
-        {emailSec && (
-          <Formik
-            initialValues={initialValues}
-            onSubmit={handleRegister}
-            validationSchema={validationSchema}
-          >
-            {({ values, setFieldValue }) => (
-              <Form className="space-y-6">
-                {/* First Name Field */}
-                <InputWithIcon
-                  icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="First Name"
-                  name="firstName"
-                  placeholder="Enter your first name"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
-
-                {/* Last Name Field */}
-                <InputWithIcon
-                  icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Last Name"
-                  name="lastName"
-                  placeholder="Enter your last name"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
-
-                {/* Phone Number Field */}
-                <InputWithIcon
-                  icon={<AiOutlinePhone className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Phone Number"
-                  name="phoneNumber"
-                  placeholder="Enter your phone number"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
-
-                {/* Email Field */}
-                <InputWithIcon
-                  icon={<AiOutlineMail className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Email"
-                  name="email"
-                  placeholder="Enter your email"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
-
-                {/* Password Field */}
-                <PasswordInputWithIcon
-                  icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Password"
-                  name="password"
-                  placeholder="Enter your password"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
-
-                {/* Confirm Password Field */}
-                <PasswordInputWithIcon
-                  icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Confirm Password"
-                  name="passwordAgain"
-                  placeholder="Confirm your password"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  className="h-12 w-full bg-gradient-to-r from-[#C84332] to-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-300"
-                  disabled={otpLoading}
-                >
-                  {otpLoading ? "Loading..." : "Sign Up"}
-                </button>
-
-                {/* Error Message */}
-                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-              </Form>
-            )}
-          </Formik>
-        )}
-
-        {otpSec && (
-          <OTPEnterSection
-            email={data.email}
-            setOTPExpired={setOTPExpired}
-            setOTPSec={setOTPSec}
-            dispatchSignUp={dispatchSignUp}
-          />
-        )}
-
-        {otpExpired && <OTPExpired />}
+        <Formik
+          initialValues={initialValues}
+          onSubmit={handleRegister}
+          validationSchema={validationSchema}
+        >
+          {({ values, setFieldValue }) => (
+            <Form className="space-y-6">
+              {/* First Name Field */}
+              <InputWithIcon
+                icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                name="firstName"
+                placeholder="Enter your first name"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+              {/* Last Name Field */}
+              <InputWithIcon
+                icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                name="lastName"
+                placeholder="Enter your last name"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+              {/* Phone Number Field */}
+              <InputWithIcon
+                icon={<AiOutlinePhone className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                name="phoneNumber"
+                placeholder="Enter your phone number"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+              {/* Email Field */}
+              <InputWithIcon
+                icon={<AiOutlineMail className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                name="email"
+                placeholder="Enter your email"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+              {/* Password Field */}
+              <PasswordInputWithIcon
+                icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                name="password"
+                placeholder="Enter your password"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+              {/* Confirm Password Field */}
+              <PasswordInputWithIcon
+                icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                name="passwordAgain"
+                placeholder="Confirm your password"
+                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+              />
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="h-12 w-full bg-gradient-to-r from-[#C84332] to-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-300"
+                disabled={loadingLocal}
+              >
+                {loadingLocal ? "Loading..." : "Sign Up"}
+              </button>
+              {/* Error Message */}
+              {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            </Form>
+          )}
+        </Formik>
 
         <p className="mt-6 text-center text-sm">
           Already have an account?{" "}

@@ -107,58 +107,76 @@ const ProductCard2 = ({ product }) => {
     <div
       data-aos="fade-left"
       onClick={() => navigate(`/product/${product._id}`)}
-      className="cursor-pointer space-y-3 bg-white p-8 rounded-lg h-full"
+      className="cursor-pointer bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden"
     >
-      <div className="aspect-[3/4] w-full ">
-        <img
-          src={`${URL}/img/${product?.imageURL}`}
-          alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-        />
+      {/* Image area */}
+      <div className="relative bg-white w-full">
+        <div className="aspect-square w-full bg-gray-50 flex items-center justify-center overflow-hidden">
+          <img
+            src={`${URL}/img/${product?.imageURL}`}
+            alt={product.name}
+            className="h-full w-full object-contain transition-transform duration-500 hover:scale-105"
+          />
+        </div>
+
+        {/* Badge (top-left or top-right) */}
+        {product.isNew && (
+          <div className="absolute top-3 right-3">
+            <span className="inline-block bg-[#FF7B73] text-white text-xs font-semibold px-3 py-1 rounded-full">new</span>
+          </div>
+        )}
       </div>
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium uppercase tracking-wide">
-          {product.name}
-        </h3>
-        <p className="text-sm text-gray-600 line-clamp-2">
-          {product.description ||
-            "No To Popular Belief, Lorem Ipsum Is Not Simply Random Text."}
-        </p>
-        <div className="flex items-center gap-[6px]">
-          <span className="text-[11px] sm:text-[12px] lg:text-[18px] font-semibold text-red-500">
-            ₹{product.price.toLocaleString()}
-          </span>
+
+      {/* Card body */}
+      <div className="p-5">
+        {/* Ratings row */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1">
+            {/* 5 empty/red star placeholders — you can replace with icons */}
+            {[0, 1, 2, 3, 4].map((i) => (
+              <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#FF7B73]">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="#FFF" stroke="#FF7B73" strokeWidth="0.5" />
+              </svg>
+            ))}
+          </div>
+
+          <div className="text-xs text-gray-400">150 reviews</div>
         </div>
-        <div className="flex gap-3">
-          {/* Wishlist Button */}
-          <button
-            onClick={(e) => { 
-              e.stopPropagation();
-              handleWishlistClick();
-            }}
-            disabled={wishlistLoading}
-            className={`p-3 rounded-lg border border-[#A53030] transition-all duration-300
-              ${isInWishlist ? "bg-red-100" : "hover:bg-red-50"}
-              ${wishlistLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            {isInWishlist ? (
-              <FaHeart className="text-[22px] text-[#A53030] scale-110 transition-transform duration-200" />
-            ) : (
-              <FaRegHeart className="text-[22px] text-[#A53030] hover:scale-110 transition-transform duration-200" />
-            )}
-          </button>
-          {/* Add to Cart Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart();
-            }}
-            disabled={cartLoading}
-            className="bg-[#A53030] text-white text-sm px-3 py-2 rounded-md w-3/4 disabled:opacity-50"
-          >
-            {cartLoading ? "Adding..." : "Add to Cart"}
-          </button>
+
+        <h3 className="text-lg font-medium text-[#2c2540] mb-2">{product.name}</h3>
+
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-semibold text-[#A53030]">₹{product.price.toLocaleString()}</div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleWishlistClick();
+              }}
+              disabled={wishlistLoading}
+              className={`p-2 rounded-md border border-[#E6E6E6] transition-all duration-200 ${isInWishlist ? "bg-red-50" : "hover:bg-gray-50"} ${wishlistLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {isInWishlist ? (
+                <FaHeart className="text-[#A53030]" />
+              ) : (
+                <FaRegHeart className="text-[#A53030]" />
+              )}
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart();
+              }}
+              disabled={cartLoading}
+              className="bg-[#2c2540] text-white text-sm px-3 py-2 rounded-md disabled:opacity-50"
+            >
+              {cartLoading ? "Adding" : "Add"}
+            </button>
+          </div>
         </div>
+
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </div>
     </div>

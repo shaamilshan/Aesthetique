@@ -32,16 +32,11 @@ const OurProducts = ({ id }) => {
   };
   
   return (  
-    <section 
-      className=" py-7 px-4 sm:px-6 lg:px-8 bg-gradient-to-b  from-[#A53030] to-[#8A2929]" 
-      // data-aos="fade-up" 
-      id={id}
-    >
+    <section id={id} className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h2 data-aos="fade-right"  className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">
-            Our Products
-            <div className="h-1 w-20 bg-[#FF9E80] mt-2 rounded-full"></div>
+        <div className="text-center mb-10">
+          <h2 data-aos="fade-right" className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2c2540] tracking-tight">
+            Our Premium Skincare Range
           </h2>
         </div>
 
@@ -53,16 +48,9 @@ const OurProducts = ({ id }) => {
           <>
             {shuffledProducts && shuffledProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 ">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                   {shuffledProducts.slice(0, visibleProducts).map((product, index) => (
-                 <div 
-                 key={index} 
-                 className="relative transform transition-all duration-300 hover:scale-105 hover:z-10 w-full my-5 max-w-[280px] mx-auto"
-               >
-                 <ProductCard2 product={product} />
-               </div>
-               
-                  
+                    <ProductCard2 key={product._id || index} product={product} />
                   ))}
                 </div>
                 

@@ -1,90 +1,102 @@
-import React from "react";
 
-export default function ContactSection({id}) {
+import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaClock, FaInstagram, FaFacebookF, FaTwitter, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
+
+
+export default function ContactSection({ id }) {
   return (
-    <section className="p-8 bg-gray-50" id={id} >
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Left Side: Contact Form and Information */}
-        <div >
-          {/* Section Title */}
-          <h2 data-aos="fade-up"  className="text-2xl font-bold text-gray-800 mb-4">Get in Touch</h2>
-          <p data-aos="fade-up" className="text-gray-600 mb-6">
-          Feel free to get in touch if you have any questions or need assistance!
-          </p>
-
-          {/* Contact Form */}
-          <form data-aos="fade-up" className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Name *</label>
-              <input
-                type="text"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-                required
-              />
+    <>
+      <section className="py-16 bg-[#fffaf7]" id={id}>
+        <div className="max-w-5xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Get In Touch</h2>
+          <p className="text-center text-gray-600 mb-10">We'd love to hear from you! Reach out for consultations, inquiries, or feedback about our skincare solutions.</p>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Left: Contact Form */}
+            <div className="bg-white rounded-xl shadow p-8 flex flex-col justify-center">
+              <form className="space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Your Name *</label>
+                  <input type="text" required placeholder="Enter your full name" className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address *</label>
+                  <input type="email" required placeholder="your.email@example.com" className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                  <input type="tel" placeholder="+91 98765 43210" className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Your Message *</label>
+                  <textarea required placeholder="Tell us how we can help you..." className="w-full border border-gray-300 rounded-md px-4 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                </div>
+                <button type="submit" className="w-full bg-orange-500 text-white font-semibold py-3 rounded-md flex items-center justify-center gap-2 hover:bg-orange-600 transition">
+                  <span><svg width="18" height="18" fill="currentColor" className="inline"><path d="M2 16l14-7-14-7v5l9 2-9 2z"/></svg></span>
+                  Send Message
+                </button>
+              </form>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Phone number *</label>
-              <input
-                type="tel"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">How did you find us?</label>
-              <input
-                type="text"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-[#A53030] text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              SEND
-            </button>
-          </form>
-
-          {/* Contact Information */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <div>
-              <h3 className="text-sm font-medium text-gray-700">PHONE</h3>
-              <p className="text-gray-600">03 5432 1234</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-700">FAX</h3>
-              <p className="text-gray-600">03 5432 1234</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-700">EMAIL</h3>
-              <p className="text-gray-600">info@marcc.com.au</p>
+            {/* Right: Contact Info Cards */}
+            <div className="flex flex-col gap-4 justify-center">
+              <div className="bg-white rounded-xl shadow p-5 flex gap-4 items-start">
+                <FaMapMarkerAlt className="text-orange-500 text-xl mt-1" />
+                <div>
+                  <div className="font-bold text-sm text-gray-700 mb-1">ADDRESS</div>
+                  <div className="text-gray-700 text-sm">BEST MED AESTHETIQUE PVT LTD<br />2nd floor, No-16, Alex Square,<br />Opposite to Amirtha School, Ettimadai,<br />Coimbatore, Tamil Nadu - 641112</div>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl shadow p-5 flex gap-4 items-center">
+                <FaEnvelope className="text-orange-500 text-xl" />
+                <div>
+                  <div className="font-bold text-sm text-gray-700 mb-1">EMAIL</div>
+                  <div className="text-gray-700 text-sm">bmaesthetique@gmail.com</div>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl shadow p-5 flex gap-4 items-center">
+                <FaPhoneAlt className="text-orange-500 text-xl" />
+                <div>
+                  <div className="font-bold text-sm text-gray-700 mb-1">PHONE</div>
+                  <div className="text-gray-700 text-sm">+91 81370 11855</div>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl shadow p-5 flex gap-4 items-center">
+                <FaClock className="text-orange-500 text-xl" />
+                <div>
+                  <div className="font-bold text-sm text-gray-700 mb-1">BUSINESS HOURS</div>
+                  <div className="text-gray-700 text-sm">Mon - Sat: 10:00 AM - 5:00 PM<br />Sundays: Closed</div>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl shadow p-5 flex gap-4 items-center">
+                <div className="font-bold text-sm text-gray-700 mb-1">FOLLOW US</div>
+                <div className="flex gap-3 mt-1">
+                  <a href="#" className="text-orange-500 hover:text-orange-600"><FaInstagram /></a>
+                  <a href="#" className="text-orange-500 hover:text-orange-600"><FaFacebookF /></a>
+                  <a href="#" className="text-orange-500 hover:text-orange-600"><FaTwitter /></a>
+                  <a href="#" className="text-orange-500 hover:text-orange-600"><FaLinkedinIn /></a>
+                  <a href="#" className="text-orange-500 hover:text-orange-600"><FaWhatsapp /></a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Right Side: Map */}
-        <div    className="h-full">
-          <h3 data-aos="fade-up" className="text-lg font-bold text-gray-800 mb-4">Our Locations</h3>
-          <div data-aos="fade-up" className="rounded-lg overflow-hidden shadow-lg">
+      </section>
+      {/* Map Section */}
+      <section className="bg-white py-10">
+        <div className="max-w-5xl mx-auto px-4">
+          <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Find Us On The Map</h3>
+          <div className="rounded-xl overflow-hidden shadow-lg">
             <iframe
               title="Google Map"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.8354345093747!2d144.9537353153166!3d-37.816279742021665!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf577d6a32f7f1f8e!2sMelbourne%20VIC%2C%20Australia!5e0!3m2!1sen!2sus!4v1633033226785!5m2!1sen!2sus"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3912.324232747081!2d76.9148583153347!3d10.90276349222159!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba85a7e2e2e2e2f%3A0x2e2e2e2e2e2e2e2e!2sBEST%20MED%20AESTHETIQUE%20PVT%20LTD!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
               width="100%"
-              height="450"
+              height="400"
               style={{ border: 0 }}
-              allowFullScreen
+              allowFullScreen=""
               loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
             ></iframe>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

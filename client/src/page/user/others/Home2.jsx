@@ -14,11 +14,26 @@ import AboutUs from "@/components/Home/AboutUs";
 import CounterStats from "@/components/Home/CounterStats";
 import TestimonialSection from "@/components/Home/testimonials";
 import ContactSection from "@/components/Home/ContactSection";
+import { FaWhatsapp } from "react-icons/fa";
 
-
-export default function Home2() {
+function WhatsAppFloatingButton() {
   return (
-    <div>
+    <a
+      href="https://wa.me/918137011855"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-lg p-5 flex items-center justify-center hover:scale-105 transition"
+      style={{ boxShadow: "0 4px 32px rgba(39, 174, 96, 0.25)" }}
+      aria-label="WhatsApp"
+    >
+      <FaWhatsapp className="text-white text-4xl" />
+    </a>
+  );
+}
+
+export default function Home2(props) {
+  return (
+    <>
       <ImageSlider />
 
       <div className="max-w-screen-2xl mx-auto px-4">
@@ -29,10 +44,12 @@ export default function Home2() {
       <OurProducts id="products" />
 
       <div className="max-w-screen-2xl mx-auto px-4">
-        <CounterStats/>
-        <TestimonialSection id="testimonials"/>
+        {/* <CounterStats/> */}
+        {/* <TestimonialSection id="testimonials"/> */}
         <ContactSection id="contact"/>
       </div>
-    </div>
+
+      <WhatsAppFloatingButton />
+    </>
   );
 }
