@@ -94,7 +94,12 @@ router.get("/categories", getCategories);
 router.get("/category/:id", getCategory);
 router.delete("/category/:id", deleteCategory);
 router.patch("/category/:id", upload.single("imgURL"), updateCategory);
-router.post("/category", upload.single("imgURL"), createCategory);
+router.post("/category", (req, res, next) => {
+  upload.single("imgURL")(req, res, (err) => {
+    if (err) return next(err);
+    next();
+  });
+}, createCategory);
 
 // Order controller functions mounting them to corresponding route
 router.get("/orders", getOrders);
