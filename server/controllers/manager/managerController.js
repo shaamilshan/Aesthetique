@@ -252,7 +252,7 @@ const addEnquiry = async (req, res) => {
       category: product.category,
       imageURL: product.imageURL,
       price: product.price,
-      markup: product.markup,
+  markup: product.markup,
       status: product.status,
       attributes: product.attributes,
       moreImageURL: product.moreImageURL,

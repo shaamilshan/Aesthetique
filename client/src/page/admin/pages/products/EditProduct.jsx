@@ -96,6 +96,21 @@ const EditProduct = () => {
     getProductDetails();
   }, []);
 
+  // Auto-compute offer percentage based on strike price (markup) vs current price
+  useEffect(() => {
+    setFetchedData((prev) => {
+      const p = Number(prev.price);
+      const m = Number(prev.markup);
+      if (!isNaN(p) && !isNaN(m) && m > 0) {
+        const off = Math.max(0, Math.round(((m - p) / m) * 100));
+        if (prev.offer !== off) return { ...prev, offer: off };
+      } else if (prev.offer !== 0) {
+        return { ...prev, offer: 0 };
+      }
+      return prev;
+    });
+  }, [fetchedData.price, fetchedData.markup]);
+
   const [newThumb, setNewThumb] = useState("");
   const handleSingleImageInput = (img) => {
     setNewThumb(img);
@@ -134,6 +149,15 @@ const EditProduct = () => {
     if (newThumb) {
       formData.append("imageURL", newThumb);
     }
+
+    // Ensure offer reflects markup (strike) vs price
+    const p = Number(fetchedData.price);
+    const m = Number(fetchedData.markup);
+    let computedOffer = 0;
+    if (!isNaN(p) && !isNaN(m) && m > 0) {
+      computedOffer = Math.max(0, Math.round(((m - p) / m) * 100));
+    }
+    formData.append("offer", computedOffer);
 
     dispatch(updateProduct({ id: id, formData: formData }));
     navigate(-1);
@@ -350,7 +374,7 @@ const EditProduct = () => {
               <CustomFileInput onChange={handleMultipleImageInput} />
             </div>
             {/* Attributes */}
-            <div className="admin-div">
+            {/* <div className="admin-div">
               <h1 className="font-bold mb-2">Product Attributes</h1>
               <form
                 className="flex flex-col lg:flex-row items-center gap-3"
@@ -490,7 +514,7 @@ const EditProduct = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </div> */}
           </div>
           {/* Pricing */}
           <div className="lg:w-2/6">
@@ -505,26 +529,22 @@ const EditProduct = () => {
                 value={fetchedData.price || ""}
                 onChange={handleInputChange}
               />
-              <p className="admin-label">Markup</p>
+              <p className="admin-label">Strike Price (MRP)</p>
               <input
-              hidden={true}
                 type="number"
                 name="markup"
-                placeholder="Type product markup here"
+                placeholder="Type product strike price (MRP) here"
                 className="admin-input"
                 value={fetchedData.markup || ""}
                 onChange={handleInputChange}
               />
-              {/* <p className="admin-label">Offer</p> */}
+              <p className="admin-label">Discount (%)</p>
               <input
                 type="number"
                 name="offer"
-                placeholder="Type product offer here"
                 className="admin-input"
-                value={fetchedData.offer || ""}
-                min={1}
-                max={99}
-                onChange={handleInputChange}
+                value={fetchedData.offer || 0}
+                disabled
               />
             </div>
             <div className="admin-div">

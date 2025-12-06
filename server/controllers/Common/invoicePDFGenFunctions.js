@@ -112,9 +112,9 @@ const generateInvoicePDF = async (order) => {
           position,
           i + 1,
           item.productId.name,
-          item.price + item.markup,
+          item.price,
           item.quantity,
-          item.price + item.markup * item.quantity
+          item.price * item.quantity
         );
       }
 

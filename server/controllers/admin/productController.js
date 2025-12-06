@@ -76,7 +76,7 @@ const addProduct = async (req, res) => {
     let formData = { ...req.body, isActive: true };
     const files = req?.files;
 
-    const attributes = JSON.parse(formData.attributes);
+  const attributes = JSON.parse(formData.attributes);
 
     formData.attributes = attributes;
 
@@ -90,6 +90,17 @@ const addProduct = async (req, res) => {
           formData.moreImageURL.push(file.filename);
         }
       });
+    }
+
+    // Derive offer from strike price (markup) and price if possible
+    if (formData.price !== undefined && formData.markup !== undefined) {
+      const p = Number(formData.price);
+      const m = Number(formData.markup);
+      if (!isNaN(p) && !isNaN(m) && m > 0) {
+        formData.offer = Math.max(0, Math.round(((m - p) / m) * 100));
+      } else {
+        formData.offer = 0;
+      }
     }
 
     const product = await Product.create(formData);
@@ -150,6 +161,17 @@ const updateProduct = async (req, res) => {
     if (formData.attributes) {
       const attributes = JSON.parse(formData.attributes);
       formData.attributes = attributes;
+    }
+
+    // Derive offer when price/markup are present in update
+    if (formData.price !== undefined || formData.markup !== undefined) {
+      const p = formData.price !== undefined ? Number(formData.price) : Number(existingProduct.price);
+      const m = formData.markup !== undefined ? Number(formData.markup) : Number(existingProduct.markup);
+      if (!isNaN(p) && !isNaN(m) && m > 0) {
+        formData.offer = Math.max(0, Math.round(((m - p) / m) * 100));
+      } else {
+        formData.offer = 0;
+      }
     }
 
     // Update the product in the database

@@ -28,9 +28,7 @@ const cartSlice = createSlice({
   reducers: {
     calculateTotalPrice: (state) => {
       let sum = state.cart.reduce(
-        (total, item) =>
-          
-          total + (item.product.price + item.product.markup) * item.quantity,
+        (total, item) => total + item.product.price * item.quantity,
         0
       );
       // console.log("sum");

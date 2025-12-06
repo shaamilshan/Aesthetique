@@ -27,7 +27,7 @@ const BuyNow = () => {
 
   let offer = 0;
   let couponType = "s";
-  let totalPrice = product ? product.price + product.markup : 0;
+  let totalPrice = product ? product.price : 0;
   let shipping = 0;
   let tax = 0;
   // let tax = parseInt(totalPrice * 0.08);

@@ -118,7 +118,7 @@ const Categories = () => {
                         onClick={() => navigate(`edit/${category._id}`)}
                       >
                         <td className="admin-table-row flex items-center gap-2">
-                          <div className="w-10 h-10 overflow-clip flex justify-center items-center">
+                          {/* <div className="w-10 h-10 overflow-clip flex justify-center items-center">
                             {category.imgURL ? (
                               <img
                                 src={`${URL}/img/${category.imgURL}`}
@@ -128,7 +128,7 @@ const Categories = () => {
                             ) : (
                               <div className="w-10 h-10 bg-slate-300 rounded-md"></div>
                             )}
-                          </div>
+                          </div> */}
 
                           {category.name}
                         </td>

@@ -28,7 +28,7 @@ const CheckoutCartRow = ({ item }) => {
         <p className="text-sm text-gray-600 mt-1">
           {item.quantity} x{" "}
           <span className="font-semibold text-blue-500">
-            {item.product.price + item.product.markup}₹
+            {item.product.price}₹
           </span>
         </p>
       </div>

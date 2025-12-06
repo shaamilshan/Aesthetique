@@ -42,9 +42,17 @@ const ProductCard2 = ({ product }) => {
     }
   }, [user, dispatch, wishlist.length]);
 
-  const originalPrice = product.offer
-    ? Math.round(product.price / (1 - product.offer / 100))
-    : product.price;
+  const hasStrike = product.markup && Number(product.markup) > Number(product.price);
+  const strikePrice = hasStrike ? Number(product.markup) : null;
+  const discountPercent = hasStrike
+    ? Math.max(
+        0,
+        Math.round(
+          ((Number(product.markup) - Number(product.price)) /
+            Number(product.markup)) * 100
+        )
+      )
+    : 0;
 
   const handleWishlistClick = async () => {
     if (!user) {
@@ -146,7 +154,19 @@ const ProductCard2 = ({ product }) => {
         <h3 className="text-lg font-medium text-[#2c2540] mb-2">{product.name}</h3>
 
         <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold text-[#A53030]">₹{product.price.toLocaleString()}</div>
+          <div className="text-sm font-semibold text-[#A53030] flex items-center gap-2">
+            <span>₹{Number(product.price).toLocaleString()}</span>
+            {hasStrike && (
+              <span className="text-gray-500 line-through text-xs">
+                ₹{strikePrice.toLocaleString()}
+              </span>
+            )}
+            {discountPercent > 0 && (
+              <span className="px-2 py-0.5 bg-black text-white rounded text-[10px]">
+                {discountPercent}% Off
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <button

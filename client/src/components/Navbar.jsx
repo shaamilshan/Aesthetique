@@ -3,12 +3,25 @@ import { Link, useNavigate, useSearchParams, useLocation } from "react-router-do
 import { useSelector, useDispatch } from "react-redux";
 import { debounce } from "time-loom";
 import { logout } from "../redux/actions/userActions";
+import { getCart } from "../redux/actions/user/cartActions";
 import { Heart, ShoppingCart, User, Menu, X } from "lucide-react";
 import logo from "../assets/others/bm-logo.png";
 import SearchBar from "./SearchBar";
 
 const Navbar = ({ usercheck }) => {
   const { user } = useSelector((state) => state.user);
+  const cartItems = useSelector((state) => {
+    try {
+      // Correct slice: cart.items are stored under state.cart.cart
+      if (Array.isArray(state.cart?.cart)) return state.cart.cart;
+      // Fallbacks for any legacy shapes
+      if (Array.isArray(state.cart?.items)) return state.cart.items;
+      if (Array.isArray(state.userCart?.cart?.items)) return state.userCart.cart.items;
+      if (Array.isArray(state.cart)) return state.cart;
+    } catch (_) {}
+    return [];
+  });
+  const cartCount = cartItems?.length || 0;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,10 +94,27 @@ const Navbar = ({ usercheck }) => {
     }
   };
 
+  // Shadow on scroll for visual feedback
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Ensure cart is loaded so badge reflects item count even before visiting cart page
+  useEffect(() => {
+    if (usercheck) {
+      dispatch(getCart());
+    }
+  }, [usercheck, dispatch]);
+
   return (
-    <header className="sticky top-0 border-b bg-white shadow-md z-50">
+    <>
+    <header className={`w-full bg-white`}
+      role="banner">
       {/* Increased vertical padding for taller navbar */}
-      <div className="container mx-auto px-4 py-6 lg:py-8">
+  <div className="container mx-auto px-0 py-3 lg:py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center">
@@ -92,7 +122,7 @@ const Navbar = ({ usercheck }) => {
             <img
               src={logo}
               alt="logo"
-              className="h-8 w-auto sm:h-10 md:h-12 lg:h-14 object-contain"
+              className="h-7 w-auto sm:h-9 md:h-10 lg:h-12 object-contain"
               style={{ display: "block" }}
             />
           </Link>
@@ -119,27 +149,35 @@ const Navbar = ({ usercheck }) => {
 
           {/* Icons & Search Bar (Right Side) */}
           <div className="flex items-center gap-4 lg:gap-6">
-            {/* Search Bar (Next to Wishlist) */}
-            <div className="relative hidden max-w-xs lg:block">
-              <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} />
+            {/* Pill search input container - match height with icon pill */}
+            <div className="hidden lg:flex items-center rounded-full border border-gray-300/70 px-4 h-14 bg-white shadow-sm">
+              <div className="min-w-[260px]">
+                <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} />
+              </div>
             </div>
 
-            {/* Wishlist Icon */}
-            <Link to="/dashboard/wishlist">
-              <Heart className="h-5 w-5" />
-            </Link>
-
-            {/* Profile Icon */}
-            <Link to="/dashboard/profile">
-              <User className="h-5 w-5" />
-            </Link>
-
-            {/* Cart Icon (Only If Logged In) */}
-            {usercheck && (
-              <Link to="/cart">
-                <ShoppingCart className="h-5 w-5" />
+            {/* Icon pill group - match height with search pill */}
+            <div className="flex items-center gap-3 rounded-full bg-black text-white px-4 h-14">
+              {/* Wishlist */}
+              <Link to="/dashboard/wishlist" className="text-white/90 hover:text-white">
+                <Heart className="h-5 w-5" />
               </Link>
-            )}
+              {/* Profile */}
+              <Link to="/dashboard/profile" className="text-white/90 hover:text-white">
+                <User className="h-5 w-5" />
+              </Link>
+              {/* Cart with badge */}
+              {usercheck && (
+                <Link to="/cart" className="relative inline-block text-white/90 hover:text-white">
+                  <span className="relative inline-block w-6 h-6">
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      <ShoppingCart className="h-5 w-5" />
+                    </span>
+                   
+                  </span>
+                </Link>
+              )}
+            </div>
 
             {/* Hamburger Menu for Mobile */}
             <button onClick={toggleMenu} className="lg:hidden">
@@ -196,6 +234,8 @@ const Navbar = ({ usercheck }) => {
         </div>
       </div>
     </header>
+    
+    </>
   );
 };
 

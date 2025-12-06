@@ -2,7 +2,7 @@ import React from 'react';
 
 function Footer() {
   return (
-    <footer className="bg-[#A53030] text-white py-8">
+    <footer className="bg-white text-black py-8 border-t">
       <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-start gap-8">
         {/* Brand Section */}
         <div className="md:w-1/4">
@@ -16,10 +16,10 @@ function Footer() {
           <div>
             <h4 className="text-lg font-medium mb-4">Links</h4>
             <ul className="space-y-2">
-              <li><a href="/" className="hover:text-gray-300">Home</a></li>
-              <li><a href="/collections" className="hover:text-gray-300">Shop</a></li>
-              <li><a href="/about-us" className="hover:text-gray-300">About</a></li>
-              <li><a href="/contact-us" className="hover:text-gray-300">Contact</a></li>
+              <li><a href="/" className="hover:text-gray-700">Home</a></li>
+              <li><a href="/collections" className="hover:text-gray-700">Shop</a></li>
+              <li><a href="/about-us" className="hover:text-gray-700">About</a></li>
+              <li><a href="/contact-us" className="hover:text-gray-700">Contact</a></li>
             </ul>
           </div>
 
@@ -27,10 +27,10 @@ function Footer() {
           <div>
             <h4 className="text-lg font-medium mb-4">Help</h4>
             <ul className="space-y-2">
-              <li><a href="/" className="hover:text-gray-300">Payment Options</a></li>
-              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/refund" className="hover:text-gray-300">Returns</a></li>
-              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/terms" className="hover:text-gray-300">Privacy Policies</a></li>
-              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/shipping" className="hover:text-gray-300">Shipping & Delivery Policy</a></li>
+              <li><a href="/" className="hover:text-gray-700">Payment Options</a></li>
+              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/refund" className="hover:text-gray-700">Returns</a></li>
+              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/terms" className="hover:text-gray-700">Privacy Policies</a></li>
+              <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/shipping" className="hover:text-gray-700">Shipping & Delivery Policy</a></li>
             </ul>
           </div>
 
@@ -41,11 +41,11 @@ function Footer() {
               <input
                 type="email"
                 placeholder="Enter Your Email"
-                className="bg-white text-black rounded-md px-4 py-2 text-sm w-full"
+                className="bg-white text-black rounded-md px-4 py-2 text-sm w-full border"
               />
               <button
                 type="submit"
-                className="bg-white text-red-600 font-semibold rounded-md px-4 py-2 text-sm hover:bg-gray-200 transition"
+                className="bg-black text-white font-semibold rounded-md px-4 py-2 text-sm hover:bg-gray-800 transition"
               >
                 SUBSCRIBE
               </button>
@@ -55,7 +55,7 @@ function Footer() {
       </div>
 
       {/* Copyright */}
-      <div className="mt-8 text-center text-sm text-white/80 px-4">
+      <div className="mt-8 text-center text-sm text-gray-600 px-4">
         <p>&copy; 2025 BM Aesthetique. All rights reserved.</p>
       </div>
     </footer>

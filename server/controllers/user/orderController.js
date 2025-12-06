@@ -148,7 +148,7 @@ const createOrder = async (req, res) => {
     let totalQuantity = 0;
 
     cart.items.map(async (item) => {
-      sum = sum + (item.product.price + item.product.markup) * item.quantity;
+      sum = sum + item.product.price * item.quantity;
       totalQuantity = totalQuantity + item.quantity;
     });
 
@@ -164,7 +164,7 @@ const createOrder = async (req, res) => {
     const products = cart.items.map((item) => ({
       productId: item.product._id,
       quantity: item.quantity,
-      totalPrice: item.product.price + item.product.markup,
+      totalPrice: item.product.price,
       price: item.product.price,
       markup: item.product.markup || 0,
       attributes: item.attributes, // Include attributes here
@@ -220,7 +220,7 @@ const createOrder = async (req, res) => {
         console.log(order);
       }
 
-      sum = sum + (item.product.price + item.product.markup) * item.quantity;
+      sum = sum + item.product.price * item.quantity;
       totalQuantity = totalQuantity + item.quantity;
     });
 
@@ -605,8 +605,8 @@ const buyNow = async (req, res) => {
       throw Error("Insufficient Quantity");
     }
 
-    const sum = product.price + product.markup;
-    const sumWithTax = parseInt(sum);
+  const sum = product.price * quantity;
+  const sumWithTax = parseInt(sum);
     // const sumWithTax = parseInt(sum + sum * 0.08);
 
     // Request Body
@@ -621,7 +621,7 @@ const buyNow = async (req, res) => {
     products.push({
       productId: product._id,
       quantity: quantity,
-      totalPrice: product.price + product.markup,
+      totalPrice: product.price,
       price: product.price,
       markup: product.markup,
     });
@@ -630,7 +630,7 @@ const buyNow = async (req, res) => {
       user: _id,
       address: addressData,
       products: products,
-      subTotal: sum,
+  subTotal: sum,
       // tax: parseInt(sum * 0.08),
       tax: 0, // No tax
       totalPrice: sumWithTax,

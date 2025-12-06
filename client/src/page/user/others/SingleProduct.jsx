@@ -54,6 +54,7 @@ const SingleProduct = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [copied, setCopied] = useState(false);
   const [selectedAttributes, setSelectedAttributes] = useState({});
+  const [showStickyBar, setShowStickyBar] = useState(false);
 
   const filteredProducts = userProducts?.filter(
     (product) => product._id !== id
@@ -134,6 +135,18 @@ const SingleProduct = () => {
     dispatch(getUserProducts(searchParams));
     loadProduct();
   }, [id, dispatch, searchParams]);
+
+  // Show bottom action bar only when scrolled down
+  useEffect(() => {
+    const onScroll = () => {
+      // Toggle when user has scrolled beyond 300px
+      setShowStickyBar(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", onScroll);
+    // Initialize in case component mounts mid-scroll
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const increment = async () => {
     try {
@@ -379,28 +392,58 @@ const SingleProduct = () => {
 
   return (
     <div className="max-w-screen-2xl mx-auto px-4 flex flex-col justify-start items-center">
-      {/* Fixed bottom panel for mobile devices */}
-      {/* {isMobile && (
-        <div className="fixed-bottom-panel">
-          <button
-            className="buy-now-btn"
-            onClick={buyNow}
-            disabled={cartLoading || isOutOfStock}
+      {/* Sticky bottom action bar (only when scrolled down) */}
+      {showStickyBar && (
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur-sm border-t px-4 py-3">
+        <div className="max-w-screen-2xl mx-auto flex items-center gap-3">
+          {!isOutOfStock ? (
+            <>
+              <Button
+                onClick={buyNow}
+                variant="destructive"
+                size="lg"
+                disabled={cartLoading}
+                className="flex-1 h-12"
+              >
+                <Zap size={18} className="mr-2" />
+                Buy Now
+              </Button>
+              <Button
+                onClick={addToCart}
+                variant="outline"
+                size="lg"
+                disabled={cartLoading}
+                className="flex-1 h-12 border-gray-300"
+              >
+                <ShoppingCart size={18} className="mr-2" />
+                Add to Cart
+              </Button>
+            </>
+          ) : (
+            <Button
+              onClick={() => notifyManager(product._id, "stock", "restock")}
+              variant="outline"
+              size="lg"
+              className="flex-1 h-12 bg-blue-500 hover:bg-blue-600 text-white border-none"
+            >
+              <Bell size={18} className="mr-2" />
+              Notify Me When Available
+            </Button>
+          )}
+          <Button
+            onClick={handleShare}
+            variant="ghost"
+            size="icon"
+            className="h-12 w-12 shrink-0"
+            aria-label="Share"
           >
-            {cartLoading ? "Processing..." : isOutOfStock ? "Notify Me" : "Buy Now"}
-          </button>
-          <button
-            className="add-to-cart-btn"
-            onClick={addToCart}
-            disabled={cartLoading || isOutOfStock}
-          >
-            {cartLoading ? "Adding..." : "Add to Cart"}
-          </button>
-          <button className="share-btn" onClick={handleShare}>
-            {copied ? "Link Copied!" : "Share"}
-          </button>
+            <FaShareAlt size={18} />
+          </Button>
         </div>
-      )} */}
+      </div>
+      )}
+      {/* Spacer to avoid bottom bar overlapping content */}
+      {showStickyBar && <div className="h-20"></div>}
 
       {/* Breadcrumb navigation */}
       <div className="container w-full flex my-3 sm:my-6 px-2">
@@ -478,16 +521,22 @@ const SingleProduct = () => {
             {/* Price Section */}
             <div className="flex items-center border-b pb-4 mb-4">
               <h1 className="text-xl sm:text-2xl text-red-500 font-semibold font-Inter">
-                ₹{(product.price - product.price * (product.offer / 100)).toFixed(2)}
+                ₹{Number(product.price).toFixed(2)}
               </h1>
 
-              {product.offer > 0 && (
+              {product.markup && Number(product.markup) > Number(product.price) && (
                 <div className="flex items-center ml-3">
                   <h1 className="text-sm sm:text-base font-light text-gray-500 line-through mr-3">
-                    ₹{product.price.toFixed(2)}
+                    ₹{Number(product.markup).toFixed(2)}
                   </h1>
                   <div className="px-2 py-1 bg-black rounded text-white text-xs">
-                    {parseInt(product.offer)}% Off
+                    {Math.max(
+                      0,
+                      Math.round(
+                        ((Number(product.markup) - Number(product.price)) /
+                          Number(product.markup)) * 100
+                      )
+                    )}% Off
                   </div>
                 </div>
               )}

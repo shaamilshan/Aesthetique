@@ -186,22 +186,21 @@ const ProductDetails = () => {
                 </p>
               </div>
               <p className="text-xl font-semibold my-2">
-                <span className="text-blue-600">
-                  {product.price + product.markup}₹
-                </span>
-                {"  "}
-                {product.offer && (
+                <span className="text-blue-600">{product.price}₹</span>
+                {product.markup && product.markup > product.price && (
                   <>
-                    <span className="text-gray-500 line-through">
-                      {parseInt(
-                        ((product.price + product.markup) *
-                          (product.offer + 100)) /
-                          100
-                      )}
-                      ₹
+                    <span className="text-gray-500 line-through ml-3">
+                      {product.markup}₹
                     </span>
                     <span className="bg-orange-500 px-3 py-1 ml-5 text-base rounded">
-                      {product.offer}%Off
+                      {Math.max(
+                        0,
+                        Math.round(
+                          ((Number(product.markup) - Number(product.price)) /
+                            Number(product.markup)) *
+                            100
+                        )
+                      )}%Off
                     </span>
                   </>
                 )}

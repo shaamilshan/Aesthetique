@@ -41,7 +41,7 @@ const AddProducts = () => {
   const [price, setPrice] = useState("");
   const [markup, setMarkup] = useState("");
   const [moreImageURL, setMoreImageURL] = useState("");
-  const [offer, setOffer] = useState("");
+  const [offer, setOffer] = useState(0);
 
   const handleSingleImageInput = (img) => {
     setImageURL(img);
@@ -67,15 +67,27 @@ const AddProducts = () => {
     //   return;
     // }
 
-    const formData = new FormData();
+  const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
     formData.append("stockQuantity", newStockQuantity);
     formData.append("attributes", JSON.stringify(attributes));
     formData.append("price", price);
-    formData.append("markup", markup);
+    if (markup !== "" && markup !== null && markup !== undefined) {
+      formData.append("markup", markup);
+    }
     formData.append("category", category);
-    formData.append("offer", offer);
+    // compute offer percentage from strike price (markup) and price
+    const numericPrice = Number(price);
+    const numericMarkup = Number(markup);
+    let computedOffer = 0;
+    if (!isNaN(numericPrice) && !isNaN(numericMarkup) && numericMarkup > 0) {
+      computedOffer = Math.max(
+        0,
+        Math.round(((numericMarkup - numericPrice) / numericMarkup) * 100)
+      );
+    }
+    formData.append("offer", computedOffer);
     formData.append("status", status.toLowerCase());
 
     formData.append("imageURL", imageURL);
@@ -204,7 +216,7 @@ const AddProducts = () => {
               <CustomFileInput onChange={handleMultipleImageInput} />
             </div>
             {/* Attributes */}
-            <div className="admin-div">
+            {/* <div className="admin-div">
               <h1 className="font-bold mb-2">Product Attributes</h1>
               <form
                 className="flex flex-col lg:flex-row items-center gap-3"
@@ -272,7 +284,7 @@ const AddProducts = () => {
                   );
                 })}
               </div>
-            </div>
+            </div> */}
           </div>
           {/* Pricing */}
           <div className="lg:w-2/6">
@@ -286,24 +298,13 @@ const AddProducts = () => {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
-              <p className="admin-label">Markup</p>
+              <p className="admin-label">Strike Price (MRP)</p>
               <input
-              hidden={true}
                 type="number"
-                placeholder="Type product markup here"
+                placeholder="Type product strike price (MRP) here"
                 className="admin-input"
                 value={markup}
                 onChange={(e) => setMarkup(e.target.value)}
-              />
-              {/* <p className="admin-label">Offer</p> */}
-              <input
-                type="number"
-                placeholder="Type product markup here"
-                className="admin-input"
-                value={offer}
-                min={1}
-                max={100}
-                onChange={(e) => setOffer(e.target.value)}
               />
             </div>
             <div className="admin-div">
