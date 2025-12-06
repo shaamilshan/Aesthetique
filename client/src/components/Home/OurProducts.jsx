@@ -35,10 +35,12 @@ const OurProducts = ({ id }) => {
     <section id={id} className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10">
-          <h2 data-aos="fade-right" className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2c2540] tracking-tight">
-            Our Premium Skincare Range
-          </h2>
+         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+              Our <span className="font-serif italic">Premium</span> Skin Care Range
+            </h1>
         </div>
+
+        
 
         {loading ? (
           <div className="flex justify-center items-center h-60">
@@ -48,22 +50,24 @@ const OurProducts = ({ id }) => {
           <>
             {shuffledProducts && shuffledProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                  {shuffledProducts.slice(0, visibleProducts).map((product, index) => (
-                    <ProductCard2 key={product._id || index} product={product} />
-                  ))}
+                <div className="overflow-x-auto">
+                  <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                    {shuffledProducts.slice(0, 8).map((product, index) => (
+                      <div key={product._id || index} className="flex-none w-80">
+                        <ProductCard2 product={product} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 
-                {visibleProducts < shuffledProducts.length && visibleProducts < 20 && (
-                  <div className="flex justify-center mt-8">
-                    <button
-                      onClick={loadMore}
-                      className="bg-white text-[#A53030] font-medium py-2 px-6 rounded-lg shadow-md hover:bg-[#FF9E80] hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF9E80] focus:ring-opacity-50"
-                    >
-                      Load More
-                    </button>
-                  </div>
-                )}
+                <div className="flex justify-center mt-8">
+                  <button
+                    onClick={() => navigate('/collections')}
+                    className="bg-white text-[#A53030] font-medium py-2 px-6 rounded-lg shadow-md hover:bg-[#FF9E80] hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF9E80] focus:ring-opacity-50"
+                  >
+                    View All Products
+                  </button>
+                </div>
               </>
             ) : (
               <div className="h-60 flex items-center justify-center bg-white/10 rounded-lg backdrop-blur-sm">

@@ -157,24 +157,23 @@ const Navbar = ({ usercheck }) => {
             </div>
 
             {/* Icon pill group - match height with search pill */}
-            <div className="flex items-center gap-3 rounded-full bg-black text-white px-4 h-14">
+            <div className="flex items-center justify-center gap-3 rounded-full bg-black text-white px-4 h-14">
               {/* Wishlist */}
-              <Link to="/dashboard/wishlist" className="text-white/90 hover:text-white">
+              <Link to="/dashboard/wishlist" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
                 <Heart className="h-5 w-5" />
               </Link>
               {/* Profile */}
-              <Link to="/dashboard/profile" className="text-white/90 hover:text-white">
+              <Link to="/dashboard/profile" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
                 <User className="h-5 w-5" />
               </Link>
-              {/* Cart with badge */}
+              {/* Cart */}
               {usercheck && (
-                <Link to="/cart" className="relative inline-block text-white/90 hover:text-white">
-                  <span className="relative inline-block w-6 h-6">
-                    <span className="absolute inset-0 flex items-center justify-center">
-                      <ShoppingCart className="h-5 w-5" />
-                    </span>
-                   
-                  </span>
+                <Link to="/cart" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                  </svg>
                 </Link>
               )}
             </div>
