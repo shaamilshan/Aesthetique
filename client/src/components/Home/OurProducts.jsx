@@ -34,13 +34,32 @@ const OurProducts = ({ id }) => {
   return (  
     <section id={id} className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+        {/* Header Section - Split Layout like AboutUs */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start mb-12">
+          {/* Left Column - Heading */}
+          <div>
+            <button
+              className="inline-flex items-center rounded-full border border-black/20 px-6 py-2.5 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors mb-6"
+              type="button"
+            >
+              Our Products
+            </button>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
               Our <span className="font-serif italic">Premium</span> Skin Care Range
             </h1>
-        </div>
+          </div>
 
-        
+          {/* Right Column - View All Products Button */}
+          <div className="flex justify-start lg:justify-end items-center h-full">
+            <button
+              onClick={() => navigate('/collections')}
+              className="bg-white text-black font-medium py-3 px-8 rounded-lg   hover:text-black transition-colors duration-300 focus:outline-none focus:ring-2  focus:ring-opacity-50"
+            >
+              View All Products
+            </button>
+          </div>
+        </div>
 
         {loading ? (
           <div className="flex justify-center items-center h-60">
@@ -58,15 +77,6 @@ const OurProducts = ({ id }) => {
                       </div>
                     ))}
                   </div>
-                </div>
-                
-                <div className="flex justify-center mt-8">
-                  <button
-                    onClick={() => navigate('/collections')}
-                    className="bg-white text-[#A53030] font-medium py-2 px-6 rounded-lg shadow-md hover:bg-[#FF9E80] hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF9E80] focus:ring-opacity-50"
-                  >
-                    View All Products
-                  </button>
                 </div>
               </>
             ) : (
