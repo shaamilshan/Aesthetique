@@ -115,7 +115,7 @@ const ProductCard2 = ({ product }) => {
     <div
       data-aos="fade-left"
       onClick={() => navigate(`/product/${product._id}`)}
-      className="cursor-pointer bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full"
+      className="cursor-pointer bg-white rounded-3xl shadow-sm hover:shadow-sm transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full"
     >
       {/* Image area */}
       <div className="relative bg-gray-50 w-full">
