@@ -52,10 +52,7 @@ const Register = () => {
     email: Yup.string().email().required("Email is required"),
     password: Yup.string()
       .required("Password is required")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
-        "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character"
-      ),
+      .min(6, "Password must be at least 6 characters long"),
     passwordAgain: Yup.string()
       .required("Password is required")
       .oneOf([Yup.ref("password"), null], "Password must match"),
@@ -99,8 +96,8 @@ const Register = () => {
       </div>
 
       {/* Form Container */}
-      <div className="relative z-10 bg-white p-8 rounded-none shadow-lg w-full max-w-lg mx-4" style={{ borderRadius: 0 }}>
-        <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
+      <div className="relative z-10 bg-white p-8 rounded-full shadow-lg w-full max-w-4xl mx-4" style={{ borderRadius: 0 }}>
+        <h1 className="text-4xl font-bold mb-8 text-center">Sign Up</h1>
 
         <Formik
           initialValues={initialValues}
@@ -109,58 +106,80 @@ const Register = () => {
         >
           {({ values, setFieldValue }) => (
             <Form className="space-y-6">
-              {/* First Name Field */}
-              <InputWithIcon
-                icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                name="firstName"
-                placeholder="Enter your first name"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-              {/* Last Name Field */}
-              <InputWithIcon
-                icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                name="lastName"
-                placeholder="Enter your last name"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-              {/* Phone Number Field */}
-              <InputWithIcon
-                icon={<AiOutlinePhone className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                name="phoneNumber"
-                placeholder="Enter your phone number"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-              {/* Email Field */}
-              <InputWithIcon
-                icon={<AiOutlineMail className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                name="email"
-                placeholder="Enter your email"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-              {/* Password Field */}
-              <PasswordInputWithIcon
-                icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                name="password"
-                placeholder="Enter your password"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
-              {/* Confirm Password Field */}
-              <PasswordInputWithIcon
-                icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                name="passwordAgain"
-                placeholder="Confirm your password"
-                className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-              />
+              {/* Two Column Grid Layout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* First Name Field */}
+                <div>
+                  <InputWithIcon
+                    icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                    name="firstName"
+                    placeholder="Enter your first name"
+                    className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                  />
+                </div>
+                
+                {/* Last Name Field */}
+                <div>
+                  <InputWithIcon
+                    icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                    name="lastName"
+                    placeholder="Enter your last name"
+                    className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                  />
+                </div>
+
+                {/* Phone Number Field */}
+                <div>
+                  <InputWithIcon
+                    icon={<AiOutlinePhone className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                    name="phoneNumber"
+                    placeholder="Enter your phone number"
+                    className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                  />
+                </div>
+
+                {/* Email Field */}
+                <div>
+                  <InputWithIcon
+                    icon={<AiOutlineMail className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                    name="email"
+                    placeholder="Enter your email"
+                    className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                  />
+                </div>
+
+                {/* Password Field */}
+                <div>
+                  <PasswordInputWithIcon
+                    icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                    name="password"
+                    placeholder="Enter your password"
+                    className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                  />
+                </div>
+
+                {/* Confirm Password Field */}
+                <div>
+                  <PasswordInputWithIcon
+                    icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
+                    name="passwordAgain"
+                    placeholder="Confirm your password"
+                    className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
+                  />
+                </div>
+              </div>
+
               {/* Submit Button */}
               <button
                 type="submit"
-                className="h-12 w-full bg-gradient-to-r from-[#C84332] to-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-300"
+                className="h-12 w-full bg-black text-white font-semibold rounded-full shadow-md hover:bg-white hover:text-black hover:border-2 hover:border-black transition duration-300 mt-8"
                 disabled={loadingLocal}
               >
                 {loadingLocal ? "Loading..." : "Sign Up"}
               </button>
+              
               {/* Error Message */}
-              {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+              {error && <p className="text-red-500 text-sm text-center mt-4">{error}</p>}
             </Form>
           )}
         </Formik>

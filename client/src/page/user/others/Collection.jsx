@@ -27,6 +27,10 @@ const Collections = () => {
   const [sort, setSort] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [priceRange, setPriceRange] = useState([1000, 100000]);
+  const [selectedRating, setSelectedRating] = useState([]);
+  const [selectedAvailability, setSelectedAvailability] = useState([]);
+  const [selectedSkinType, setSelectedSkinType] = useState([]);
 
   useEffect(() => {
     window.scrollTo({
@@ -38,11 +42,17 @@ const Collections = () => {
     const priceParam = searchParams.get("price");
     const searchParam = searchParams.get("search");
     const sortParam = searchParams.get("sort");
+    const ratingParam = searchParams.get("rating");
+    const availabilityParam = searchParams.get("availability");
+    const skinTypeParam = searchParams.get("skinType");
     const page = searchParams.get("page");
 
     setCategory(categoryParam ? categoryParam.split(",") : []);
     setPrice(priceParam || "");
     setSort(sortParam || "");
+    setSelectedRating(ratingParam ? ratingParam.split(",") : []);
+    setSelectedAvailability(availabilityParam ? availabilityParam.split(",") : []);
+    setSelectedSkinType(skinTypeParam ? skinTypeParam.split(",") : []);
     setPage(page || 1);
     setSearch(searchParam || "");
   }, [searchParams]);
@@ -82,42 +92,49 @@ const Collections = () => {
       if (param === "price") {
         setPrice("");
       }
+      if (param === "priceRange") {
+        setPriceRange([1000, 100000]);
+      }
       if (param === "sort") {
         setSort("");
         params.delete("page");
         setPage(1);
       }
     } else {
-      if (param === "category" && value) {
-        let cat = params.get("category");
-        if (!cat) {
-          params.append("category", value);
-          setCategory([value]);
+      // Handle multi-select filters (category, rating, availability, skinType)
+      if (["category", "rating", "availability", "skinType"].includes(param) && value) {
+        let currentValues = params.get(param);
+        let tempArray = currentValues ? currentValues.split(",") : [];
+        
+        if (tempArray.includes(value.toString())) {
+          tempArray = tempArray.filter((item) => item !== value.toString());
         } else {
-          let temp = cat.split(",");
-          if (temp.length > 0) {
-            if (temp.includes(value)) {
-              temp = temp.filter((item) => item !== value);
-            } else {
-              temp.push(value);
-            }
-
-            if (temp.length > 0) {
-              params.set("category", temp.join(","));
-              setCategory(temp);
-            } else {
-              params.delete("category");
-              setCategory([]);
-            }
-          } else {
-            params.delete("category");
-            setCategory([]);
-          }
+          tempArray.push(value.toString());
         }
+
+        if (tempArray.length > 0) {
+          params.set(param, tempArray.join(","));
+        } else {
+          params.delete(param);
+        }
+
+        // Update state based on param type
+        if (param === "category") setCategory(tempArray);
+        if (param === "rating") setSelectedRating(tempArray);
+        if (param === "availability") setSelectedAvailability(tempArray);
+        if (param === "skinType") setSelectedSkinType(tempArray);
+        
+        params.delete("page");
+        setPage(1);
       } else {
         params.set(param, value);
         if (param === "price") {
           setPrice(value);
+          params.delete("page");
+          setPage(1);
+        }
+        if (param === "priceRange") {
+          params.set("priceRange", value);
           params.delete("page");
           setPage(1);
         }
@@ -163,7 +180,18 @@ const Collections = () => {
     setSearch("");
     setPrice("");
     setCategory([]);
+    setSelectedRating([]);
+    setSelectedAvailability([]);
+    setSelectedSkinType([]);
+    setPriceRange([1000, 100000]);
     setPage(1);
+  };
+
+  // Handle price range changes
+  const handlePriceRangeChange = (values) => {
+    setPriceRange(values);
+    const priceFilter = `${values[0]}-${values[1]}`;
+    handleClick('priceRange', priceFilter);
   };
 
   // Mobile Filter toggle
@@ -195,30 +223,157 @@ const Collections = () => {
             </button>
           </div>
           <div className="space-y-4">
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-4">
               <div className="flex items-center h-[50px] pl-4 bg-[#F2F2F2] rounded-[10px]">
-                <FilterIcon />
-                <h1 className="font-Inter text-lg sm:text-xl ml-4">Filter</h1>
+                {/* <FilterIcon /> */}
+                <h1 className="font-Inter text-lg sm:text-xl ml-4">Filter Options</h1>
               </div>
-              <DropDown
-                title="price"
-                text="Price"
-                subItems={[
-                  { name: "All Price", _id: "" },
-                  { name: "Under 2500", _id: "Under 2500" },
-                  { name: "2500-5000", _id: "2500-5000" },
-                  { name: "5000-10000", _id: "5000-10000" },
-                  { name: "Above 10000₹", _id: "Above 10000" },
-                ]}
-                onSubItemClick={handleSubItemClick}
-              />
-              <DropDownCheckbox
-                title="category"
-                text="Type"
-                filters={category}
-                subItems={categories}
-                onSubItemClick={handleClick}
-              />
+
+              {/* By Categories */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">By Categories</h3>
+                <div className="space-y-2">
+                  {categories.map((cat) => (
+                    <label key={cat._id} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                        checked={category.includes(cat._id)}
+                        onChange={(e) => handleClick('category', cat._id)}
+                      />
+                      <span>{cat.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Price</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>₹{priceRange[0].toLocaleString()}</span>
+                    <span>₹{priceRange[1].toLocaleString()}</span>
+                  </div>
+                  
+                  {/* Price Range Slider */}
+                  <div className="px-2">
+                    <div className="relative">
+                      {/* Track */}
+                      <div className="h-2 bg-gray-200 rounded-full relative">
+                        {/* Active track */}
+                        <div 
+                          className="h-2 bg-[#A53030] rounded-full absolute"
+                          style={{
+                            left: `${((priceRange[0] - 1000) / (100000 - 1000)) * 100}%`,
+                            width: `${((priceRange[1] - priceRange[0]) / (100000 - 1000)) * 100}%`
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Min Range Input */}
+                      <input
+                        type="range"
+                        min="1000"
+                        max="100000"
+                        step="1000"
+                        value={priceRange[0]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (value < priceRange[1]) {
+                            const newRange = [value, priceRange[1]];
+                            handlePriceRangeChange(newRange);
+                          }
+                        }}
+                        className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb"
+                      />
+                      
+                      {/* Max Range Input */}
+                      <input
+                        type="range"
+                        min="1000"
+                        max="100000"
+                        step="1000"
+                        value={priceRange[1]}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          if (value > priceRange[0]) {
+                            const newRange = [priceRange[0], value];
+                            handlePriceRangeChange(newRange);
+                          }
+                        }}
+                        className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Availability */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Availability</h3>
+                <div className="space-y-2">
+                  <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                      checked={selectedAvailability.includes('in-stock')}
+                      onChange={(e) => handleClick('availability', 'in-stock')}
+                    />
+                    <span>In Stock</span>
+                  </label>
+                  <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                      checked={selectedAvailability.includes('out-of-stock')}
+                      onChange={(e) => handleClick('availability', 'out-of-stock')}
+                    />
+                    <span>Out of Stock</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Reviews/Ratings */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Review</h3>
+                <div className="space-y-2">
+                  {[5, 4, 3, 2, 1].map((rating) => (
+                    <label key={rating} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                        checked={selectedRating.includes(rating.toString())}
+                        onChange={(e) => handleClick('rating', rating)}
+                      />
+                      <div className="flex items-center space-x-1">
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} className={`text-xs ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                        ))}
+                        <span className="text-xs text-gray-500">{rating} Star{rating > 1 ? 's' : ''}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* By Skin Type */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">By Skin Type</h3>
+                <div className="space-y-2">
+                  {['Normal', 'Oily', 'Dry', 'Combination', 'Sensitive'].map((skinType) => (
+                    <label key={skinType} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                        checked={selectedSkinType.includes(skinType)}
+                        onChange={(e) => handleClick('skinType', skinType)}
+                      />
+                      <span>{skinType}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               
               <div className="pt-4 border-t mt-4">
                 <SortButton handleClick={handleClick} sort={sort} />
@@ -227,8 +382,14 @@ const Collections = () => {
               <div className="pt-4 flex justify-between">
                 <button 
                   onClick={clearFilters}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 flex items-center gap-2"
                 >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M10 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M14 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                   Clear All
                 </button>
                 <button 
@@ -272,37 +433,193 @@ const Collections = () => {
                 </div>
               )}
               
-              <div className="mt-4 space-y-4 px-2">
+              <div className="mt-4 space-y-6 px-2">
                 <div className="flex items-center h-[50px] pl-4 bg-[#F2F2F2] rounded-[10px]">
-                  <FilterIcon />
-                  <h1 className="font-Inter text-lg sm:text-xl ml-4">Filter</h1>
+                  {/* <FilterIcon /> */}
+                  <h1 className="font-Inter text-lg sm:text-xl ml-4">Filter Options</h1>
                 </div>
-                <DropDown
-                  title="price"
-                  text="Price"
-                  subItems={[
-                    { name: "All Price", _id: "" },
-                    { name: "Under 2500", _id: "Under 2500" },
-                    { name: "2500-5000", _id: "2500-5000" },
-                    { name: "5000-10000", _id: "5000-10000" },
-                    { name: "Above 10000₹", _id: "Above 10000" },
-                  ]}
-                  onSubItemClick={handleSubItemClick}
-                />
-                <DropDownCheckbox
-                  title="category"
-                  text="Category"
-                  filters={category}
-                  subItems={categories}
-                  onSubItemClick={handleClick}
-                />
+
+                {/* By Categories */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">By Categories</h3>
+                  <div className="space-y-2">
+                    {categories.map((cat) => (
+                      <label key={cat._id} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                          checked={category.includes(cat._id)}
+                          onChange={(e) => handleClick('category', cat._id)}
+                        />
+                        <span>{cat.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+               
+
+                {/* Price Range */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Price</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                      <span>₹{priceRange[0].toLocaleString()}</span>
+                      <span>₹{priceRange[1].toLocaleString()}</span>
+                    </div>
+                    
+                    {/* Price Range Slider */}
+                    <div className="px-2">
+                      <div className="relative">
+                        {/* Track */}
+                        <div className="h-2 bg-gray-200 rounded-full relative">
+                          {/* Active track */}
+                          <div 
+                            className="h-2 bg-[#A53030] rounded-full absolute"
+                            style={{
+                              left: `${((priceRange[0] - 1000) / (100000 - 1000)) * 100}%`,
+                              width: `${((priceRange[1] - priceRange[0]) / (100000 - 1000)) * 100}%`
+                            }}
+                          />
+                        </div>
+                        
+                        {/* Min Range Input */}
+                        <input
+                          type="range"
+                          min="1000"
+                          max="100000"
+                          step="1000"
+                          value={priceRange[0]}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            if (value < priceRange[1]) {
+                              const newRange = [value, priceRange[1]];
+                              handlePriceRangeChange(newRange);
+                            }
+                          }}
+                          className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb"
+                        />
+                        
+                        {/* Max Range Input */}
+                        <input
+                          type="range"
+                          min="1000"
+                          max="100000"
+                          step="1000"
+                          value={priceRange[1]}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            if (value > priceRange[0]) {
+                              const newRange = [priceRange[0], value];
+                              handlePriceRangeChange(newRange);
+                            }
+                          }}
+                          className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Price input fields */}
+                    <div className="flex items-center space-x-2 text-sm">
+                      <div className="flex-1">
+                        <label className="block text-xs text-gray-500 mb-1">Min Price</label>
+                        <input
+                          type="number"
+                          min="1000"
+                          max="100000"
+                          value={priceRange[0]}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || 1000;
+                            if (value < priceRange[1] && value >= 1000) {
+                              const newRange = [value, priceRange[1]];
+                              handlePriceRangeChange(newRange);
+                            }
+                          }}
+                          className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                        />
+                      </div>
+                      <span className="text-gray-400">-</span>
+                      <div className="flex-1">
+                        <label className="block text-xs text-gray-500 mb-1">Max Price</label>
+                        <input
+                          type="number"
+                          min="1000"
+                          max="100000"
+                          value={priceRange[1]}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || 100000;
+                            if (value > priceRange[0] && value <= 100000) {
+                              const newRange = [priceRange[0], value];
+                              handlePriceRangeChange(newRange);
+                            }
+                          }}
+                          className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reviews/Ratings */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Review</h3>
+                  <div className="space-y-2">
+                    {[5, 4, 3, 2, 1].map((rating) => (
+                      <label key={rating} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                          checked={selectedRating.includes(rating.toString())}
+                          onChange={(e) => handleClick('rating', rating)}
+                        />
+                        <div className="flex items-center space-x-1">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={`text-xs ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                          ))}
+                          <span className="text-xs text-gray-500">{rating} Star{rating > 1 ? 's' : ''}</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Availability */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Availability</h3>
+                  <div className="space-y-2">
+                    <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                        checked={selectedAvailability.includes('in-stock')}
+                        onChange={(e) => handleClick('availability', 'in-stock')}
+                      />
+                      <span>In Stock</span>
+                    </label>
+                    <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-gray-300 text-[#A53030] focus:ring-[#A53030]"
+                        checked={selectedAvailability.includes('out-of-stock')}
+                        onChange={(e) => handleClick('availability', 'out-of-stock')}
+                      />
+                      <span>Out of Stock</span>
+                    </label>
+                  </div>
+                </div>
                  
                 {window.innerWidth < 1024 && (
                   <div className="pt-4 flex justify-between">
                     <button 
                       onClick={clearFilters}
-                      className="px-4 py-2 bg-[#A53030] text-white rounded hover:bg-red-800"
+                      className="px-4 py-2 bg-[#A53030] text-white rounded hover:bg-red-800 flex items-center gap-2"
                     >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M10 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M14 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                       Clear All
                     </button>
                     <button 
@@ -319,31 +636,139 @@ const Collections = () => {
             {/* Main content area */}
             <main className="flex-1 overflow-y-auto">
               <div className="p-2 sm:p-3 md:p-5">
-                {/* Top controls */}
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                  <div className="flex items-center">
-                    <button
-                      className="lg:hidden flex items-center justify-center p-2 bg-gray-100 rounded-md mr-3"
-                      onClick={toggleFilters}
-                    >
-                      <FilterIcon />
-                      <span className="ml-2">Filters</span>
-                    </button>
-                    <SortButton handleClick={handleClick} sort={sort} />
-                  </div>
-                  
+                {/* Results count */}
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm text-gray-600">
+                    Showing 1-12 of {totalAvailableProducts || 0} results
+                  </p>
                   <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">Sort by:</span>
+                    <select 
+                      value={sort}
+                      onChange={(e) => handleClick('sort', e.target.value)}
+                      className="border border-gray-300 rounded-full px-4 py-2 pr-10 text-sm appearance-none bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#A53030] custom-select"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                        backgroundPosition: 'right 12px center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '16px 16px'
+                      }}
+                    >
+                      <option value="">Default Sorting</option>
+                      <option value="price-asc">Price: Low to High</option>
+                      <option value="price-desc">Price: High to Low</option>
+                      <option value="name-asc">Name: A to Z</option>
+                      <option value="name-desc">Name: Z to A</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Active Filters Bar */}
+                <div className="flex flex-wrap items-center gap-2 mb-6">
+                  <span className="text-sm text-gray-600">Active Filter:</span>
+                  
+                  {/* Price Range Filter */}
+                  {(priceRange[0] !== 1000 || priceRange[1] !== 100000) && (
+                    <div className="flex items-center bg-black text-white px-3 py-1 rounded-full text-sm">
+                      <span>₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}</span>
+                      <button 
+                        onClick={() => {
+                          setPriceRange([1000, 100000]);
+                          handleClick('priceRange', '');
+                        }}
+                        className="ml-2 text-white hover:text-gray-300"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Category Filters */}
+                  {category.map((catId) => {
+                    const cat = categories.find(c => c._id === catId);
+                    return cat ? (
+                      <div key={catId} className="flex items-center bg-black text-white px-3 py-1 rounded-full text-sm">
+                        <span>{cat.name}</span>
+                        <button 
+                          onClick={() => handleClick('category', catId)}
+                          className="ml-2 text-white hover:text-gray-300"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : null;
+                  })}
+
+                  {/* Rating Filters */}
+                  {selectedRating.map((rating) => (
+                    <div key={rating} className="flex items-center bg-black text-white px-3 py-1 rounded-full text-sm">
+                      <span>{rating} Star{rating > 1 ? 's' : ''}</span>
+                      <button 
+                        onClick={() => handleClick('rating', rating)}
+                        className="ml-2 text-white hover:text-gray-300"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Availability Filters */}
+                  {selectedAvailability.map((availability) => (
+                    <div key={availability} className="flex items-center bg-black text-white px-3 py-1 rounded-full text-sm">
+                      <span>{availability === 'in-stock' ? 'In Stock' : 'Out of Stock'}</span>
+                      <button 
+                        onClick={() => handleClick('availability', availability)}
+                        className="ml-2 text-white hover:text-gray-300"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Skin Type Filters */}
+                  {selectedSkinType.map((skinType) => (
+                    <div key={skinType} className="flex items-center bg-black text-white px-3 py-1 rounded-full text-sm">
+                      <span>{skinType}</span>
+                      <button 
+                        onClick={() => handleClick('skinType', skinType)}
+                        className="ml-2 text-white hover:text-gray-300"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Sort Filter */}
+                  {sort && (
+                    <div className="flex items-center bg-black text-white px-3 py-1 rounded-full text-sm">
+                      <span>Sort: {sort.replace('-', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+                      <button 
+                        onClick={() => handleClick('sort', '')}
+                        className="ml-2 text-white hover:text-gray-300"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Clear All Button */}
+                  {(category.length > 0 || selectedRating.length > 0 || selectedAvailability.length > 0 || selectedSkinType.length > 0 || sort || priceRange[0] !== 1000 || priceRange[1] !== 100000) && (
                     <button
                       onClick={clearFilters}
-                      className="px-3 py-1 text-sm text-red-600 border border-red-600 rounded hover:bg-red-50"
+                      className="text-sm text-red-600 underline hover:text-red-800 ml-2"
                     >
-                      Clear Filters
+                      Clear All
                     </button>
-                    <div className="shrink-0 text-sm">
-                      <span className="hidden sm:inline">{userProducts?.length || 0}/{totalAvailableProducts || 0} Results</span>
-                      <span className="sm:hidden">{userProducts?.length || 0}/{totalAvailableProducts || 0}</span>
-                    </div>
-                  </div>
+                  )}
+
+                  {/* Mobile Filter Button */}
+                  <button
+                    className="lg:hidden ml-auto flex items-center justify-center p-2 bg-gray-100 rounded-md"
+                    onClick={toggleFilters}
+                  >
+                    <FilterIcon />
+                    <span className="ml-2 text-sm">Filters</span>
+                  </button>
                 </div>
 
                 {/* Products grid */}
@@ -367,8 +792,14 @@ const Collections = () => {
                         <p>No products found</p>
                         <button 
                           onClick={clearFilters}
-                          className="mt-4 px-4 py-2 bg-[#A53030] text-white rounded hover:bg-red-600"
+                          className="mt-4 px-4 py-3 bg-[#A53030] text-white rounded-full hover:bg-red-600 flex items-center gap-2"
                         >
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M10 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M14 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
                           Clear Filters
                         </button>
                       </div>
@@ -378,10 +809,10 @@ const Collections = () => {
                 {/* Pagination */}
                 <div className="flex justify-center items-center my-6">
                   <button
-                    className={`px-3 py-1 sm:px-4 sm:py-2 border rounded text-sm sm:text-base ${
+                    className={`px-3 py-1 sm:px-4 sm:py-2 border rounded-full text-sm sm:text-base ${
                       page === 1
                         ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                        : "text-red-600 border-red-500 hover:bg-blue-50"
+                        : "text-red-600 border-black hover:bg-blue-50"
                     }`}
                     onClick={() => page > 1 && handleClick("page", page - 1)}
                     disabled={page === 1}
@@ -390,10 +821,10 @@ const Collections = () => {
                   </button>
                   <span className="mx-3 sm:mx-4 text-sm sm:text-base">Page {page}</span>
                   <button
-                    className={`px-3 py-1 sm:px-4 sm:py-2 border rounded text-sm sm:text-base ${
+                    className={`px-3 py-1 sm:px-4 sm:py-2 border rounded-full text-sm sm:text-base ${
                       userProducts.length === 0
                         ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                        : "text-red-600 border-red-500 hover:bg-blue-50"
+                        : "text-black border-black hover:bg-blue-50"
                     }`}
                     onClick={() =>
                       userProducts.length > 0 && handleClick("page", page + 1)
@@ -457,3 +888,89 @@ const FilterIcon = () => {
     </svg>
   );
 };
+
+// Add CSS for range slider styling
+const sliderStyles = `
+.slider-thumb {
+  pointer-events: none;
+}
+
+.slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  pointer-events: auto;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #000000;
+  cursor: grab;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.slider-thumb::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.slider-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #000000;
+  cursor: grab;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.slider-thumb::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.slider-thumb::-webkit-slider-track {
+  background: transparent;
+  border: none;
+}
+
+.slider-thumb::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* Focus styles for accessibility */
+.slider-thumb:focus::-webkit-slider-thumb {
+  outline: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(0, 0, 0, 0.4);
+}
+
+.slider-thumb:focus::-moz-range-thumb {
+  outline: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(0, 0, 0, 0.4);
+}
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = sliderStyles;
+  document.head.appendChild(styleSheet);
+}

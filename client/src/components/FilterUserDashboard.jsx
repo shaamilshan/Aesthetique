@@ -71,7 +71,7 @@ const FilterUserDashboard = ({ filters, price, handleClick, clearFilters }) => {
         <li className="pt-4">
           <button
             onClick={clearFilters}
-            className="w-full flex items-center justify-center gap-2 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-700 px-4 py-2 rounded-md font-semibold transition"
+            className="w-full flex items-center justify-center gap-2 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-700 px-4 py-2 rounded-full font-semibold transition"
           >
             <BiTrash className="text-lg" />
             <span className="text-sm">Clear All Filters</span>
