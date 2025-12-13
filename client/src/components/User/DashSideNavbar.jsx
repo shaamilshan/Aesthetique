@@ -67,7 +67,7 @@ const DashSideNavbar = () => {
             to="wishlist"
           >
             <Package size={20} />
-            Products
+            Wishlist
           </NavLink>
 
           <NavLink 

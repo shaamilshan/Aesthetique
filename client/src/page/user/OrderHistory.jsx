@@ -56,58 +56,40 @@ const OrderHistory = () => {
               <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-black"></div>
             </div>
           ) : userOrders && userOrders.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-max table-auto text-sm">
-                <thead>
-                  <tr className="bg-gray-50 rounded-xl">
-                    <th className="px-6 py-4 text-left font-semibold text-gray-900">Product Name</th>
-                    <th className="px-6 py-4 text-left font-semibold text-gray-900">Status</th>
-                    <th className="px-6 py-4 text-left font-semibold text-gray-900">Date</th>
-                    <th className="px-6 py-4 text-left font-semibold text-gray-900">Total</th>
-                    <th className="px-6 py-4 text-left font-semibold text-gray-900">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {userOrders &&
-                    userOrders.map((item, index) => {
-                      return (
-                        <tr key={index} className="hover:bg-gray-50 transition-colors duration-200">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div>
-                                <p className="font-semibold text-gray-900 w-60 line-clamp-1">
-                                  {item.products[0]?.productId?.name || "Product unavailable"}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  ({item.totalQuantity}) products
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <StatusComponent status={item.status} />
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-gray-900 font-medium">
-                              {date.format(new Date(item.createdAt), "MMM DD YYYY")}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="font-bold text-gray-900">₹{item.totalPrice}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <Link
-                              to={`detail/${item.orderId || item._id}`}
-                              className="inline-flex items-center gap-2 text-black hover:text-gray-700 font-medium transition-colors duration-200"
-                            >
-                              View Details <BsArrowRight className="text-sm" />
-                            </Link>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
+            <div className="space-y-4">
+              {userOrders.map((item) => (
+                <div key={item._id} className="group relative bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100 hover:shadow-md transition-all duration-200 hover:border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+                          <BsArrowRight className="text-white text-lg transform rotate-90" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-gray-900 text-sm truncate">{item.products[0]?.productId?.name || "Product unavailable"}</p>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            item.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                            item.status === 'pending' ? 'bg-orange-100 text-orange-700' :
+                            item.status === 'processing' ? 'bg-blue-100 text-blue-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}> {item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'Unknown'}</span>
+                        </div>
+                        <p className="text-sm text-gray-500">{date.format(new Date(item.createdAt), "MMM DD YYYY")}</p>
+                        <p className="text-xs text-gray-500 mt-1">({item.totalQuantity}) products</p>
+                      </div>
+                    </div>
+
+                    <div className="text-right flex flex-col items-end gap-2">
+                      <p className="font-bold text-gray-900">₹{Number(item.totalPrice).toLocaleString()}</p>
+                      <Link to={`detail/${item.orderId || item._id}`} className="inline-flex items-center gap-2 text-black hover:text-gray-700 font-medium transition-colors duration-200">
+                        View Details <BsArrowRight className="text-sm" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-16">
