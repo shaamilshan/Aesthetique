@@ -98,103 +98,99 @@ const Cart = () => {
       )}
       {cart.length > 0 ? (
         <>
-          <div className="bg-gray-100 flex lg:flex-row flex-col gap-5 lg:px-28 px-5 py-20 min-h-screen">
-            <div className="lg:w-2/3 bg-white border border-gray-200">
-              <div className=" px-5 py-3 border-b flex justify-between">
-                <h1 className="text-lg font-semibold">Shopping Cart</h1>
-                <button
-                  onClick={toggleConfirm}
-                  className="flex items-center bg-gray-100 px-2 rounded hover:bg-gray-300 gap-2"
-                >
-                  <AiOutlineDelete />
-                  Clear
-                </button>
-              </div>
-              <div className="overflow-x-auto h-full">
-                {loading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <JustLoading size={10} />
-                  </div>
-                ) : cart.length > 0 ? (
-                  <table className="w-full table-auto">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="cart-table-header">Products</th>
-                        <th className="cart-table-header">Price</th>
-                        <th className="cart-table-header">Quantity</th>
-                        <th className="cart-table-header">Total</th>
-                        <th className="cart-table-header"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cart.map((item, index) => {
-                        const isLast = index === cart.length - 1;
-
-                        return (
-                          <CartProductRow
-                            item={item}
-                            toggleProductConfirm={toggleProductConfirm}
-                            isLast={isLast}
-                            key={index}
-                          />
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <p>Nothing in this cart</p>
-                  </div>
-                )}
+          <div className="min-h-screen bg-white">
+            {/* Header */}
+            <div className="border-b">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Shopping Bag</h1>
+                  <button
+                    onClick={toggleConfirm}
+                    className="text-sm text-gray-500 hover:text-black transition-colors flex items-center gap-1.5"
+                  >
+                    <AiOutlineDelete className="text-lg" />
+                    <span className="hidden sm:inline">Clear All</span>
+                  </button>
+                </div>
+                <p className="text-gray-500 mt-1">{cart.length} {cart.length === 1 ? 'item' : 'items'}</p>
               </div>
             </div>
-            {/* Cart total details */}
-            <div className="lg:w-1/3">
-              <div className="bg-white p-5 mb-5  border border-gray-200">
-                <h3 className="text-lg font-semibold">Cart Total</h3>
-                <TotalAndSubTotal />
-                <button
-                  className="btn-blue bg-black w-full text-white rounded-full uppercase font-semibold text-sm"
-                  onClick={() => {
-                    if (cart.length > 0) {
-                      navigate("/checkout");
-                    } else {
-                      toast.error("No product in cart");
-                    }
-                  }}
-                >
-                  Proceed to checkout
-                </button>
-              </div>
-              {/* Coupon/Voucher Code Section */}
-              <div className="bg-white border border-gray-200 mt-5">
-                <h3 className="p-5 border-b border-gray-200 text-lg font-semibold">Voucher Code</h3>
-                <div className="p-5">
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      className="flex-1 py-3 px-4 rounded-lg border border-gray-300 focus:border-black focus:outline-none"
-                      placeholder="Enter your voucher code"
-                      value={inputCouponCode}
-                      onChange={(e) => setInputCouponCode(e.target.value)}
-                      disabled={couponCode !== ""}
-                    />
-                    <button
-                      className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      onClick={dispatchApplyCoupon}
-                      disabled={couponCode !== "" || inputCouponCode.trim() === ""}
-                    >
-                      Apply
-                    </button>
-                  </div>
-                  {couponCode && (
-                    <div className="mt-3 flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="text-green-700 font-medium">Voucher "{couponCode}" applied successfully</span>
-                      </div>
+
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                {/* Cart Items */}
+                <div className="flex-1">
+                  {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                      <JustLoading size={10} />
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {cart.map((item, index) => (
+                        <CartProductRow
+                          item={item}
+                          toggleProductConfirm={toggleProductConfirm}
+                          key={index}
+                        />
+                      ))}
                     </div>
                   )}
+                </div>
+
+                {/* Order Summary - Sticky */}
+                <div className="lg:w-[380px] lg:sticky lg:top-8 lg:self-start">
+                  <div className="bg-gray-50 rounded-2xl p-6">
+                    <h3 className="text-lg font-semibold mb-6">Order Summary</h3>
+                    <TotalAndSubTotal />
+                    
+                    {/* Coupon Section */}
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                      <p className="text-sm font-medium mb-3">Have a promo code?</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 bg-white text-sm focus:border-black focus:outline-none transition-colors"
+                          placeholder="Enter code"
+                          value={inputCouponCode}
+                          onChange={(e) => setInputCouponCode(e.target.value)}
+                          disabled={couponCode !== ""}
+                        />
+                        <button
+                          className="px-5 py-2.5 bg-black text-white text-sm rounded-xl hover:bg-gray-800 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          onClick={dispatchApplyCoupon}
+                          disabled={couponCode !== "" || inputCouponCode.trim() === ""}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                      {couponCode && (
+                        <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span>"{couponCode}" applied</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Checkout Button */}
+                    <button
+                      className="w-full mt-6 bg-black text-white py-4 rounded-xl font-medium hover:bg-gray-900 transition-colors"
+                      onClick={() => {
+                        if (cart.length > 0) {
+                          navigate("/checkout");
+                        } else {
+                          toast.error("No product in cart");
+                        }
+                      }}
+                    >
+                      Checkout
+                    </button>
+                    
+                    <p className="text-center text-xs text-gray-400 mt-4">
+                      Shipping & taxes calculated at checkout
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

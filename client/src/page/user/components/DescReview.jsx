@@ -4,7 +4,6 @@ import axios from "axios";
 import { HiTrash } from "react-icons/hi";
 import { URL } from "@/Common/api";
 const DescReview = ({ product: initialProduct, id }) => {
-  const [activeTab, setActiveTab] = useState("description");
   const [reviews, setReviews] = useState([]);
   const [ratingCount, setRatingCount] = useState(Array(5).fill(0));
   const [error, setError] = useState(null);
@@ -203,35 +202,11 @@ const DescReview = ({ product: initialProduct, id }) => {
   return (
     <div className="container mx-auto px-4 mt-5">
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="flex justify-center border-b">
-          <button
-            className={`w-1/2 py-3 px-4 text-sm uppercase transition-colors duration-300 text-center 
-              ${activeTab === 'description' 
-                ? 'border-b-2 border-red-500 text-red-500 font-semibold' 
-                : 'text-gray-500 hover:text-red-300'}`}
-            onClick={() => setActiveTab('description')}
-          >
-            Description
-          </button>
-          <button
-            className={`w-1/2 py-3 px-4 text-sm uppercase transition-colors duration-300 text-center 
-              ${activeTab === 'reviews' 
-                ? 'border-b-2 border-red-500 text-red-500 font-semibold' 
-                : 'text-gray-500 hover:text-red-300'}`}
-            onClick={() => setActiveTab('reviews')}
-          >
-            Reviews
-          </button>
+        <div className="border-b py-3 px-4">
+          <h2 className="text-lg font-semibold text-center uppercase text-gray-800">Reviews</h2>
         </div>
 
-        {activeTab === 'description' && (
-          <div className="p-4 sm:p-6">
-            <p className="text-gray-600">{product.description}</p>
-          </div>
-        )}
-
-        {activeTab === 'reviews' && (
-          <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-6">
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
                 {error}
@@ -422,7 +397,6 @@ const DescReview = ({ product: initialProduct, id }) => {
               </div>
             )}
           </div>
-        )}
       </div>
     </div>
   );

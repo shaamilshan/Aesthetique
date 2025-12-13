@@ -475,23 +475,37 @@ const SingleProduct = () => {
       {/* Main product content */}
       <div className="w-full lg:px-5 xl:px-20 justify-center">
         <div className="w-full my-2 flex flex-col lg:flex-row gap-6">
-          {/* Product Images Section */}
-          <div className="w-full lg:w-1/2 lg:h-[720px] h-[450px] sm:h-[550px] flex flex-col">
-            <ProductSlider
-              images={imageArray}
-              selectedImageIndex={selectedImageIndex}
-              imgUrl={`${URL}/img/${selectedImageIndex}`}
-            />
+          {/* Product Images Section - Nike Style */}
+          <div className="w-full lg:w-1/2 flex flex-col">
+            {/* Main Image */}
+            <div className="bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center h-[350px] sm:h-[400px] lg:h-[450px]">
+              <img
+                src={`${URL}/img/${imageArray[selectedImageIndex]}`}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
             
-            {/* Thumbnail Gallery */}
-            <div className="mt-4 px-2">
-              <div className="flex justify-center">
-                <div className="flex gap-2 sm:gap-3 overflow-x-auto py-2 px-1 max-w-full">
+            {/* Thumbnail Gallery with Arrows */}
+            <div className="mt-3 relative w-full">
+              <div className="flex items-center w-full">
+                {/* Left Arrow */}
+                <button
+                  onClick={() => setSelectedImageIndex(prev => prev === 0 ? imageArray.length - 1 : prev - 1)}
+                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                {/* Thumbnails */}
+                <div className="flex-1 flex gap-2 overflow-x-auto py-2 px-1">
                   {imageArray.map((image, i) => (
                     <div
                       key={i}
-                      className={`flex-shrink-0 w-14 h-14  mt-5 sm:w-16 sm:h-16 border rounded-md overflow-hidden cursor-pointer transition-all
-                        ${selectedImageIndex === i ? "border-2 border-gray-800" : "border-gray-300 hover:border-gray-400"}`}
+                      className={`flex-1 min-w-[60px] max-w-[100px] aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer transition-all
+                        ${selectedImageIndex === i ? "ring-2 ring-gray-800" : "hover:ring-1 hover:ring-gray-400"}`}
                       onClick={() => setSelectedImageIndex(i)}
                     >
                       <img
@@ -502,6 +516,16 @@ const SingleProduct = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* Right Arrow */}
+                <button
+                  onClick={() => setSelectedImageIndex(prev => prev === imageArray.length - 1 ? 0 : prev + 1)}
+                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>

@@ -25,53 +25,48 @@ const TotalAndSubTotal = () => {
 
   return (
     <>
-      <div className="border-b border-gray-200 pb-2 mb-2">
-        <div className="cart-total-li">
-          <p className="cart-total-li-first">Sub Total</p>
-          <p className="cart-total-li-second">{totalPrice}₹</p>
+      <div className="space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Subtotal</span>
+          <span>₹{totalPrice}</span>
         </div>
-        <div className="cart-total-li">
-          <p className="cart-total-li-first">Shipping</p>
-          <p className="cart-total-li-second">
-            {shipping === 0 ? "Free" : shipping}
-          </p>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Shipping</span>
+          <span className={shipping === 0 ? "text-green-600" : ""}>
+            {shipping === 0 ? "Free" : `₹${shipping}`}
+          </span>
         </div>
-        <div className="cart-total-li">
-          <p className="cart-total-li-first">Tax</p>
-          <p className="cart-total-li-second">{parseInt(tax)}₹</p>
-        </div>
-        <div className="cart-total-li">
-          <p className="cart-total-li-first">Discount</p>
-          <p className="cart-total-li-second">
-            {discount}
-            {discount !== ""
-              ? couponType === "percentage"
-                ? `% Off (${offer}₹)`
-                : "₹ Off"
-              : "0₹"}
-          </p>
-        </div>
+        {parseInt(tax) > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Tax</span>
+            <span>₹{parseInt(tax)}</span>
+          </div>
+        )}
+        {offer > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Discount</span>
+            <span className="text-green-600">
+              -{couponType === "percentage" ? `${discount}% (₹${offer})` : `₹${offer}`}
+            </span>
+          </div>
+        )}
 
         {couponCode !== "" && (
-          <>
-            <div className="cart-total-li bg-blue-100 p-2 rounded">
-              <p className="cart-total-li-first">Coupon Applied</p>
-              <p className="cart-total-li-first">{couponCode}</p>
-            </div>
-            <div className="flex flex-row-reverse text-xs">
-              <button
-                className="text-red-500 hover:bg-red-100 p-1 rounded font-semibold"
-                onClick={() => dispatch(removeCoupon())}
-              >
-                Remove Coupon
-              </button>
-            </div>
-          </>
+          <div className="flex items-center justify-between bg-green-50 rounded-lg p-2.5 mt-2">
+            <span className="text-sm text-green-700 font-medium">{couponCode}</span>
+            <button
+              className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors"
+              onClick={() => dispatch(removeCoupon())}
+            >
+              Remove
+            </button>
+          </div>
         )}
       </div>
-      <div className="cart-total-li">
-        <p className="font-semibold text-gray-500">Total</p>
-        <p className="font-semibold">{finalTotal}₹</p>
+      
+      <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
+        <span className="font-semibold">Total</span>
+        <span className="text-xl font-semibold">₹{finalTotal}</span>
       </div>
     </>
   );
