@@ -692,34 +692,28 @@ const Collections = () => {
                     )}
                   </div>
                 )}
-                {/* Pagination */}
-                <div className="flex justify-center items-center my-6">
-                  <button
-                    className={`px-3 py-1 sm:px-4 sm:py-2 border rounded-full text-sm sm:text-base ${
-                      page === 1
-                        ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                        : "text-red-600 border-black hover:bg-blue-50"
-                    }`}
-                    onClick={() => page > 1 && handleClick("page", page - 1)}
-                    disabled={page === 1}
-                  >
-                    Previous
-                  </button>
-                  <span className="mx-3 sm:mx-4 text-sm sm:text-base">Page {page}</span>
-                  <button
-                    className={`px-3 py-1 sm:px-4 sm:py-2 border rounded-full text-sm sm:text-base ${
-                      !userProducts || userProducts.length === 0
-                        ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                        : "text-black border-black hover:bg-blue-50"
-                    }`}
-                    onClick={() =>
-                      userProducts && userProducts.length > 0 && handleClick("page", page + 1)
-                    }
-                    disabled={!userProducts || userProducts.length === 0}
-                  >
-                    Next
-                  </button>
-                </div>
+                {/* Pagination - only show if more than one page */}
+                {totalAvailableProducts > 12 && (
+                  <div className="flex justify-center items-center my-6">
+                    {page > 1 && (
+                      <button
+                        className="px-3 py-1 sm:px-4 sm:py-2 border rounded-full text-sm sm:text-base text-black border-black hover:bg-gray-100"
+                        onClick={() => handleClick("page", page - 1)}
+                      >
+                        Previous
+                      </button>
+                    )}
+                    <span className="mx-3 sm:mx-4 text-sm sm:text-base">Page {page}</span>
+                    {userProducts && userProducts.length > 0 && page * 12 < totalAvailableProducts && (
+                      <button
+                        className="px-3 py-1 sm:px-4 sm:py-2 border rounded-full text-sm sm:text-base text-black border-black hover:bg-gray-100"
+                        onClick={() => handleClick("page", page + 1)}
+                      >
+                        Next
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </main>
           </div>
