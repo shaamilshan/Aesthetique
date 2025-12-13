@@ -78,6 +78,7 @@ const getProducts = async (req, res) => {
       {
         name: 1,
         imageURL: 1,
+        moreImageURL: 1,
         price: 1,
         markup: 1,
         numberOfReviews: 1,

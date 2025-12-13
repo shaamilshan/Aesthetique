@@ -21,6 +21,7 @@ const ProductCard2 = ({ product }) => {
   const [cartLoading, setCartLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Check if product is in wishlist
   useEffect(() => {
@@ -119,16 +120,27 @@ const ProductCard2 = ({ product }) => {
   return (
     <div
       onClick={() => navigate(`/product/${product._id}`)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className="cursor-pointer bg-white rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full"
     >
       {/* Image area */}
       <div className="relative bg-gray-50 w-full">
-        <div className="aspect-square w-full bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-3xl">
+        <div className="aspect-square w-full bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-3xl relative">
+          {/* Primary Image */}
           <img
             src={`${URL}/img/${product?.imageURL}`}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+            className={`h-full w-full object-cover transition-opacity duration-500 ${isHovered && product?.moreImageURL?.length > 0 ? 'opacity-0' : 'opacity-100'}`}
           />
+          {/* Secondary Image (shown on hover) */}
+          {product?.moreImageURL?.length > 0 && (
+            <img
+              src={`${URL}/img/${product.moreImageURL[0]}`}
+              alt={`${product.name} - alternate view`}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
+            />
+          )}
         </div>
 
         {/* Wishlist button - top right like Nike logo position */}
@@ -156,7 +168,7 @@ const ProductCard2 = ({ product }) => {
       </div>
 
       {/* Card body */}
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-5 flex flex-col flex-1">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{product.name}</h3>
         
         {/* Description area that grows to fill available space */}
