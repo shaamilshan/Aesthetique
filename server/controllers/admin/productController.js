@@ -74,6 +74,10 @@ const getProduct = async (req, res) => {
 const addProduct = async (req, res) => {
   try {
     let formData = { ...req.body, isActive: true };
+    // Ensure longDescription is present (for new/old forms)
+    if (typeof formData.longDescription === 'undefined') {
+      formData.longDescription = '';
+    }
     const files = req?.files;
 
   const attributes = JSON.parse(formData.attributes);
@@ -103,7 +107,7 @@ const addProduct = async (req, res) => {
       }
     }
 
-    const product = await Product.create(formData);
+  const product = await Product.create(formData);
 
     res.status(200).json({ product });
   } catch (error) {
@@ -116,6 +120,10 @@ const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const formData = req.body;
+    // Ensure longDescription is present (for new/old forms)
+    if (typeof formData.longDescription === 'undefined') {
+      formData.longDescription = '';
+    }
     console.log("Updation: ", formData);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {

@@ -37,7 +37,7 @@ const VoucherCodeSection = () => {
   };
 
   return (
-    <div className="space-y-4">
+  <div className="space-y-4">
       {/* Applied Coupon Display */}
       {couponCode && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -81,7 +81,7 @@ const VoucherCodeSection = () => {
             <div className="flex-1">
               <input
                 type="text"
-                className="w-full py-3 px-4 border border-gray-300 rounded-lg focus:border-black focus:outline-none text-sm font-mono uppercase placeholder:font-sans placeholder:normal-case"
+                className="w-full py-3 px-4 border border-gray-200 rounded-md focus:border-black focus:outline-none text-sm font-mono uppercase placeholder:font-sans placeholder:normal-case bg-white"
                 placeholder="Enter voucher code (e.g., SAVE20)"
                 value={inputCouponCode}
                 onChange={handleInputChange}
@@ -92,7 +92,7 @@ const VoucherCodeSection = () => {
             <button
               onClick={handleApplyCoupon}
               disabled={inputCouponCode.trim() === "" || loading}
-              className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+              className="px-5 py-3 bg-black text-white rounded-md hover:bg-gray-900 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
             >
               {loading ? "Applying..." : "Apply"}
             </button>

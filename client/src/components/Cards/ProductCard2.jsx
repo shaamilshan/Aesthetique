@@ -195,7 +195,7 @@ const ProductCard2 = ({ product }) => {
           <div className="text-xl font-bold text-gray-900">
             ₹{Number(product.price).toLocaleString()}
             {hasStrike && (
-              <span className="text-gray-400 line-through text-xs ml-1">
+              <span className="text-gray-400 line-through text-xs ml-3">
                 ₹{strikePrice.toLocaleString()}
               </span>
             )}

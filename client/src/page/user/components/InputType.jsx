@@ -7,21 +7,18 @@ const InputType = ({ title, name, placeholder, optional }) => {
 
   return (
     <div className="text-sm my-2 w-full">
-      <p className="my-1 font-semibold">
-        <label htmlFor="username">
-          {title}{" "}
-          <span className="text-gray-400">{optional && "(Optional)"}</span>
-        </label>
-      </p>
+      <label className="block text-xs font-medium text-gray-600 mb-2">
+        {title} <span className="text-gray-400">{optional && "(Optional)"}</span>
+      </label>
       <Field
-        className={`border bg-white focus:border-blue-500 ${
-          hasError ? "border-red-400" : "border-gray-200"
-        } px-3 py-2 rounded outline-none w-full`}
+        className={`w-full rounded-md px-4 py-3 placeholder-gray-400 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-200 transition shadow-sm ${
+          hasError ? "border-red-300 ring-red-100" : "border border-gray-100"
+        }`}
         name={name}
         placeholder={placeholder}
       />
       <ErrorMessage
-        className="text-sm text-red-500"
+        className="text-sm text-red-500 mt-1 block"
         name={name}
         component="span"
       />

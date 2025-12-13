@@ -4,7 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { debounce } from "time-loom";
 import { logout } from "../redux/actions/userActions";
 import { getCart } from "../redux/actions/user/cartActions";
-import { Heart, ShoppingCart, User, Menu, X } from "lucide-react";
+import { Heart, ShoppingCart, User, Menu, X, Search as SearchIcon } from "lucide-react";
+import { motion, AnimatePresence } from 'framer-motion'
 import logo from "../assets/others/bm-logo.png";
 import SearchBar from "./SearchBar";
 
@@ -29,6 +30,8 @@ const Navbar = ({ usercheck }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const searchContainerRef = React.useRef(null);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -109,6 +112,21 @@ const Navbar = ({ usercheck }) => {
     }
   }, [usercheck, dispatch]);
 
+  // Close expanded search when clicking outside
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (
+        searchExpanded &&
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target)
+      ) {
+        setSearchExpanded(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [searchExpanded]);
+
   return (
     <>
     <header className={`w-full bg-white`}
@@ -149,15 +167,43 @@ const Navbar = ({ usercheck }) => {
 
           {/* Icons & Search Bar (Right Side) */}
           <div className="flex items-center gap-4 lg:gap-6">
-            {/* Pill search input container - match height with icon pill */}
-            <div className="hidden lg:flex items-center rounded-full border border-gray-300/70 px-4 h-14 bg-white shadow-sm">
-              <div className="min-w-[260px]">
-                <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} />
-              </div>
-            </div>
+            {/* Desktop search removed in favor of in-pill expanding search */}
 
             {/* Icon pill group - match height with search pill */}
-            <div className="flex items-center justify-center gap-3 rounded-full bg-black text-white px-4 h-14">
+            <div className={`flex items-center justify-center gap-3 rounded-full bg-black text-white px-4 h-14 ${searchExpanded ? 'ring-1 ring-white/40' : ''}`} ref={searchContainerRef}>
+              {/* Search (left-most inside icon pill) */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearchExpanded((s) => !s);
+                }}
+                aria-label={searchExpanded ? "Close search" : "Open search"}
+                className="flex items-center justify-center text-white/90 hover:text-white transition-colors"
+              >
+                {!searchExpanded ? (
+                  <SearchIcon className="h-5 w-5" />
+                ) : (
+                  <X className="h-5 w-5" />
+                )}
+              </button>
+              {/* Animated search reveal (desktop only) - appears to the left of icons and pushes them */}
+              <AnimatePresence>
+                {searchExpanded && (
+                  <motion.div
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: 320, opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      className="hidden lg:flex items-center mr-3 overflow-hidden py-1"
+                      style={{ transformOrigin: 'left center' }}
+                    >
+                      {/* inner area is transparent so the outer pill's background and ring are the single source of truth */}
+                      <div className="w-full h-full flex items-center bg-transparent rounded-full px-2">
+                        <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} autoFocus={true} dark={true} showIcon={false} inPill={true} />
+                      </div>
+                    </motion.div>
+                )}
+              </AnimatePresence>
               {/* Wishlist */}
               <Link to="/dashboard/wishlist" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
                 <Heart className="h-5 w-5" />

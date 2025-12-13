@@ -33,6 +33,7 @@ const AddProducts = () => {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [longDescription, setLongDescription] = useState("");
   const [stockQuantity, setStockQuantity] = useState("");
   const [category, setCategory] = useState();
   const [imageURL, setImageURL] = useState("");
@@ -74,7 +75,8 @@ const AddProducts = () => {
 
   const formData = new FormData();
     formData.append("name", name);
-    formData.append("description", description);
+  formData.append("description", description);
+  formData.append("longDescription", longDescription);
     formData.append("stockQuantity", newStockQuantity);
     formData.append("attributes", JSON.stringify(attributes));
     formData.append("price", price);
@@ -198,14 +200,24 @@ const AddProducts = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                <p className="admin-label">Description</p>
+                <p className="admin-label">Description (Short, max 125 chars)</p>
                 <textarea
                   name="description"
                   id="description"
-                  className="admin-input h-36"
-                  placeholder="Type product description here..."
+                  className="admin-input h-24"
+                  maxLength={125}
+                  placeholder="Type short product description here..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                ></textarea>
+                <p className="admin-label mt-4">Additional Description (Long)</p>
+                <textarea
+                  name="longDescription"
+                  id="longDescription"
+                  className="admin-input h-36"
+                  placeholder="Type detailed product description here..."
+                  value={longDescription}
+                  onChange={(e) => setLongDescription(e.target.value)}
                 ></textarea>
                 <p className="admin-label">Quantity</p>
                 <input

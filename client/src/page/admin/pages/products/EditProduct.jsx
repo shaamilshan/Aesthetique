@@ -36,6 +36,7 @@ const EditProduct = () => {
   const [fetchedData, setFetchedData] = useState({
     name: "",
     description: "",
+    longDescription: "",
     stockQuantity: 0,
     category: "",
     imageURL: "",
@@ -133,6 +134,9 @@ const EditProduct = () => {
           fetchedData[key].forEach((item) => {
             formData.append("moreImageURL", item);
           });
+        } else if (key === "longDescription") {
+          // Ensure longDescription is submitted even if empty string
+          formData.append("longDescription", fetchedData.longDescription || "");
         } else {
           formData.append(key, fetchedData[key]);
         }
@@ -300,13 +304,23 @@ const EditProduct = () => {
                   value={fetchedData.name || ""}
                   onChange={handleInputChange}
                 />
-                <p className="admin-label">Description</p>
+                <p className="admin-label">Description (Short, max 125 chars)</p>
                 <textarea
                   name="description"
                   id="description"
-                  className="admin-input h-36"
-                  placeholder="Type product description here..."
+                  className="admin-input h-24"
+                  maxLength={125}
+                  placeholder="Type short product description here..."
                   value={fetchedData.description || ""}
+                  onChange={handleInputChange}
+                ></textarea>
+                <p className="admin-label mt-4">Additional Description (Long)</p>
+                <textarea
+                  name="longDescription"
+                  id="longDescription"
+                  className="admin-input h-36"
+                  placeholder="Type detailed product description here..."
+                  value={fetchedData.longDescription || ""}
                   onChange={handleInputChange}
                 ></textarea>
                 <p className="admin-label">Quantity</p>

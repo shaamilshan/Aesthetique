@@ -25,27 +25,27 @@ const TotalAndSubTotal = () => {
 
   return (
     <>
-      <div className="space-y-3">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Subtotal</span>
-          <span>₹{totalPrice}</span>
+      <div className="space-y-3 text-sm text-gray-700">
+        <div className="flex justify-between">
+          <span className="text-gray-500">Subtotal</span>
+          <span className="font-medium">₹{totalPrice}</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Shipping</span>
-          <span className={shipping === 0 ? "text-green-600" : ""}>
+        <div className="flex justify-between">
+          <span className="text-gray-500">Shipping</span>
+          <span className={shipping === 0 ? "text-green-600 font-medium" : "font-medium"}>
             {shipping === 0 ? "Free" : `₹${shipping}`}
           </span>
         </div>
         {parseInt(tax) > 0 && (
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Tax</span>
-            <span>₹{parseInt(tax)}</span>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Tax</span>
+            <span className="font-medium">₹{parseInt(tax)}</span>
           </div>
         )}
         {offer > 0 && (
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Discount</span>
-            <span className="text-green-600">
+          <div className="flex justify-between">
+            <span className="text-gray-500">Discount</span>
+            <span className="text-green-600 font-medium">
               -{couponType === "percentage" ? `${discount}% (₹${offer})` : `₹${offer}`}
             </span>
           </div>
@@ -63,10 +63,10 @@ const TotalAndSubTotal = () => {
           </div>
         )}
       </div>
-      
-      <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
-        <span className="font-semibold">Total</span>
-        <span className="text-xl font-semibold">₹{finalTotal}</span>
+
+      <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-100">
+        <span className="font-semibold text-gray-700">Total</span>
+        <span className="text-2xl font-extrabold text-gray-900">₹{finalTotal}</span>
       </div>
     </>
   );

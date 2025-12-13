@@ -12,7 +12,6 @@ const AddressEdit = ({ closeToggle, address }) => {
   const initialValues = {
     firstName: address.firstName || "",
     lastName: address.lastName || "",
-    companyName: address.companyName || "",
     address: address.address || "",
     country: address.country || "",
     regionState: address.regionState || "",
@@ -25,7 +24,6 @@ const AddressEdit = ({ closeToggle, address }) => {
   const validationSchema = Yup.object().shape({
     firstName: Yup.string().required("Required"),
     lastName: Yup.string().required("Required"),
-    companyName: Yup.string(),
     address: Yup.string().required("Required"),
     country: Yup.string().required("Required"),
     regionState: Yup.string().required("Required"),
@@ -58,30 +56,29 @@ const AddressEdit = ({ closeToggle, address }) => {
         onSubmit={handleSubmit}
       >
         <Form className="px-5 pb-5">
-          <div className="lg:flex gap-5 justify-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <InputType
               name="firstName"
-              placeholder="Your first name"
+              placeholder="John"
               title="First Name"
             />
             <InputType
               name="lastName"
-              placeholder="Your last name"
+              placeholder="Doe"
               title="Last Name"
             />
-            <InputType
-              name="companyName"
-              placeholder="Your company name"
-              title="Company Name"
-              optional={true}
-            />
           </div>
-          <InputType name="address" placeholder="" title="Address" />
-          <div className="lg:flex gap-5 justify-stretch">
-            <InputType name="country" placeholder="" title="Country" />
-            <InputType name="regionState" placeholder="" title="Region/State" />
-            <InputType name="city" placeholder="" title="City" />
-            <InputType name="pinCode" placeholder="" title="Pin Code" />
+
+          <InputType name="address" placeholder="House number, street, landmark" title="Address" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <InputType name="country" placeholder="Country" title="Country" />
+            <InputType name="regionState" placeholder="State/Region" title="Region/State" />
+            <InputType name="city" placeholder="City" title="City" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <InputType name="pinCode" placeholder="Pin Code" title="Pin Code" />
           </div>
           <InputType name="email" placeholder="" title="Email" />
           <InputType name="phoneNumber" placeholder="" title="Phone Number" />

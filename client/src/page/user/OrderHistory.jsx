@@ -76,7 +76,7 @@ const OrderHistory = () => {
                             <div className="flex items-center gap-3">
                               <div>
                                 <p className="font-semibold text-gray-900 w-60 line-clamp-1">
-                                  {item.products[0].productId.name}
+                                  {item.products[0]?.productId?.name || "Product unavailable"}
                                 </p>
                                 <p className="text-sm text-gray-500">
                                   ({item.totalQuantity}) products

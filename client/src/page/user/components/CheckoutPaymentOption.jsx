@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { BiWallet } from "react-icons/bi";
-import { GiPayMoney } from "react-icons/gi";
+import { FaMoneyBillWave } from "react-icons/fa";
 import axios from "axios";
 import { URL } from "../../../Common/api";
 import { config } from "../../../Common/configurations";
@@ -22,21 +22,26 @@ const CheckoutPaymentOption = ({
 
   return (
     <>
-      <div className="flex items-center justify-center py-5">
-        <label className="cursor-pointer" htmlFor="cashOnDelivery">
-          <div className="border shadow-md p-5 flex flex-col items-center rounded-lg">
-            <div className="w-10 h-10 flex items-center justify-center">
-              <GiPayMoney className="text-2xl" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
+        <label className="cursor-pointer">
+          <div className={`border p-4 rounded-lg hover:shadow-md transition-shadow flex items-start gap-3 ${selectedPayment === 'cashOnDelivery' ? 'ring-2 ring-black' : ''}`}>
+            <div className="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-md border">
+                <FaMoneyBillWave className="text-2xl" />
             </div>
-            <p className="mb-2 text-md font-bold">Cash On Delivery</p>
-            <input
-              type="radio"
-              name="paymentMode"
-              id="cashOnDelivery"
-              value="cashOnDelivery"
-              onChange={handleSelectedPayment}
-              checked={selectedPayment === "cashOnDelivery"}
-            />
+            <div className="flex-1">
+              <p className="text-sm font-semibold">Cash On Delivery</p>
+              <p className="text-xs text-gray-500 mt-1">Pay with cash upon delivery</p>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="radio"
+                name="paymentMode"
+                id="cashOnDelivery"
+                value="cashOnDelivery"
+                onChange={handleSelectedPayment}
+                checked={selectedPayment === "cashOnDelivery"}
+              />
+            </div>
           </div>
         </label>
         {/* <label className="cursor-pointer" htmlFor="razorPay">
@@ -79,10 +84,7 @@ const CheckoutPaymentOption = ({
         </label> */}
       </div>
 
-      {/* <p className="bg-blue-100 p-2 rounded-lg text-center">
-        Your wallet Balance:{" "}
-        <span className="font-semibold">{walletBalance || 0}₹</span>
-      </p> */}
+      {/* Optional wallet display (kept commented out) */}
     </>
   );
 };

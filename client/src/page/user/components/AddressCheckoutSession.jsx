@@ -75,34 +75,43 @@ const AddressCheckoutSession = ({ selectedAddress, setSelectedAddress }) => {
           positiveAction={dispatchDeleteAddress}
         />
       )}
-      <h1 className="my-1 font-semibold text-lg">Choose below address</h1>
-      {/* Address listing */}
-      <div className="bg-white p-5 rounded">
-        {addresses.length > 0 ? (
-          <>
-            <h2 className="my-1 font-semibold ">Your addresses</h2>
-            {addresses.map((item, index) => {
-              return (
-                <CheckoutAddressRow
-                  item={item}
-                  key={index}
-                  selectedAddress={selectedAddress}
-                  setSelectedAddress={setSelectedAddress}
-                  setToBeEditedAddress={setToBeEditedAddress}
-                  toggleDeleteModal={toggleDeleteModal}
-                  toggleEditAddress={toggleEditAddress}
-                />
-              );
-            })}
-          </>
-        ) : (
-          <h1>No Saved address found</h1>
-        )}
-        <div className="my-5 text-white">
-          <button className="btn-blue" onClick={toggleAddress}>
-            Add a new Address
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Delivery Address</h1>
+          <p className="text-sm text-gray-500 mt-1">Choose where you'd like your order delivered. You can add or edit addresses below.</p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button onClick={toggleAddress} className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-900 transition-colors">
+            Add Address
           </button>
         </div>
+      </div>
+
+      <div className="grid gap-4">
+        {addresses.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {addresses.map((item, index) => {
+              return (
+                <div key={index} className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+                  <CheckoutAddressRow
+                    item={item}
+                    selectedAddress={selectedAddress}
+                    setSelectedAddress={setSelectedAddress}
+                    setToBeEditedAddress={setToBeEditedAddress}
+                    toggleDeleteModal={toggleDeleteModal}
+                    toggleEditAddress={toggleEditAddress}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg p-8 border border-dashed border-gray-200 text-center">
+            <p className="text-gray-600 mb-4">No saved addresses found.</p>
+            <button onClick={toggleAddress} className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-900 transition-colors">Add your first address</button>
+          </div>
+        )}
       </div>
     </>
   );

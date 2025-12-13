@@ -202,9 +202,9 @@ const DescReview = ({ product: initialProduct, id }) => {
   return (
     <div className="container mx-auto px-4 mt-5">
       <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="border-b py-3 px-4">
+        {/* <div className="border-b py-3 px-4">
           <h2 className="text-lg font-semibold text-center uppercase text-gray-800">Reviews</h2>
-        </div>
+        </div> */}
 
         <div className="p-4 sm:p-6">
             {error && (

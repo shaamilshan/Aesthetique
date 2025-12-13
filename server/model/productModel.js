@@ -17,6 +17,13 @@ const productsSchema = new Schema(
       type: String,
       required: [true, "Product description is required"],
       trim: true,
+      maxlength: 125, // Short description limit
+    },
+    longDescription: {
+      type: String,
+      required: false,
+      trim: true,
+      default: '',
     },
     stockQuantity: {
       type: Number, 

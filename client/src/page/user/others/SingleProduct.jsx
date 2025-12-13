@@ -49,7 +49,7 @@ const SingleProduct = () => {
   const [toggleStates, setToggleStates] = useState({
     div1: false,
     div2: false,
-    div3: false,
+    div3: true, // default to Description tab
   });
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -448,21 +448,24 @@ const SingleProduct = () => {
       {/* Breadcrumb navigation */}
       <div className="container w-full flex my-3 sm:my-6 px-2">
         <nav className="flex items-center text-sm font-Inter px-2 sm:px-5 md:px-0">
-          <span className="cursor-pointer flex items-center" onClick={onHomeClick}>
-            <HomeIcon color="#2C2C2C" size={isMobile ? 12 : 14} className="mr-1" />
-            <span className="text-xs sm:text-sm hover:text-[#CC4254]">Home</span>
+          <span className="cursor-pointer font-semibold text-xs sm:text-sm hover:text-[#CC4254]" onClick={onHomeClick}>
+            <span className="font-bold">Home</span>
           </span>
 
           {product.category && (
             <>
-              <BsSlash className="text-xl mx-1" />
+              <span className="mx-1 text-gray-400">
+                <svg width="16" height="16" fill="none" viewBox="0 0 16 16" className="inline-block align-middle"><path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </span>
               <span
                 className="hover:text-[#CC4254] text-xs font-medium sm:text-sm cursor-pointer"
                 onClick={onCategoryClick}
               >
                 {product.category.name}
               </span>
-              <BsSlash className="text-xl mx-1" />
+              <span className="mx-1 text-gray-400">
+                <svg width="16" height="16" fill="none" viewBox="0 0 16 16" className="inline-block align-middle"><path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </span>
             </>
           )}
 
@@ -532,19 +535,25 @@ const SingleProduct = () => {
 
           {/* Product Details Section */}
           <div className="w-full lg:w-1/2 px-2 sm:px-4 lg:px-6 pb-20 lg:pb-0">
-            {/* Product Name & Rating */}
+
+            {/* Product Name, Rating & Description */}
             <div className="mb-3">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold font-sans mb-2">
                 {product.name}
               </h1>
-              <div className="mb-2">
-                <ProductDetailsStarAndRating rating={product.rating || 4} />
+              <p className="text-sm sm:text-base text-gray-700 mt-2">
+                {product.description}
+              </p>
+              <div className="mb-2 mt-2">
+                <div className="text-lg sm:text-xl">
+                  <ProductDetailsStarAndRating rating={product.rating || 4} />
+                </div>
               </div>
             </div>
 
             {/* Price Section */}
             <div className="flex items-center border-b pb-4 mb-4">
-              <h1 className="text-xl sm:text-2xl text-red-500 font-semibold font-Inter">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl text-red-500 font-bold font-Inter">
                 ₹{Number(product.price).toFixed(2)}
               </h1>
 
@@ -566,22 +575,17 @@ const SingleProduct = () => {
               )}
             </div>
 
-            {/* Description */}
-            <div className="mb-6">
-              <p className="text-sm sm:text-base text-gray-700">
-                {product.description}
+            {/* Stock Info */}
+            {(product.stockQuantity <= 10 && product.stockQuantity > 0) && (
+              <p className="text-sm text-orange-600 mt-2 font-medium">
+                Only {product.stockQuantity} left in stock - order soon
               </p>
-              {product.stockQuantity <= 10 && product.stockQuantity > 0 && (
-                <p className="text-sm text-orange-600 mt-2 font-medium">
-                  Only {product.stockQuantity} left in stock - order soon
-                </p>
-              )}
-              {product.stockQuantity === 0 && (
-                <p className="text-sm text-red-600 mt-2 font-medium">
-                  Currently out of stock
-                </p>
-              )}
-            </div>
+            )}
+            {product.stockQuantity === 0 && (
+              <p className="text-sm text-red-600 mt-2 font-medium">
+                Currently out of stock
+              </p>
+            )}
 
             {/* Quantity & Action Buttons */}
             {/* Quantity & Action Buttons */}
@@ -734,7 +738,33 @@ const SingleProduct = () => {
 
         {/* Product Description & Reviews */}
         <div className="mt-8">
-          <DescReview product={product} id={id} />
+          {/* Tabs for Description and Reviews */}
+          <div className="mb-6">
+            <div className="flex border-b border-gray-200">
+              <button
+                className={`px-4 py-2 font-medium text-sm focus:outline-none ${toggleStates.div3 ? 'border-b-2 border-black text-black' : 'text-gray-500'}`}
+                onClick={() => setToggleStates((prev) => ({ ...prev, div3: true }))}
+              >
+                Description
+              </button>
+              <button
+                className={`px-4 py-2 font-medium text-sm focus:outline-none ${!toggleStates.div3 ? 'border-b-2 border-black text-black' : 'text-gray-500'}`}
+                onClick={() => setToggleStates((prev) => ({ ...prev, div3: false }))}
+              >
+                Reviews
+              </button>
+            </div>
+            <div className="mt-4">
+              {toggleStates.div3 ? (
+                <div className="text-gray-700 text-base whitespace-pre-line min-h-[100px]">
+                  {/* Long description from admin panel */}
+                  {product.longDescription || 'No additional description available.'}
+                </div>
+              ) : (
+                <DescReview product={product} id={id} />
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Recommended Products */}

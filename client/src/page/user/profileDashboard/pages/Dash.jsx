@@ -129,8 +129,19 @@ const Dash = () => {
           <div className="mt-5 flex-1 min-h-0">
             <div className="bg-white w-full rounded-2xl shadow-lg border border-gray-100 h-full flex flex-col">
               <div className="px-6 py-4 border-b border-gray-100 flex-shrink-0">
-                <h1 className="text-xl font-bold text-gray-900">Recent Orders</h1>
-                <p className="text-sm text-gray-500 mt-1">Track your latest purchases</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-xl font-bold text-gray-900">Recent Orders</h1>
+                    <p className="text-sm text-gray-500 mt-1">Track your latest purchases</p>
+                  </div>
+                  {recentOrders.length > 0 && (
+                    <Link to="order-history">
+                      <button className="bg-black text-white py-2 px-5 rounded-lg hover:bg-gray-800 transition-colors duration-200 font-medium text-sm ml-4">
+                        View All Orders
+                      </button>
+                    </Link>
+                  )}
+                </div>
               </div>
               <div className={`p-6 flex-1 ${recentOrders.length > 0 ? 'overflow-y-auto' : 'flex items-center justify-center overflow-hidden'}`}>
                 {loading ? (
@@ -213,13 +224,7 @@ const Dash = () => {
                       </div>
                     ))}
                     
-                    <div className="pt-4">
-                      <Link to="order-history">
-                        <button className="w-full bg-black text-white py-3 px-6 rounded-xl hover:bg-gray-800 transition-colors duration-200 font-medium text-sm">
-                          View All Orders
-                        </button>
-                      </Link>
-                    </div>
+                    {/* View All Orders button moved to header */}
                   </div>
                 ) : (
                   <div className="text-center">

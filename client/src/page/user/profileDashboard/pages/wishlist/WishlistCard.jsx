@@ -70,6 +70,19 @@ const WishlistCard = ({ item }) => {
     }
   };
 
+  // If product is missing (deleted), show a placeholder card
+  if (!item.product) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden p-4 flex items-center gap-3 opacity-60">
+        <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-2xl">📦</div>
+        <div className="flex-1">
+          <div className="font-semibold text-gray-500">Product unavailable</div>
+          <div className="text-xs text-gray-400 mt-1">This product has been removed from the store.</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300">
       <div className="flex items-center p-3 gap-3">
@@ -87,7 +100,6 @@ const WishlistCard = ({ item }) => {
               <span className="text-gray-400 text-sm">📷</span>
             </div>
           )}
-          
           {/* Status Badge */}
           <div className="absolute -top-1 -right-1">
             <span className={`px-1 py-0.5 text-xs font-medium rounded-full ${getStatusStyle(item.product.status)}`}>
