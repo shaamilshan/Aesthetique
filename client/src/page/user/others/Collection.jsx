@@ -27,7 +27,8 @@ const Collections = () => {
   const [sort, setSort] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [priceRange, setPriceRange] = useState([1000, 100000]);
+  const [maxPrice, setMaxPrice] = useState(5000); // Price slider max value
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
   const [selectedRating, setSelectedRating] = useState([]);
   const [selectedAvailability, setSelectedAvailability] = useState([]);
   const [selectedSkinType, setSelectedSkinType] = useState([]);
@@ -40,6 +41,7 @@ const Collections = () => {
 
     const categoryParam = searchParams.get("category");
     const priceParam = searchParams.get("price");
+    const maxPriceParam = searchParams.get("maxPrice");
     const searchParam = searchParams.get("search");
     const sortParam = searchParams.get("sort");
     const ratingParam = searchParams.get("rating");
@@ -49,6 +51,7 @@ const Collections = () => {
 
     setCategory(categoryParam ? categoryParam.split(",") : []);
     setPrice(priceParam || "");
+    setMaxPrice(maxPriceParam ? parseInt(maxPriceParam) : 5000);
     setSort(sortParam || "");
     setSelectedRating(ratingParam ? ratingParam.split(",") : []);
     setSelectedAvailability(availabilityParam ? availabilityParam.split(",") : []);
@@ -92,9 +95,7 @@ const Collections = () => {
       if (param === "price") {
         setPrice("");
       }
-      if (param === "priceRange") {
-        setPriceRange([1000, 100000]);
-      }
+
       if (param === "sort") {
         setSort("");
         params.delete("page");
@@ -126,6 +127,16 @@ const Collections = () => {
         
         params.delete("page");
         setPage(1);
+      } else if (param === "maxPrice") {
+        // Handle price slider
+        if (value === 5000) {
+          params.delete("maxPrice");
+        } else {
+          params.set("maxPrice", value);
+        }
+        setMaxPrice(value);
+        params.delete("page");
+        setPage(1);
       } else {
         params.set(param, value);
         if (param === "price") {
@@ -133,11 +144,7 @@ const Collections = () => {
           params.delete("page");
           setPage(1);
         }
-        if (param === "priceRange") {
-          params.set("priceRange", value);
-          params.delete("page");
-          setPage(1);
-        }
+
         if (param === "sort") {
           setSort(value);
           params.delete("page");
@@ -183,15 +190,8 @@ const Collections = () => {
     setSelectedRating([]);
     setSelectedAvailability([]);
     setSelectedSkinType([]);
-    setPriceRange([1000, 100000]);
+    setMaxPrice(5000);
     setPage(1);
-  };
-
-  // Handle price range changes
-  const handlePriceRangeChange = (values) => {
-    setPriceRange(values);
-    const priceFilter = `${values[0]}-${values[1]}`;
-    handleClick('priceRange', priceFilter);
   };
 
   // Mobile Filter toggle
@@ -247,64 +247,28 @@ const Collections = () => {
                 </div>
               </div>
 
-              {/* Price Range */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Price</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span>₹{priceRange[0].toLocaleString()}</span>
-                    <span>₹{priceRange[1].toLocaleString()}</span>
+              {/* Price Range Slider */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">By Price</h3>
+                <div className="space-y-4 px-1">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>₹0</span>
+                    <span className="font-semibold text-black">₹{maxPrice.toLocaleString()}</span>
                   </div>
-                  
-                  {/* Price Range Slider */}
-                  <div className="px-2">
-                    <div className="relative">
-                      {/* Track */}
-                      <div className="h-2 bg-gray-200 rounded-full relative">
-                        {/* Active track */}
-                        <div 
-                          className="h-2 bg-[#A53030] rounded-full absolute"
-                          style={{
-                            left: `${((priceRange[0] - 1000) / (100000 - 1000)) * 100}%`,
-                            width: `${((priceRange[1] - priceRange[0]) / (100000 - 1000)) * 100}%`
-                          }}
-                        />
-                      </div>
-                      
-                      {/* Min Range Input */}
-                      <input
-                        type="range"
-                        min="1000"
-                        max="100000"
-                        step="1000"
-                        value={priceRange[0]}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value);
-                          if (value < priceRange[1]) {
-                            const newRange = [value, priceRange[1]];
-                            handlePriceRangeChange(newRange);
-                          }
-                        }}
-                        className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb"
-                      />
-                      
-                      {/* Max Range Input */}
-                      <input
-                        type="range"
-                        min="1000"
-                        max="100000"
-                        step="1000"
-                        value={priceRange[1]}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value);
-                          if (value > priceRange[0]) {
-                            const newRange = [priceRange[0], value];
-                            handlePriceRangeChange(newRange);
-                          }
-                        }}
-                        className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb"
-                      />
-                    </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="5000"
+                    step="100"
+                    value={maxPrice}
+                    onChange={(e) => handleClick('maxPrice', parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-black"
+                    style={{
+                      background: `linear-gradient(to right, #000 0%, #000 ${(maxPrice / 5000) * 100}%, #e5e7eb ${(maxPrice / 5000) * 100}%, #e5e7eb 100%)`
+                    }}
+                  />
+                  <div className="text-xs text-gray-500 text-center">
+                    Showing products up to ₹{maxPrice.toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -459,110 +423,35 @@ const Collections = () => {
 
                
 
-                {/* Price Range */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Price</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <span>₹{priceRange[0].toLocaleString()}</span>
-                      <span>₹{priceRange[1].toLocaleString()}</span>
+                {/* Price Range Slider */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">By Price</h3>
+                  <div className="space-y-4 px-1">
+                    <div className="flex justify-between text-sm text-gray-600">
+                      <span>₹0</span>
+                      <span className="font-semibold text-black">₹{maxPrice.toLocaleString()}</span>
                     </div>
-                    
-                    {/* Price Range Slider */}
-                    <div className="px-2">
-                      <div className="relative">
-                        {/* Track */}
-                        <div className="h-2 bg-gray-200 rounded-full relative">
-                          {/* Active track */}
-                          <div 
-                            className="h-2 bg-[#A53030] rounded-full absolute"
-                            style={{
-                              left: `${((priceRange[0] - 1000) / (100000 - 1000)) * 100}%`,
-                              width: `${((priceRange[1] - priceRange[0]) / (100000 - 1000)) * 100}%`
-                            }}
-                          />
-                        </div>
-                        
-                        {/* Min Range Input */}
-                        <input
-                          type="range"
-                          min="1000"
-                          max="100000"
-                          step="1000"
-                          value={priceRange[0]}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value);
-                            if (value < priceRange[1]) {
-                              const newRange = [value, priceRange[1]];
-                              handlePriceRangeChange(newRange);
-                            }
-                          }}
-                          className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb"
-                        />
-                        
-                        {/* Max Range Input */}
-                        <input
-                          type="range"
-                          min="1000"
-                          max="100000"
-                          step="1000"
-                          value={priceRange[1]}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value);
-                            if (value > priceRange[0]) {
-                              const newRange = [priceRange[0], value];
-                              handlePriceRangeChange(newRange);
-                            }
-                          }}
-                          className="absolute top-0 w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Price input fields */}
-                    <div className="flex items-center space-x-2 text-sm">
-                      <div className="flex-1">
-                        <label className="block text-xs text-gray-500 mb-1">Min Price</label>
-                        <input
-                          type="number"
-                          min="1000"
-                          max="100000"
-                          value={priceRange[0]}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value) || 1000;
-                            if (value < priceRange[1] && value >= 1000) {
-                              const newRange = [value, priceRange[1]];
-                              handlePriceRangeChange(newRange);
-                            }
-                          }}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                        />
-                      </div>
-                      <span className="text-gray-400">-</span>
-                      <div className="flex-1">
-                        <label className="block text-xs text-gray-500 mb-1">Max Price</label>
-                        <input
-                          type="number"
-                          min="1000"
-                          max="100000"
-                          value={priceRange[1]}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value) || 100000;
-                            if (value > priceRange[0] && value <= 100000) {
-                              const newRange = [priceRange[0], value];
-                              handlePriceRangeChange(newRange);
-                            }
-                          }}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                        />
-                      </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="5000"
+                      step="100"
+                      value={maxPrice}
+                      onChange={(e) => handleClick('maxPrice', parseInt(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-black"
+                      style={{
+                        background: `linear-gradient(to right, #000 0%, #000 ${(maxPrice / 5000) * 100}%, #e5e7eb ${(maxPrice / 5000) * 100}%, #e5e7eb 100%)`
+                      }}
+                    />
+                    <div className="text-xs text-gray-500 text-center">
+                      Showing products up to ₹{maxPrice.toLocaleString()}
                     </div>
                   </div>
                 </div>
 
                 {/* Reviews/Ratings */}
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Review</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">By Review</h3>
                   <div className="space-y-2">
                     {[5, 4, 3, 2, 1].map((rating) => (
                       <label key={rating} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
@@ -585,7 +474,7 @@ const Collections = () => {
 
                 {/* Availability */}
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Availability</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">By Availability</h3>
                   <div className="space-y-2">
                     <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer">
                       <input 
@@ -639,7 +528,7 @@ const Collections = () => {
                 {/* Results count */}
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm text-gray-600">
-                    Showing 1-12 of {totalAvailableProducts || 0} results
+                    Showing {userProducts && userProducts.length > 0 ? `${(page - 1) * 12 + 1}-${Math.min(page * 12, totalAvailableProducts)}` : '0'} of {totalAvailableProducts || 0} results
                   </p>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-600">Sort by:</span>
@@ -668,14 +557,11 @@ const Collections = () => {
                   <span className="text-sm text-gray-600">Active Filter:</span>
                   
                   {/* Price Range Filter */}
-                  {(priceRange[0] !== 1000 || priceRange[1] !== 100000) && (
+                  {maxPrice < 5000 && (
                     <div className="flex items-center bg-black text-white px-3 py-1 rounded-full text-sm">
-                      <span>₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}</span>
+                      <span>₹0 - ₹{maxPrice}</span>
                       <button 
-                        onClick={() => {
-                          setPriceRange([1000, 100000]);
-                          handleClick('priceRange', '');
-                        }}
+                        onClick={() => handleClick('maxPrice', 5000)}
                         className="ml-2 text-white hover:text-gray-300"
                       >
                         ×
@@ -752,7 +638,7 @@ const Collections = () => {
                   )}
 
                   {/* Clear All Button */}
-                  {(category.length > 0 || selectedRating.length > 0 || selectedAvailability.length > 0 || selectedSkinType.length > 0 || sort || priceRange[0] !== 1000 || priceRange[1] !== 100000) && (
+                  {(category.length > 0 || selectedRating.length > 0 || selectedAvailability.length > 0 || selectedSkinType.length > 0 || selectedPriceRanges.length > 0 || sort) && (
                     <button
                       onClick={clearFilters}
                       className="text-sm text-red-600 underline hover:text-red-800 ml-2"
@@ -822,14 +708,14 @@ const Collections = () => {
                   <span className="mx-3 sm:mx-4 text-sm sm:text-base">Page {page}</span>
                   <button
                     className={`px-3 py-1 sm:px-4 sm:py-2 border rounded-full text-sm sm:text-base ${
-                      userProducts.length === 0
+                      !userProducts || userProducts.length === 0
                         ? "text-gray-400 border-gray-300 cursor-not-allowed"
                         : "text-black border-black hover:bg-blue-50"
                     }`}
                     onClick={() =>
-                      userProducts.length > 0 && handleClick("page", page + 1)
+                      userProducts && userProducts.length > 0 && handleClick("page", page + 1)
                     }
-                    disabled={userProducts.length === 0}
+                    disabled={!userProducts || userProducts.length === 0}
                   >
                     Next
                   </button>

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const getProducts = async (req, res) => {
   try {
-    const { category, price,  search, sort, page = 1, limit = 100 } = req.query;
+    const { category, price, maxPrice, rating, search, sort, page = 1, limit = 100 } = req.query;
 
     let filter = {};
     if (category) filter.category = { $in: category.split(",") };
@@ -12,6 +12,20 @@ const getProducts = async (req, res) => {
       filter.name = { $regex: new RegExp(search.split('').join('.*'), 'i') };
 
     }
+    
+    // Rating filter - filter products with rating >= selected minimum
+    if (rating) {
+      const ratingValues = rating.split(",").map(Number);
+      // Get products with rating >= the minimum selected rating
+      const minRating = Math.min(...ratingValues);
+      filter.rating = { $gte: minRating };
+    }
+    
+    // Max price slider filter
+    if (maxPrice && parseInt(maxPrice) < 5000) {
+      filter.price = { $lte: parseInt(maxPrice) };
+    }
+    
     if (price) {
       if (price === "Under 2500") {
         filter.price = { $lte: 2500 };
@@ -44,6 +58,12 @@ const getProducts = async (req, res) => {
     }
     if (sort === "price-desc") {
       sortOptions.price = -1;
+    }
+    if (sort === "name-asc") {
+      sortOptions.name = 1;
+    }
+    if (sort === "name-desc") {
+      sortOptions.name = -1;
     }
     if (!sort) {
       sortOptions.createdAt = -1;

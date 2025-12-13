@@ -15,6 +15,9 @@ import CounterStats from "@/components/Home/CounterStats";
 import TestimonialSection from "@/components/Home/testimonials";
 import ContactSection from "@/components/Home/ContactSection";
 import { FaWhatsapp } from "react-icons/fa";
+import useBanner from "@/hooks/useBanner";
+import { URL } from "@/Common/api";
+import fallbackBanner from "@/assets/homebnnr/b1.jpg";
 
 function WhatsAppFloatingButton() {
   return (
@@ -32,6 +35,8 @@ function WhatsAppFloatingButton() {
 }
 
 export default function Home2(props) {
+  const { banners, loading, error } = useBanner();
+
   return (
     <>
       <ImageSlider />
@@ -40,8 +45,60 @@ export default function Home2(props) {
         <AboutUs id="about"/>
       </div>
 
+      {/* Banner 1 - Between About Us and Products */}
+      {!loading && banners.banner1?.image && (
+        <div className="px-4 md:px-8 lg:px-12">
+          <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
+            <img 
+              src={`${URL}/img/${banners.banner1.image}`}
+              alt="Home Banner" 
+              className="h-full w-full object-cover object-[50%_20%]"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Fallback banner 1 if no image */}
+      {!loading && !banners.banner1?.image && (
+        <div className="px-4 md:px-8 lg:px-12">
+          <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
+            <img 
+              src={fallbackBanner} 
+              alt="The Greatest Natural Beauty is Happening to You" 
+              className="h-full w-full object-cover object-[50%_20%]"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Banner 2 - Right below Banner 1, before Products */}
+      {!loading && banners.banner2?.image && (
+        <div className="px-4 md:px-8 lg:px-12 mt-16">
+          <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
+            <img 
+              src={`${URL}/img/${banners.banner2.image}`}
+              alt="Home Banner 2" 
+              className="h-full w-full object-cover object-[50%_20%]"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Full-width OurProducts section */}
       <OurProducts id="products" />
+
+      {/* Banner 3 - Between Products and Contact */}
+      {!loading && banners.banner3?.image && (
+        <div className="px-4 md:px-8 lg:px-12 my-16">
+          <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
+            <img 
+              src={`${URL}/img/${banners.banner3.image}`}
+              alt="Home Banner 3" 
+              className="h-full w-full object-cover object-[50%_20%]"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="max-w-screen-2xl mx-auto px-4">
         {/* <CounterStats/> */}

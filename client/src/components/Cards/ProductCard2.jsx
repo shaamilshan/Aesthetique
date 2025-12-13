@@ -24,23 +24,28 @@ const ProductCard2 = ({ product }) => {
 
   // Check if product is in wishlist
   useEffect(() => {
-    if (wishlist && wishlist.length > 0) {
-      const found = wishlist.some(item => 
-        item.product._id === product._id || 
-        (item.product && item.product === product._id)
-      );
+    if (wishlist && wishlist.length > 0 && product?._id) {
+      const found = wishlist.some(item => {
+        if (!item || !item.product) return false;
+        return item.product._id === product._id || item.product === product._id;
+      });
       setIsInWishlist(found);
     } else {
       setIsInWishlist(false);
     }
-  }, [wishlist, product._id]);
+  }, [wishlist, product?._id]);
 
   // Initial fetch of wishlist when component mounts if user is logged in
   useEffect(() => {
-    if (user && user._id && wishlist.length === 0) {
+    if (user && user._id && wishlist?.length === 0) {
       dispatch(getWishlist());
     }
-  }, [user, dispatch, wishlist.length]);
+  }, [user, dispatch, wishlist?.length]);
+
+  // Early return if no product (after hooks)
+  if (!product) {
+    return null;
+  }
 
   const hasStrike = product.markup && Number(product.markup) > Number(product.price);
   const strikePrice = hasStrike ? Number(product.markup) : null;
@@ -113,9 +118,8 @@ const ProductCard2 = ({ product }) => {
 
   return (
     <div
-      data-aos="fade-left"
       onClick={() => navigate(`/product/${product._id}`)}
-      className="cursor-pointer bg-white rounded-3xl shadow-sm hover:shadow-sm transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full"
+      className="cursor-pointer bg-white rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full"
     >
       {/* Image area */}
       <div className="relative bg-gray-50 w-full">

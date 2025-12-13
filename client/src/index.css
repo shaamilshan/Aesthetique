@@ -64,6 +64,49 @@ input:focus {
   border-color: #ccc !important;
 }
 
+/* Price Slider Styles */
+input[type="range"].slider-black {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 8px;
+  outline: none;
+  overflow: visible;
+}
+
+input[type="range"].slider-black::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #000;
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  margin-top: -8px;
+}
+
+input[type="range"].slider-black::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #000;
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+input[type="range"].slider-black::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 8px;
+}
+
+input[type="range"].slider-black::-moz-range-track {
+  height: 6px;
+  border-radius: 8px;
+}
+
 
 /* For Firefox */
 .my-container {

@@ -120,13 +120,18 @@ const EditProfile = ({ closeToggle }) => {
   };
 
   return (
-    <div className="bg-gray-100 w-4/6 shadow-2xl overflow-y-auto h-screen lg:h-auto rounded-lg">
-      <div className="bg-white pt-5 pb-3 px-5 flex items-center justify-between">
-        <h1 className="font-bold text-lg ">Edit Address</h1>
-        <AiOutlineClose
-          className="text-xl cursor-pointer"
+    <div className="bg-white w-full max-w-4xl shadow-2xl overflow-y-auto max-h-[90vh] rounded-2xl border border-gray-100">
+      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">Edit Profile</h1>
+          <p className="text-sm text-gray-500 mt-1">Update your personal information</p>
+        </div>
+        <button
           onClick={closeToggle}
-        />
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+        >
+          <AiOutlineClose className="text-xl text-gray-600" />
+        </button>
       </div>
       <Formik
         initialValues={initialValues}
@@ -135,94 +140,84 @@ const EditProfile = ({ closeToggle }) => {
         enableReinitialize
       >
         {({ values, setFieldValue }) => (
-          <Form className="lg:flex items-start gap-5 p-5">
-            <div>
-              {values.profileImgURL &&
-              typeof values.profileImgURL === "string" ? (
-                <div className="bg-gray-100 py-5 rounded-lg text-center h-80">
-                  <div className="h-56 w-56">
-                    <img
-                      src={
-                        values.profileImgURL.startsWith("https")
-                          ? values.profileImgURL
-                          : `${URL}/img/${values.profileImgURL}`
-                      }
-                      alt="profile"
-                      className="h-full w-full object-cover rounded-full"
-                    />
-                  </div>
-                  <button
-                    className="mt-4 bg-red-500 text-white font-bold py-2 px-4 rounded"
-                    onClick={() => setFieldValue("profileImgURL", null)}
-                  >
-                    Delete this
-                  </button>
-                </div>
-              ) : (
-                <CustomSingleFileInput
-                  onChange={(file) => {
-                    setFieldValue("profileImgURL", file);
-                  }}
-                />
-              )}
-              <ErrorMessage
-                className="text-sm text-red-500"
-                name="profileImgURL"
-                component="span"
-              />
-            </div>
+          <Form className="p-6">
+            {/* Profile Image Section */}
+        
 
-            <div className="w-full">
-              <div className="lg:grid grid-cols-2 gap-5 ">
+            {/* Personal Information Form */}
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Personal Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InputWithIcon
                   icon={<AiOutlineUser />}
                   title="First Name"
                   name="firstName"
-                  placeholder="Enter here"
+                  placeholder="Enter your first name"
                 />
                 <InputWithIcon
                   icon={<AiOutlineUser />}
                   title="Last Name"
                   name="lastName"
-                  placeholder="Enter here"
+                  placeholder="Enter your last name"
                 />
 
                 <InputWithIcon
                   icon={<AiOutlinePhone />}
                   title="Phone Number"
                   name="phoneNumber"
-                  placeholder="Enter here"
+                  placeholder="Enter your phone number"
                 />
                 <InputWithIcon
                   icon={<RiCalendarEventFill />}
-                  title="Date of birth"
+                  title="Date of Birth"
                   name="dateOfBirth"
                   as="date"
-                  placeholder="Enter here"
+                  placeholder="Select your birth date"
                 />
-                <InputWithIcon
-                  icon={<AiOutlineMail />}
-                  title="Email"
-                  name="email"
-                  placeholder="Enter here"
-                />
-                {emailChanged && (
-                  <EditProfileOTPComponent
-                    otp={otp}
-                    isOTPVerified={isOTPVerified}
-                    setOTP={setOTP}
-                    verifyOTP={verifyOTP}
+                
+                <div className="md:col-span-2">
+                  <InputWithIcon
+                    icon={<AiOutlineMail />}
+                    title="Email Address"
+                    name="email"
+                    placeholder="Enter your email address"
                   />
+                </div>
+                
+                {emailChanged && (
+                  <div className="md:col-span-2">
+                    <EditProfileOTPComponent
+                      otp={otp}
+                      isOTPVerified={isOTPVerified}
+                      setOTP={setOTP}
+                      verifyOTP={verifyOTP}
+                    />
+                  </div>
                 )}
               </div>
+            </div>
+
+            {/* Action Button and Error Display */}
+            <div className="pt-6 border-t border-gray-200 mt-8">
               <button
                 type="submit"
-                className="btn-blue text-white w-full my-3"
+                className="w-full bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
               >
-                {loading ? "Loading..." : "Edit Profile"}
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Updating Profile...
+                  </div>
+                ) : (
+                  "Update Profile"
+                )}
               </button>
-              {error && <p className="my-2 text-red-400">{error}</p>}
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
             </div>
           </Form>
         )}

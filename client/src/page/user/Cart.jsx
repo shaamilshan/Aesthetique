@@ -80,14 +80,18 @@ const Cart = () => {
     <>
       {showConfirm && (
         <ConfirmModel
-          title="Confirm Clearing Cart?"
+          title="Clear Shopping Cart?"
+          description="Are you sure you want to remove all items from your cart? This action cannot be undone."
+          type="warning"
           positiveAction={deleteCart}
           negativeAction={toggleConfirm}
         />
       )}
       {showProductConfirm && (
         <ConfirmModel
-          title="Confirm Delete?"
+          title="Remove Product?"
+          description="This item will be removed from your cart. You can add it back later if needed."
+          type="warning"
           positiveAction={dispatchDeleteProduct}
           negativeAction={() => toggleProductConfirm("")}
         />
@@ -197,17 +201,48 @@ const Cart = () => {
           </div>
         </>
       ) : (
-        <div className="flex items-center justify-center h-screen">
-          <div className="flex flex-col items-center">
-            <img
-              src={EmptyCart}
-              alt="Empty Cart Icon"
-              className="w-full lg:w-1/2"
-            />
-            <p className="text-gray-500 mt-4 text-lg">Your cart is empty</p>
-            <Link to="/" className="py-2 text-blue-500 hover:underline text-sm">
-              Go back to shopping
-            </Link>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-16 px-4">
+          <div className="max-w-md w-full">
+            <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+              {/* Empty Cart Icon */}
+              <div className="mb-8">
+                <img
+                  src={EmptyCart}
+                  alt="Empty Cart Icon"
+                  className="w-48 h-48 mx-auto object-contain"
+                />
+              </div>
+              
+              {/* Content */}
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Your cart is empty
+                </h2>
+                <p className="text-gray-600 leading-relaxed">
+                  Looks like you haven't added anything to your cart yet. 
+                  Start shopping to fill it up with amazing products!
+                </p>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="mt-8 space-y-3">
+                <Link 
+                  to="/collections" 
+                  className="block w-full bg-black text-white py-3 px-6 rounded-xl font-medium hover:bg-gray-800 transition-all duration-200"
+                >
+                  Browse Products
+                </Link>
+                <Link 
+                  to="/" 
+                  className="block w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200"
+                >
+                  Back to Home
+                </Link>
+              </div>
+            </div>
+            
+            {/* Quick Links */}
+            
           </div>
         </div>
       )}

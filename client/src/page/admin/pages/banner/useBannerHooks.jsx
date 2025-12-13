@@ -38,22 +38,33 @@ const useBannerHooks = () => {
       formData.append("images", file);
     }
 
-    const { data } = await axios.post(
-      `${URL}/admin/banners`,
-      formData,
-      configMultiPart
-    );
-    if (data) {
+    try {
+      const { data } = await axios.post(
+        `${URL}/admin/banners`,
+        formData,
+        configMultiPart
+      );
+      if (data) {
+        setFileUploadLoading(false);
+        setImageURL("");
+      }
+      setItems(data.banners?.images || []);
+    } catch (error) {
+      console.error('Error uploading banner:', error);
+      toast.error('Failed to upload banner');
       setFileUploadLoading(false);
-      setImageURL("");
     }
-    setItems(data.banners.images);
   };
 
   // Initial data loading
   const loadData = async () => {
-    const { data } = await axios.get(`${URL}/admin/banners`, config);
-    setItems(data.banners.images);
+    try {
+      const { data } = await axios.get(`${URL}/admin/banners`, config);
+      setItems(data.banners?.images || []);
+    } catch (error) {
+      console.error('Error loading banners:', error);
+      setItems([]);
+    }
   };
   useEffect(() => {
     loadData();

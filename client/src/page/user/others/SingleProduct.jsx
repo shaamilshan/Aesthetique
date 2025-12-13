@@ -62,7 +62,7 @@ const SingleProduct = () => {
 
   const { user } = useSelector((state) => state.user);
   const { wishlist } = useSelector((state) => state.wishlist);
-  const isProductInWishlist = wishlist.some((item) => item.product._id === id);
+  const isProductInWishlist = wishlist?.some((item) => item?.product?._id === id) || false;
   
   const isOutOfStock = product.stockQuantity === 0;
 

@@ -71,6 +71,10 @@ const {
   readBanners,
   deleteBanner,
   updateBannerOrder,
+  updateHomeBanner,
+  getHomeBanners,
+  setActiveHomeBanner,
+  deleteHomeBanner,
 } = require("../controllers/admin/bannerController");
 
 // Products controller functions mounting them to corresponding route
@@ -148,5 +152,11 @@ router.post("/banners", upload.any(), addBanners);
 router.get("/banners", readBanners);
 router.patch("/banners/", updateBannerOrder);
 router.delete("/banner/:id", deleteBanner);
+
+// Home Banner Controllers
+router.get("/home-banners", getHomeBanners);
+router.put("/home-banners/:bannerNumber", upload.single('image'), updateHomeBanner);
+router.patch("/home-banners/:bannerNumber/activate", setActiveHomeBanner);
+router.delete("/home-banners/:bannerNumber", deleteHomeBanner);
 
 module.exports = router;

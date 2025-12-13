@@ -6,7 +6,7 @@ import {
   ShoppingBag,
   Package,
   Users,
-  Settings,
+  MapPin,
   LogOut
 } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -81,7 +81,7 @@ const DashSideNavbar = () => {
             to="profile"
           >
             <Users size={20} />
-            Customers
+            Profile
           </NavLink>
 
           <NavLink 
@@ -94,12 +94,12 @@ const DashSideNavbar = () => {
             }
             to="addresses"
           >
-            <Settings size={20} />
-            Settings
+            <MapPin size={20} />
+            Addresses
           </NavLink>
 
           <button 
-            className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900 w-full"
+            className="flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-red-600 hover:bg-red-50 hover:text-red-700 w-full"
             onClick={handleLogout}
           >
             <LogOut size={20} />
