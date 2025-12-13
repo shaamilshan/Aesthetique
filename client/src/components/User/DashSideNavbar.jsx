@@ -21,7 +21,7 @@ const DashSideNavbar = () => {
   };
 
   return (
-    <div className="sm:w-1/5 bg-white h-fit shrink-0 rounded-lg shadow-sm border lg:block">
+    <div className="sm:w-1/5 bg-white max-h-[calc(100vh-200px)] shrink-0 rounded-lg shadow-sm border lg:block overflow-y-auto">
       <div className="p-4">
         <h2 className="text-lg font-semibold text-gray-800 mb-6">Dashboard</h2>
         
