@@ -150,7 +150,7 @@ const Cart = () => {
                 <h3 className="text-lg font-semibold">Cart Total</h3>
                 <TotalAndSubTotal />
                 <button
-                  className="btn-blue bg-red-500 w-full text-white uppercase font-semibold text-sm"
+                  className="btn-blue bg-black w-full text-white rounded-full uppercase font-semibold text-sm"
                   onClick={() => {
                     if (cart.length > 0) {
                       navigate("/checkout");
@@ -162,33 +162,37 @@ const Cart = () => {
                   Proceed to checkout
                 </button>
               </div>
-              {/* Coupon session */}
-              {/* <div className="bg-white border border-gray-200">
-                <h3 className="p-5 border-b border-gray-200">Coupon Code</h3>
+              {/* Coupon/Voucher Code Section */}
+              <div className="bg-white border border-gray-200 mt-5">
+                <h3 className="p-5 border-b border-gray-200 text-lg font-semibold">Voucher Code</h3>
                 <div className="p-5">
-                  <input
-                    type="text"
-                    className="w-full py-2 px-3 rounded border border-gray-200"
-                    placeholder="Enter Coupon Code"
-                    value={inputCouponCode}
-                    onChange={(e) => setInputCouponCode(e.target.value)}
-                  />
-                  <div className="flex justify-between">
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      className="flex-1 py-3 px-4 rounded-lg border border-gray-300 focus:border-black focus:outline-none"
+                      placeholder="Enter your voucher code"
+                      value={inputCouponCode}
+                      onChange={(e) => setInputCouponCode(e.target.value)}
+                      disabled={couponCode !== ""}
+                    />
                     <button
-                      className="btn-blue-border my-3"
+                      className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
                       onClick={dispatchApplyCoupon}
+                      disabled={couponCode !== "" || inputCouponCode.trim() === ""}
                     >
-                      Apply Coupon
-                    </button>
-                    <button
-                      className="flex items-center gap-2 hover:text-blue-500 hover:underline"
-                      onClick={() => navigate("/dashboard/find-coupons")}
-                    >
-                      Find <BiSearchAlt />
+                      Apply
                     </button>
                   </div>
+                  {couponCode && (
+                    <div className="mt-3 flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-green-700 font-medium">Voucher "{couponCode}" applied successfully</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div> */}
+              </div>
             </div>
           </div>
         </>

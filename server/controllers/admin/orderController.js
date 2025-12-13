@@ -348,6 +348,40 @@ const generateOrderInvoice = async (req, res) => {
   }
 };
 
+// Get Latest Orders for Dashboard (minimum 5, maximum available)
+const getLatestOrders = async (req, res) => {
+  try {
+    let filter = {};
+
+    filter.status = {
+      $in: [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "returned",
+      ],
+    };
+
+    const orders = await Order.find(filter, {
+      address: 0,
+      statusHistory: 0,
+      products: { $slice: 1 },
+    })
+      .limit(10)
+      .populate("user", { firstName: 1, lastName: 1 })
+      .populate("products.productId", { imageURL: 1, name: 1 })
+      .sort({ createdAt: -1 });
+
+    const totalAvailableOrders = await Order.countDocuments(filter);
+
+    res.status(200).json({ orders, totalAvailableOrders });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // Clearing all orders only for testing
 const clearOrder = async (req, res) => {
   try {
@@ -363,6 +397,7 @@ module.exports = {
   getOrders,
   getManagerOrders,
   getManagerOrder,
+  getLatestOrders,
   clearOrder,
   updateOrderStatus,
   getOrder,

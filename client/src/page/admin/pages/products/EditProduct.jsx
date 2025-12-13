@@ -520,13 +520,22 @@ const EditProduct = () => {
           <div className="lg:w-2/6">
             <div className="admin-div">
               <h1 className="font-bold">Product Pricing</h1>
-              <p className="admin-label">Amount</p>
+              <p className="admin-label">Selling Price</p>
               <input
                 type="number"
                 name="price"
-                placeholder="Type product price here"
+                placeholder="Type product selling price here"
                 className="admin-input"
                 value={fetchedData.price || ""}
+                onChange={handleInputChange}
+              />
+              <p className="admin-label">Cost Price</p>
+              <input
+                type="number"
+                name="costPrice"
+                placeholder="Type actual cost price here"
+                className="admin-input"
+                value={fetchedData.costPrice || ""}
                 onChange={handleInputChange}
               />
               <p className="admin-label">Strike Price (MRP)</p>

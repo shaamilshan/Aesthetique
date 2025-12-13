@@ -39,6 +39,7 @@ const AddProducts = () => {
   const [status, setStatus] = useState("Published");
   const [attributes, setAttributes] = useState([]);
   const [price, setPrice] = useState("");
+  const [costPrice, setCostPrice] = useState("");
   const [markup, setMarkup] = useState("");
   const [moreImageURL, setMoreImageURL] = useState("");
   const [offer, setOffer] = useState(0);
@@ -62,6 +63,10 @@ const AddProducts = () => {
       toast.error("Price Should be greater than 0");
       return;
     }
+    if (costPrice && costPrice <= 0) {
+      toast.error("Cost Price Should be greater than 0");
+      return;
+    }
     // if (markup <= 0) {
     //   toast.error("Markup Should be greater than 0");
     //   return;
@@ -73,6 +78,9 @@ const AddProducts = () => {
     formData.append("stockQuantity", newStockQuantity);
     formData.append("attributes", JSON.stringify(attributes));
     formData.append("price", price);
+    if (costPrice) {
+      formData.append("costPrice", costPrice);
+    }
     if (markup !== "" && markup !== null && markup !== undefined) {
       formData.append("markup", markup);
     }
@@ -290,13 +298,21 @@ const AddProducts = () => {
           <div className="lg:w-2/6">
             <div className="admin-div">
               <h1 className="font-bold">Product Pricing</h1>
-              <p className="admin-label">Amount</p>
+              <p className="admin-label">Selling Price</p>
               <input
                 type="number"
-                placeholder="Type product price here"
+                placeholder="Type product selling price here"
                 className="admin-input"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
+              />
+              <p className="admin-label">Cost Price</p>
+              <input
+                type="number"
+                placeholder="Type actual cost price here"
+                className="admin-input"
+                value={costPrice}
+                onChange={(e) => setCostPrice(e.target.value)}
               />
               <p className="admin-label">Strike Price (MRP)</p>
               <input

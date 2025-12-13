@@ -30,6 +30,7 @@ const {
 const {
   getOrders,
   getOrder,
+  getLatestOrders,
   clearOrder,
   updateOrderStatus,
   generateOrderInvoice,
@@ -103,6 +104,7 @@ router.post("/category", (req, res, next) => {
 
 // Order controller functions mounting them to corresponding route
 router.get("/orders", getOrders);
+router.get("/latest-orders", getLatestOrders);
 router.delete("/clear-orders", clearOrder);
 router.get("/order/:id", getOrder);
 router.patch("/order-status/:id", updateOrderStatus);

@@ -407,7 +407,7 @@ const DescReview = ({ product: initialProduct, id }) => {
 
                   <button
                     type="submit"
-                    className="w-full bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-300 text-sm sm:text-base"
+                    className="w-full bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-600 transition-colors duration-300 text-sm sm:text-base"
                     disabled={!newReview.rating || !newReview.title}
                   >
                     Submit Review

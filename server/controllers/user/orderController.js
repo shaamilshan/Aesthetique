@@ -60,8 +60,8 @@ const updateProductList = async (id, count, attributes) => {
 
   // If decrementing, check for attribute quantities
   if (count < 0) {
-    // Check that attributes is a Map
-    if (attributes instanceof Map) {
+    // Check that attributes is a Map and has entries
+    if (attributes instanceof Map && attributes.size > 0) {
       for (let [key, value] of attributes) { // Destructure the Map
         const attribute = product.attributes.find(a => a.name === key && a.value === value);
         if (attribute) {
@@ -72,9 +72,9 @@ const updateProductList = async (id, count, attributes) => {
           throw new Error(`Attribute ${key}: ${value} not found for ${product.name}`);
         }
       }
-    } else {
-      throw new Error("Attributes must be provided when decrementing the quantity");
     }
+    // If attributes is an empty Map or not provided, we still allow the operation
+    // This handles products that don't have attributes or have simple stock management
   }
 
   // Update product stock quantity
@@ -167,7 +167,7 @@ const createOrder = async (req, res) => {
       totalPrice: item.product.price,
       price: item.product.price,
       markup: item.product.markup || 0,
-      attributes: item.attributes, // Include attributes here
+      attributes: item.attributes || new Map(), // Ensure attributes is always a Map
     }));
 
     let orderData = {
@@ -391,10 +391,11 @@ const cancelOrder = async (req, res) => {
     const products = orderDetails.products.map((item) => ({
       productId: item.productId._id,
       quantity: item.quantity,
+      attributes: item.attributes || new Map(), // Ensure attributes is always a Map
     }));
 
     const updateProductPromises = products.map((item) => {
-      return updateProductList(item.productId, item.quantity,item.attributes);
+      return updateProductList(item.productId, item.quantity, item.attributes);
     });
 
     await Promise.all(updateProductPromises);
@@ -648,7 +649,7 @@ const buyNow = async (req, res) => {
       // ...(cart.type ? { couponType: cart.type } : {}),
     };
 
-    await updateProductList(id, -quantity);
+    await updateProductList(id, -quantity, new Map());
 
     const order = await Order.create(orderData);
 

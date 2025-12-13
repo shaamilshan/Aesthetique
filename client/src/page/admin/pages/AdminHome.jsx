@@ -16,6 +16,7 @@ import { useSearchParams } from "react-router-dom";
 
 const AdminHome = () => {
   const { orders, loading, error } = useSelector((state) => state.orders);
+  const { user } = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
   const [numberOfDates, setNumberOfDates] = useState(7);
@@ -26,7 +27,7 @@ const AdminHome = () => {
   }, 100);
 
   useEffect(() => {
-    dispatch(getOrders({}));
+    dispatch(getOrders());
   }, []);
 
   // Update Orders
@@ -50,9 +51,15 @@ const AdminHome = () => {
         />
       )}
       <div className="p-5 w-full overflow-auto">
+        {/* Welcome Section */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Welcome back, {user?.firstName}!</h1>
+          <p className="text-gray-600">Here's what's happening with your store today.</p>
+        </div>
+        
         <div className="flex justify-between items-center text-xs font-semibold pb-5">
           <div>
-            <h1 className="font-bold text-2xl">Dashboard</h1>
+            <h2 className="font-bold text-xl text-gray-800">Dashboard Overview</h2>
           </div>
           <div className="flex gap-3 relative">
             <button
@@ -123,7 +130,9 @@ const AdminHome = () => {
         </div>
         {orders && orders.length > 0 ? (
           <div className="overflow-x-scroll lg:overflow-hidden bg-white rounded-lg my-5">
-            <h1 className="px-5 pt-5 font-bold text-lg">Latest Orders</h1>
+            <h1 className="px-5 pt-5 font-bold text-lg">
+              Latest Orders {orders.length >= 5 ? "(Last 5)" : `(${orders.length} available)`}
+            </h1>
             <table className="w-full min-w-max table-auto">
               <thead className="font-normal">
                 <tr className="border-b border-gray-200">
@@ -139,7 +148,7 @@ const AdminHome = () => {
               </thead>
               <tbody>
                 {orders.slice(0, 5).map((item, index) => {
-                  const isLast = index === orders.length - 1;
+                  const isLast = index === Math.min(5, orders.length) - 1;
                   const classes = isLast
                     ? "p-4"
                     : "p-4 border-b border-gray-200 ";

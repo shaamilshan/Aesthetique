@@ -15,12 +15,14 @@ const Dashboard = () => {
   }, [user]);
 
   return (
-    <div className="flex lg:flex-row flex-col overflow-y-hidden h-screen bg-gray-100">
+    <div className="flex lg:flex-row flex-col overflow-y-hidden h-screen bg-gray-50">
       <SmallDeviceNavbar />
-      <div className="hidden lg:block px-5 py-3 flex-shrink-0 border-r border-r-gray-300">
+      <div className="hidden lg:block p-4 flex-shrink-0">
         <SideNavbar />
       </div>
-      <Outlet />
+      <div className="flex-1 overflow-hidden">
+        <Outlet />
+      </div>
     </div>
   );
 };

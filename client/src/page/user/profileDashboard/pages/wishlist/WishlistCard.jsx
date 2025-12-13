@@ -22,6 +22,7 @@ const WishlistCard = ({ item }) => {
         {
           product: id,
           quantity: 1,
+          attributes: {},
         },
         config
       );

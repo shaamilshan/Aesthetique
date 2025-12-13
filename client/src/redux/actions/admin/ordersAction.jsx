@@ -15,6 +15,20 @@ export const getOrders = createAsyncThunk(
     );
   }
 );
+
+// Get latest orders for dashboard
+export const getLatestOrders = createAsyncThunk(
+  "orders/getLatestOrders",
+  async (_, { rejectWithValue }) => {
+    return commonReduxRequest(
+      "get",
+      `/admin/latest-orders`,
+      null,
+      appJson,
+      rejectWithValue
+    );
+  }
+);
 // Get all manager orders
 export const getManagerOrders = createAsyncThunk(
   "orders/getOrders",

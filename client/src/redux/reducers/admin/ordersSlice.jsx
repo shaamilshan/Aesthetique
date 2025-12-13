@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   getOrders,
+  getLatestOrders,
   updateOrderStatus,
   getReturnOrders,
   updateReturnOrderStatus,
@@ -31,6 +32,23 @@ const ordersSlice = createSlice({
         state.orders = null;
         state.error = payload;
       })
+      
+      // Get Latest Orders for Dashboard
+      .addCase(getLatestOrders.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getLatestOrders.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.error = null;
+        state.orders = payload.orders;
+        state.totalAvailableOrders = payload.totalAvailableOrders;
+      })
+      .addCase(getLatestOrders.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.orders = null;
+        state.error = payload;
+      })
+      
       // .addCase(updateOrderStatus.pending, (state) => {
       //   state.loading = false;
       // })

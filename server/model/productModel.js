@@ -37,6 +37,12 @@ const productsSchema = new Schema(
       required: [true, "Price is required"],
       min: [0, "Price cannot be negative"],
     },
+    costPrice: {
+      type: Number,
+      required: false, // Make optional for backward compatibility
+      min: [0, "Cost price cannot be negative"],
+      default: 0,
+    },
     markup: {
       type: Number,
       default: 0,

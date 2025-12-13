@@ -403,7 +403,7 @@ const SingleProduct = () => {
                 variant="destructive"
                 size="lg"
                 disabled={cartLoading}
-                className="flex-1 h-12"
+                className="flex-1 h-12 bg-black hover:bg-gray-800 rounded-full border-none"
               >
                 <Zap size={18} className="mr-2" />
                 Buy Now
@@ -584,7 +584,7 @@ const SingleProduct = () => {
           variant="destructive"
           size="lg"
           disabled={cartLoading}
-          className="flex-1 md:flex-none h-12 w-full md:w-auto"
+          className="flex-1 md:flex-none h-12 w-full md:w-auto bg-black hover:bg-gray-800 rounded-full border-none"
         >
           <Zap size={18} className="mr-2" />
           Buy Now
@@ -594,7 +594,7 @@ const SingleProduct = () => {
           variant="outline"
           size="lg"
           disabled={cartLoading}
-          className="flex-1 md:flex-none h-12 w-full md:w-auto border-gray-300"
+          className="flex-1 rounded-full md:flex-none h-12 w-full md:w-auto border-gray-300"
         >
           <ShoppingCart size={18} className="mr-2" />
           Add to Cart

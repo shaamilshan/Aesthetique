@@ -14,6 +14,7 @@ import TotalAndSubTotal from "./components/TotalAndSubTotal";
 import Loading from "../../components/Loading";
 import { clearCartOnOrderPlaced } from "../../redux/reducers/user/cartSlice";
 import CheckoutPaymentOption from "./components/CheckoutPaymentOption";
+import VoucherCodeSection from "./components/VoucherCodeSection";
 
 const Checkout = () => {
   const dispatch = useDispatch();
@@ -326,6 +327,14 @@ const Checkout = () => {
                 walletBalance={walletBalance}
                 setWalletBalance={setWalletBalance}
               />
+            </div>
+
+            {/* Voucher Code Section */}
+            <div className="bg-white my-5 p-5 rounded">
+              <h1 className="text-xl font-semibold border-b pb-2 mb-3">
+                Voucher Code
+              </h1>
+              <VoucherCodeSection />
             </div>
 
             <p className="my-1 font-semibold">Additional Notes</p>

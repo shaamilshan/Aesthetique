@@ -82,6 +82,7 @@ const ProductDetails = () => {
         {
           product: id,
           quantity: count,
+          attributes: {},
         },
         { ...config, withCredentials: true }
       )
