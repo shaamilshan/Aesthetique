@@ -71,12 +71,11 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
               </div>
             )}
 
-            {/* Price - Mobile */}
-            <p className="mt-2 font-medium sm:hidden">₹{item.product.price}</p>
+            {/* Price - moved to right column for consistent alignment */}
           </div>
 
-          {/* Bottom Row - Quantity & Delete */}
-          <div className="flex items-center justify-between mt-3 sm:mt-0">
+          {/* Bottom Row - Quantity (delete moved to right column) */}
+          <div className="flex items-center mt-3 sm:mt-0">
             <div className="flex items-center gap-3">
               {countLoading ? (
                 <JustLoading size={6} />
@@ -89,21 +88,27 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
                 />
               )}
             </div>
-            <button
-              onClick={() => toggleProductConfirm(item.product._id)}
-              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <AiOutlineDelete className="text-lg sm:text-xl" />
-            </button>
           </div>
         </div>
+        {/* Right column: Price, Total and Delete - always visible to align actions to row end */}
+        <div className="flex flex-col items-end justify-between min-w-[72px]">
+          {(() => {
+            const strike = item.product.originalPrice ?? item.product.markup ?? null;
+            const hasStrike = strike && Number(strike) > Number(item.product.price);
+            return (
+              <div className="text-right">
+                <div className="font-medium">₹{Number(item.product.price).toLocaleString()}{hasStrike && (<span className="text-xs text-gray-500 line-through ml-2">₹{Number(strike).toLocaleString()}</span>)}</div>
+                <div className="text-sm text-gray-500">Total: <span className="font-medium text-black">₹{Number(item.product.price * item.quantity).toLocaleString()}</span></div>
+              </div>
+            );
+          })()}
 
-        {/* Price & Total - Desktop */}
-        <div className="hidden sm:flex flex-col items-end justify-between">
-          <p className="font-medium">₹{item.product.price}</p>
-          <p className="text-sm text-gray-500">
-            Total: <span className="font-medium text-black">₹{item.product.price * item.quantity}</span>
-          </p>
+          <button
+            onClick={() => toggleProductConfirm(item.product._id)}
+            className="mt-2 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <AiOutlineDelete className="text-lg sm:text-xl" />
+          </button>
         </div>
       </div>
     </div>

@@ -31,7 +31,18 @@ const CheckoutCartRow = ({ item }) => {
 
       <div className="text-right min-w-[72px]">
         <div className="text-sm text-gray-600">{item.quantity} x</div>
-        <div className="text-sm font-semibold text-gray-900">₹{item.product.price}</div>
+        {(() => {
+          const strike = item.product.originalPrice ?? item.product.markup ?? null;
+          const hasStrike = strike && Number(strike) > Number(item.product.price);
+          return (
+            <div className="text-sm font-semibold text-gray-900">
+              ₹{Number(item.product.price).toLocaleString()}
+              {hasStrike && (
+                <span className="text-xs text-gray-500 line-through ml-2">₹{Number(strike).toLocaleString()}</span>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

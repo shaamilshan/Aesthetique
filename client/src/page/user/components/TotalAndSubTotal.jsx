@@ -7,7 +7,7 @@ const TotalAndSubTotal = () => {
 
   // const { totalPrice, shipping, discount, tax, couponType, couponCode } =
   //   useSelector((state) => state.cart);
-  const { totalPrice, shipping, discount, couponType, couponCode } =
+  const { totalPrice, shipping, discount, couponType, couponCode, cart } =
     useSelector((state) => state.cart);
 
   // Set tax to 0
@@ -23,12 +23,32 @@ const TotalAndSubTotal = () => {
 
   const finalTotal = totalPrice + shipping + parseInt(tax) - offer;
 
+  // Compute original/strike total to show savings (use originalPrice or markup)
+  const originalTotal = (cart || []).reduce((sum, item) => {
+    const prod = item.product || {};
+    const price = Number(prod.price) || 0;
+    const strike = prod.originalPrice ?? prod.markup ?? null;
+    const strikeNum = strike ? Number(strike) : null;
+    const applicable = strikeNum && strikeNum > price ? strikeNum : price;
+    const qty = Number(item.quantity) || 1;
+    return sum + applicable * qty;
+  }, 0);
+
+  const amountSaved = Math.max(0, originalTotal - Number(totalPrice || 0));
+
   return (
     <>
       <div className="space-y-3 text-sm text-gray-700">
+        {originalTotal > Number(totalPrice || 0) && (
+          <div className="flex justify-between items-center">
+            <span className="text-gray-500">Original total</span>
+            <span className="text-sm text-gray-500 line-through">₹{Number(originalTotal).toLocaleString()}</span>
+          </div>
+        )}
+
         <div className="flex justify-between">
           <span className="text-gray-500">Subtotal</span>
-          <span className="font-medium">₹{totalPrice}</span>
+          <span className="font-medium">₹{Number(totalPrice).toLocaleString()}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">Shipping</span>
@@ -48,6 +68,13 @@ const TotalAndSubTotal = () => {
             <span className="text-green-600 font-medium">
               -{couponType === "percentage" ? `${discount}% (₹${offer})` : `₹${offer}`}
             </span>
+          </div>
+        )}
+
+        {amountSaved > 0 && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">You saved</span>
+            <span className="text-green-600 font-medium">₹{Number(amountSaved).toLocaleString()}</span>
           </div>
         )}
 
