@@ -117,10 +117,10 @@ const Dash = () => {
             <Link className="dashboard-link" to="addresses">
               Shipping and Billing Addresses
             </Link>{" "}
-            and edit your{" "}
+            {/* and edit your{" "}
             <Link className="dashboard-link" to="settings">
               Password
-            </Link>{" "}
+            </Link>{" "} */}
             and{" "}
             <Link className="dashboard-link" to="profile">
               Account Details.
@@ -162,7 +162,7 @@ const Dash = () => {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <p className="font-bold text-gray-900 text-base">
-                                  #{order._id.slice(-8).toUpperCase()}
+                                  #{order.orderId || order._id.slice(-8).toUpperCase()}
                                 </p>
                                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                   order.status === 'delivered' ? 'bg-green-100 text-green-700' :
@@ -183,40 +183,66 @@ const Dash = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-lg text-gray-900">
-                              ₹{Number(order.totalAmount).toLocaleString()}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {order.items?.length || 0} item{order.items?.length !== 1 ? 's' : ''}
-                            </p>
+                            {(() => {
+                              // try multiple fields for total: API may return different names
+                              const totalRaw = order.totalPrice ?? order.totalAmount ?? order.total ?? order.amount ?? order.finalTotal ?? order.grandTotal;
+                              const showTotal = totalRaw !== null && totalRaw !== undefined && totalRaw !== "";
+                              return (
+                                <>
+                                  <p className="font-semibold text-base text-gray-900">
+                                    {showTotal ? `₹${Number(totalRaw).toLocaleString()}` : "—"}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {order.products?.length || 0} item{order.products?.length !== 1 ? 's' : ''}
+                                  </p>
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                         
                         {/* Order items preview */}
-                        {order.items && order.items.length > 0 && (
+                        {order.products && order.products.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-gray-100">
                             <div className="flex items-center gap-2">
-                              {order.items.slice(0, 3).map((item, itemIndex) => (
-                                <div key={itemIndex} className="w-8 h-8 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden">
-                                  {item.product?.imageURL && (
-                                    <img 
-                                      src={`${URL}/img/${item.product.imageURL}`} 
-                                      alt={item.product.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  )}
-                                </div>
-                              ))}
-                              {order.items.length > 3 && (
+                              {order.products.slice(0, 3).map((item, itemIndex) => {
+                                const product = item.productId || item.product || item;
+                                return (
+                                  <div key={itemIndex} className="w-8 h-8 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden">
+                                    {product?.imageURL && (
+                                      <img 
+                                        src={`${URL}/img/${product.imageURL}`} 
+                                        alt={product.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display = 'none';
+                                        }}
+                                      />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                              {order.products.length > 3 && (
                                 <div className="w-8 h-8 bg-gray-200 rounded-md flex items-center justify-center">
                                   <span className="text-xs font-medium text-gray-600">
-                                    +{order.items.length - 3}
+                                    +{order.products.length - 3}
                                   </span>
                                 </div>
                               )}
                               <span className="text-sm text-gray-500 ml-2">
-                                {order.items[0]?.product?.name}
-                                {order.items.length > 1 && ` & ${order.items.length - 1} more`}
+                                {(() => {
+                                  const firstProduct = order.products[0];
+                                  const product = firstProduct?.productId || firstProduct?.product || firstProduct;
+                                  const firstName = product?.name || 'Product';
+                                  const totalProducts = order.products.length;
+                                  
+                                  if (totalProducts === 1) {
+                                    return firstName;
+                                  } else {
+                                    const extraCount = totalProducts - 1;
+                                    return `${firstName} + ${extraCount} more`;
+                                  }
+                                })()}
                               </span>
                             </div>
                           </div>

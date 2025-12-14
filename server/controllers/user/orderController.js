@@ -326,12 +326,11 @@ const getOrders = async (req, res) => {
         deliveryDate: 0,
         user: 0,
         statusHistory: 0,
-        products: { $slice: 1 },
       }
     )
       .skip(skip)
       .limit(limit)
-      .populate("products.productId", { name: 1 })
+      .populate("products.productId", { name: 1, imageURL: 1 })
       .sort({ createdAt: -1 });
 
     const totalAvailableOrders = await Order.countDocuments({ user: _id });
