@@ -179,10 +179,10 @@ const Navbar = ({ usercheck }) => {
     <header className={`w-full bg-white`}
       role="banner">
       {/* Increased vertical padding for taller navbar */}
-  <div className="container mx-auto px-0 py-3 lg:py-4">
+  <div className="container mx-auto px-4 lg:px-6 py-2 lg:py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0 flex items-center">
+          <Link to="/" className="flex-shrink-0 flex items-center ml-0 lg:ml-0">
             {/* Make logo small and crisp: adjust heights for mobile and desktop */}
             <img
               src={logo}
@@ -214,10 +214,37 @@ const Navbar = ({ usercheck }) => {
 
           {/* Icons & Search Bar (Right Side) */}
           <div className="flex items-center gap-4 lg:gap-6">
+            {/* Mobile quick icons: wishlist, profile, cart near hamburger (tighter spacing) */}
+            <div className="flex items-center gap-0 lg:hidden">
+              <button
+                aria-label="Wishlist"
+                onClick={() => { setMenuOpen(false); navigate('/dashboard/wishlist'); }}
+                className="p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                <Heart className="h-5 w-5" />
+              </button>
+              <button
+                aria-label="Profile"
+                onClick={() => { setMenuOpen(false); navigate('/dashboard/profile'); }}
+                className="p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                <User className="h-5 w-5" />
+              </button>
+              <button
+                aria-label="Cart"
+                onClick={() => { setMenuOpen(false); navigate('/cart'); }}
+                className="relative p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">{cartCount}</span>
+                )}
+              </button>
+            </div>
             {/* Desktop search removed in favor of in-pill expanding search */}
 
             {/* Icon pill group - match height with search pill */}
-            <div className={`flex items-center justify-center gap-3 rounded-full bg-black text-white px-4 h-14 ${searchExpanded ? 'ring-1 ring-white/40' : ''}`} ref={searchContainerRef}>
+            <div className={`hidden lg:flex items-center justify-center gap-3 rounded-full bg-black text-white px-4 h-10 ${searchExpanded ? 'ring-1 ring-white/40' : ''}`} ref={searchContainerRef}>
               {/* Search (left-most inside icon pill) */}
               <button
                 onClick={(e) => {
@@ -270,16 +297,13 @@ const Navbar = ({ usercheck }) => {
             </div>
 
             {/* Hamburger Menu for Mobile */}
-            <button onClick={toggleMenu} className="lg:hidden">
+            <button onClick={toggleMenu} className="lg:hidden ml-1 mr-1">
               {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
-        <div className="relative w-full lg:hidden mt-4">
-          <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} />
-        </div>
+        {/* Mobile search moved into hamburger menu; removed standalone mobile search bar */}
       </div>
 
       {/* Mobile Navigation Menu (Slide-in effect) */}
@@ -288,35 +312,55 @@ const Navbar = ({ usercheck }) => {
           menuOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out lg:hidden`}
       >
-        <div className="p-5 flex flex-col gap-6">
+        <div className="p-5 flex flex-col gap-4">
           {/* Close Button */}
           <button onClick={toggleMenu} className="self-end">
             <X className="h-6 w-6" />
           </button>
+          {/* Mobile Search */}
+          <div className="mt-1">
+            <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} compact={true} placeholder="Search products" />
+          </div>
 
           {/* Mobile Navigation Links */}
-          {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => {
-            const targetId = item.toLowerCase().replace(/\s/g, "");
-            return (
-              <a
-                key={index}
-                href={`#${targetId}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavigation(targetId);
-                }}
-                className="text-gray-700 hover:text-black text-lg font-medium cursor-pointer"
-              >
-                {item}
-              </a>
-            );
-          })}
+          <nav className="flex flex-col pt-2 gap-2">
+            {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => {
+              const targetId = item.toLowerCase().replace(/\s/g, "");
+              return (
+                <a
+                  key={index}
+                  href={`#${targetId}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavigation(targetId);
+                  }}
+                  className="text-gray-700 hover:text-black text-lg font-medium cursor-pointer"
+                >
+                  {item}
+                </a>
+              );
+            })}
+          </nav>
+
+          <div className="border-t border-gray-200 mt-3 pt-3 flex flex-col gap-2">
+            <a onClick={() => { setMenuOpen(false); navigate('/dashboard/wishlist'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
+              <Heart className="h-5 w-5" /> Wishlist
+            </a>
+            <a onClick={() => { setMenuOpen(false); navigate('/dashboard/profile'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
+              <User className="h-5 w-5" /> Profile
+            </a>
+            <a onClick={() => { setMenuOpen(false); navigate('/cart'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
+              <ShoppingCart className="h-5 w-5" /> Cart ({cartCount})
+            </a>
+          </div>
+
+          {/* Announcement removed from mobile menu per request */}
 
           {/* Logout Button (If Logged In) */}
           {user && (
             <button
               onClick={handleLogout}
-              className="text-red-500 hover:text-red-700 text-lg font-medium"
+              className="text-red-500 hover:text-red-700 text-lg font-medium mt-3 text-left"
             >
               Logout
             </button>

@@ -2,7 +2,7 @@ import React from "react";
 import { BiSearch } from "react-icons/bi";
 import { GrClose } from "react-icons/gr";
 
-const SearchBar = ({ handleClick, search, setSearch, placeholder, label, autoFocus = false, dark = false, showIcon = true, inPill = false }) => {
+const SearchBar = ({ handleClick, search, setSearch, placeholder, label, autoFocus = false, dark = false, showIcon = true, inPill = false, compact = false }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     window.location.href = `${
@@ -17,7 +17,7 @@ const SearchBar = ({ handleClick, search, setSearch, placeholder, label, autoFoc
 
       {/* Search bar */}
       <form
-        className={`flex items-center ${dark && !inPill ? 'bg-black text-white ring-1 ring-white/40' : (dark && inPill ? 'bg-transparent text-white' : 'bg-white')} ${dark ? (inPill ? 'py-0 px-3' : 'py-1 px-4') : 'py-2 px-4'} ${dark && !inPill ? 'rounded-full' : (dark && inPill ? 'rounded-none' : 'rounded-lg')} flex-grow h-full`}
+        className={`flex items-center ${dark && !inPill ? 'bg-black text-white ring-1 ring-white/40' : (dark && inPill ? 'bg-transparent text-white' : 'bg-white')} ${dark ? (inPill ? 'py-0 px-3' : (compact ? 'py-0.5 px-3' : 'py-1 px-4')) : (compact ? 'py-1 px-3' : 'py-2 px-4')} ${dark && !inPill ? 'rounded-full' : (dark && inPill ? 'rounded-none' : 'rounded-lg')} flex-grow h-full`}
         onSubmit={(e) => handleSubmit(e)}
       >
         {/* Optional search icon on the left */}
@@ -34,7 +34,7 @@ const SearchBar = ({ handleClick, search, setSearch, placeholder, label, autoFoc
         <input
           type="text"
           autoFocus={autoFocus}
-          className={`outline-none w-full ${dark ? 'px-2 placeholder-white/70 text-white bg-transparent' : 'px-2 py-1 placeholder-gray-500 text-gray-800'} ${inPill ? 'py-1' : 'py-1'}`}
+          className={`outline-none w-full ${compact ? 'text-sm' : ''} ${dark ? 'px-2 placeholder-white/70 text-white bg-transparent' : 'px-2 py-1 placeholder-gray-500 text-gray-800'} ${inPill ? 'py-1' : 'py-1'}`}
           placeholder={placeholder || "Search for Products..."}
           value={search}
           onChange={(e) => {
