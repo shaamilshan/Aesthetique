@@ -36,47 +36,64 @@ function uploadBufferToCloudinary(buffer, mimetype) {
   });
 }
 
-// Export a middleware that first runs multer to populate req.files,
-// then (if Cloudinary is enabled) uploads each file and sets file.path to the secure URL.
-const upload = (req, res, next) => {
-  uploadMiddleware.any()(req, res, async (err) => {
-    if (err) return next(err);
+// Helper that creates a middleware from a multer handler (single/any/array)
+function createHandler(multerHandler) {
+  return (req, res, next) => {
+    multerHandler(req, res, async (err) => {
+      if (err) return next(err);
 
-    // If no files or Cloudinary not configured, ensure local disk storage behavior
-    if (!req.files || req.files.length === 0) return next();
+      // Normalize multer output: single -> req.file, fields -> req.files as object
+      if (req.file && !req.files) {
+        req.files = [req.file];
+      }
+      if (req.files && !Array.isArray(req.files) && typeof req.files === 'object') {
+        // multer.fields returns { fieldname: [files] }
+        req.files = Object.values(req.files).flat();
+      }
 
-    if (!useCloudinary) {
-      // Write buffers to disk (preserve original behavior but using memoryStorage)
+      if (!req.files || req.files.length === 0) return next();
+
+      if (!useCloudinary) {
+        // Write buffers to disk (preserve original behavior but using memoryStorage)
+        try {
+          req.files.forEach((file) => {
+            const filename = `${Date.now()}-${file.originalname}`;
+            const outPath = path.join(process.cwd(), "public", "products", filename);
+            // Ensure directory exists
+            fs.mkdirSync(path.dirname(outPath), { recursive: true });
+            fs.writeFileSync(outPath, file.buffer);
+            // mimic multer disk storage fields
+            file.filename = filename;
+          });
+          return next();
+        } catch (e) {
+          return next(e);
+        }
+      }
+
+      // Cloudinary path: upload each file buffer and set file.path to the secure URL
       try {
-        req.files.forEach((file) => {
-          const filename = `${Date.now()}-${file.originalname}`;
-          const outPath = path.join(process.cwd(), "server", "public", "products", filename);
-          // Ensure directory exists
-          fs.mkdirSync(path.dirname(outPath), { recursive: true });
-          fs.writeFileSync(outPath, file.buffer);
-          // mimic multer disk storage fields
-          file.filename = filename;
-        });
-        return next();
+        for (let i = 0; i < req.files.length; i++) {
+          const f = req.files[i];
+          const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
+          // Attach path (URL) and keep original filename for fallback
+          f.path = result.secure_url;
+          f.filename = path.basename(result.public_id || result.secure_url);
+        }
+        next();
       } catch (e) {
-        return next(e);
+        next(e);
       }
-    }
+    });
+  };
+}
 
-    // Cloudinary path: upload each file buffer and set file.path to secure_url
-    try {
-      for (let i = 0; i < req.files.length; i++) {
-        const f = req.files[i];
-        const result = await uploadBufferToCloudinary(f.buffer, f.mimetype);
-        // Attach path (URL) and keep original filename for fallback
-        f.path = result.secure_url;
-        f.filename = path.basename(result.public_id || result.secure_url);
-      }
-      next();
-    } catch (e) {
-      next(e);
-    }
-  });
+// Export an object that mimics the common multer API used across the codebase
+const upload = {
+  any: () => createHandler(uploadMiddleware.any()),
+  single: (field) => createHandler(uploadMiddleware.single(field)),
+  array: (field, maxCount) => createHandler(uploadMiddleware.array(field, maxCount)),
+  fields: (fields) => createHandler(uploadMiddleware.fields(fields)),
 };
 
 module.exports = upload;
