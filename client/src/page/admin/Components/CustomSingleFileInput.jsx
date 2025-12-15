@@ -40,7 +40,7 @@ const CustomSingleFileInput = ({ onChange }) => {
 
   const handleClearFile = () => {
     setSelectedFile(null);
-    onChange([]);
+    onChange(null);
   };
 
   return (

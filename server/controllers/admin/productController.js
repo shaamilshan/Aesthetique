@@ -87,14 +87,20 @@ const addProduct = async (req, res) => {
     if (files && files.length > 0) {
       formData.moreImageURL = [];
       formData.imageURL = "";
-      files.map((file) => {
+      
+      files.forEach((file) => {
         const fileRef = file.path || file.filename;
         if (file.fieldname === "imageURL") {
           formData.imageURL = fileRef;
-        } else {
+        } else if (file.fieldname === "moreImageURL") {
           formData.moreImageURL.push(fileRef);
         }
       });
+      
+      // If no explicit thumbnail (imageURL) was provided, use the first image as thumbnail
+      if (!formData.imageURL && formData.moreImageURL.length > 0) {
+        formData.imageURL = formData.moreImageURL[0];
+      }
     }
 
     // Derive offer from strike price (markup) and price if possible

@@ -36,13 +36,13 @@ const AddProducts = () => {
   const [longDescription, setLongDescription] = useState("");
   const [stockQuantity, setStockQuantity] = useState("");
   const [category, setCategory] = useState();
-  const [imageURL, setImageURL] = useState("");
+  const [imageURL, setImageURL] = useState(null);
   const [status, setStatus] = useState("Published");
   const [attributes, setAttributes] = useState([]);
   const [price, setPrice] = useState("");
   const [costPrice, setCostPrice] = useState("");
   const [markup, setMarkup] = useState("");
-  const [moreImageURL, setMoreImageURL] = useState("");
+  const [moreImageURL, setMoreImageURL] = useState([]);
   const [offer, setOffer] = useState(0);
 
   const handleSingleImageInput = (img) => {
@@ -66,6 +66,11 @@ const AddProducts = () => {
     }
     if (costPrice && costPrice <= 0) {
       toast.error("Cost Price Should be greater than 0");
+      return;
+    }
+    // Validate that at least one image is uploaded
+    if (!imageURL && (!moreImageURL || moreImageURL.length === 0)) {
+      toast.error("Please upload at least one product image");
       return;
     }
     // if (markup <= 0) {
@@ -100,10 +105,16 @@ const AddProducts = () => {
     formData.append("offer", computedOffer);
     formData.append("status", status.toLowerCase());
 
-    formData.append("imageURL", imageURL);
+    // Only append imageURL if a file is selected
+    if (imageURL && imageURL instanceof File) {
+      formData.append("imageURL", imageURL);
+    }
 
-    for (const file of moreImageURL) {
-      formData.append("moreImageURL", file);
+    // Append multiple images
+    if (moreImageURL && moreImageURL.length > 0) {
+      for (const file of moreImageURL) {
+        formData.append("moreImageURL", file);
+      }
     }
 
     dispatch(createProduct(formData));
