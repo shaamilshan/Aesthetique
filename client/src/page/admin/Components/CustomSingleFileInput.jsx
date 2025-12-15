@@ -69,7 +69,7 @@ const CustomSingleFileInput = ({ onChange }) => {
             <p className="truncate text-xs mt-3">{selectedFile.name}</p>
           </div>
           <button
-            className="mt-4 bg-red-500 text-white font-bold py-2 px-4 rounded"
+            className="mt-4 bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-900"
             onClick={handleClearFile}
           >
             Clear File

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ExIphoneLogo from "../../../components/ExIphoneLogo";
+import logo from "../../../assets/others/bm-logo.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import { 
   Home,
@@ -40,9 +40,12 @@ const SideNavbar = () => {
         <div className="mb-6">
           {/* Logo Section */}
           <div className={`flex items-center mb-3 ${isExpanded ? 'justify-start' : 'justify-center'}`}>
-            <div className={`opacity-80 hover:opacity-100 transition-opacity ${isExpanded ? 'w-16 h-16' : 'w-8 h-8'}`}>
-              <ExIphoneLogo />
-            </div>
+            <img 
+              src={logo}
+              alt="logo"
+              className={`opacity-80 hover:opacity-100 transition-opacity ${isExpanded ? 'w-16 h-16' : 'w-8 h-8'} object-contain`}
+              style={{ display: "block" }}
+            />
           </div>
           
           {/* Title and Toggle Section */}

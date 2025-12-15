@@ -97,7 +97,7 @@ const CustomFileInput = ({ onChange }) => {
             ))}
           </div>
           <button
-            className="mt-16 bg-red-500 text-white font-bold py-2 px-4 rounded"
+            className="mt-16 bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-900"
             onClick={handleClearFiles}
           >
             Clear Files

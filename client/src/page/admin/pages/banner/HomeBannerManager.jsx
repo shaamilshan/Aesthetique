@@ -155,7 +155,7 @@ const HomeBannerManager = () => {
             {banner.image && (
               <button
                 onClick={() => deleteBanner(bannerKey)}
-                className="w-full bg-red-500 text-white py-2 px-4 rounded-md text-sm hover:bg-red-600"
+                className="w-full bg-black text-white py-2 px-4 rounded-md text-sm hover:bg-gray-900"
               >
                 Delete Banner
               </button>

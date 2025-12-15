@@ -102,7 +102,7 @@ const UpdateOrder = ({ toggleModal, data }) => {
               <ErrorMessage
                 name="status"
                 component="div"
-                className="text-red-500"
+                className="text-black"
               />
             </div>
             <div className="py-2">
@@ -117,7 +117,7 @@ const UpdateOrder = ({ toggleModal, data }) => {
               <ErrorMessage
                 name="date"
                 component="div"
-                className="text-red-500"
+                className="text-black"
               />
             </div>
             {values.status === "shipped" && (
@@ -134,7 +134,7 @@ const UpdateOrder = ({ toggleModal, data }) => {
                   <ErrorMessage
                     name="trackingId"
                     component="div"
-                    className="text-red-500"
+                    className="text-black"
                   />
                 </div>
               )}
@@ -160,7 +160,7 @@ const UpdateOrder = ({ toggleModal, data }) => {
                   <ErrorMessage
                     name="paymentStatus"
                     component="div"
-                    className="text-red-500"
+                    className="text-black"
                   />
                 </div>
               )}

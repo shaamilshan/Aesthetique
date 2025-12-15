@@ -110,7 +110,7 @@ const CreateCategories = () => {
                     className="admin-input"
                   />
                   <ErrorMessage
-                    className="text-sm text-red-500"
+                    className="text-sm text-black"
                     name="title"
                     component="span"
                   />
@@ -127,7 +127,7 @@ const CreateCategories = () => {
                     placeholder="Type the category description here"
                   />
                   <ErrorMessage
-                    className="text-sm text-red-500"
+                    className="text-sm text-black"
                     name="description"
                     component="span"
                   />
