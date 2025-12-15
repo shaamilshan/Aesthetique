@@ -37,7 +37,16 @@ const MostSoldChart = ({ numberOfDates }) => {
             {
               label: "Most Sold Items",
               data: data,
-              backgroundColor: "#A53030",
+              // Different color per bar: map a palette to the labels length
+              backgroundColor: labels.map((_, i) => {
+                const palette = ["#000000", "#111827", "#374151", "#4B5563", "#6B7280", "#9CA3AF"];
+                return palette[i % palette.length];
+              }),
+              borderColor: labels.map((_, i) => {
+                const borderPalette = ["#374151", "#1F2937", "#4B5563", "#6B7280", "#9CA3AF", "#D1D5DB"];
+                return borderPalette[i % borderPalette.length];
+              }),
+              borderWidth: 1,
               borderRadius: 10,
               barThickness: 15,
             },

@@ -189,7 +189,7 @@ const AddProducts = () => {
               Cancel
             </button>
             <button
-              className="admin-button-fl bg-[#A53030] text-white"
+              className="admin-button-fl bg-black text-white hover:bg-gray-800"
               onClick={toggleConfirm}
             >
               <AiOutlineSave />

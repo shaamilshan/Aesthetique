@@ -34,10 +34,40 @@ const RevenueChart = ({ numberOfDates }) => {
     loadData();
   }, [numberOfDates]);
 
+  // Merge a light theme over the base chart options (suitable for white background)
+  const options = {
+    ...lineChartNoGridNoLegend,
+    plugins: {
+      ...(lineChartNoGridNoLegend.plugins || {}),
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "#ffffff",
+        titleColor: "#111827",
+        bodyColor: "#111827",
+        borderColor: "rgba(0,0,0,0.08)",
+        borderWidth: 1,
+      },
+    },
+    scales: {
+      x: {
+        ...(lineChartNoGridNoLegend.scales?.x || {}),
+        ticks: { color: "#374151" },
+        grid: { color: "rgba(0,0,0,0.04)" },
+      },
+      y: {
+        ...(lineChartNoGridNoLegend.scales?.y || {}),
+        ticks: { color: "#374151" },
+        grid: { color: "rgba(0,0,0,0.04)" },
+      },
+    },
+  };
+
   return (
-    <div className="bg-white px-5 pt-5 pb-20 rounded-md w-full lg:w-2/3 h-80">
-      <h1 className="text-lg font-bold">Total Revenue</h1>
-      <p className="mb-2">₹{totalSales || 0}</p>
+    <div className="bg-white px-5 pt-5 pb-20 rounded-md w-full lg:w-2/3 h-80 text-gray-900">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-bold">Total Revenue</h1>
+        <p className="mb-2 text-right text-xl font-semibold">₹{totalSales || 0}</p>
+      </div>
       <Bar
         data={{
           labels: labels,
@@ -45,18 +75,22 @@ const RevenueChart = ({ numberOfDates }) => {
             {
               label: "Revenue",
               data: data,
-              backgroundColor: "#A53030",
+              backgroundColor: "#000000",
+              borderColor: "#000000",
+              borderWidth: 1,
               borderRadius: 3,
             },
             {
               label: "Profit",
               data: profits,
-              backgroundColor: "#D1D5DB",
+              backgroundColor: "#374151",
+              borderColor: "#374151",
+              borderWidth: 1,
               borderRadius: 3,
             },
           ],
         }}
-        options={lineChartNoGridNoLegend}
+        options={options}
       />
     </div>
   );
