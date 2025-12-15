@@ -5,6 +5,7 @@ import axios from "axios";
 import date from "date-and-time";
 
 import { URL } from "../../../../Common/api";
+import { getImageUrl } from "@/Common/functions";
 import { FiDownload } from "react-icons/fi";
 import { BiCalendar, BiHash } from "react-icons/bi";
 import { FaRegCreditCard, FaMapMarkerAlt } from "react-icons/fa";
@@ -221,7 +222,7 @@ const ReturnOrderDetails = () => {
                               <div className="w-10 h-10 overflow-clip flex justify-center items-center shrink-0">
                                 {item.productId.imageURL ? (
                                   <img
-                                    src={`${URL}/img/${item.productId.imageURL}`}
+                                    src={getImageUrl(item.productId.imageURL, URL)}
                                     alt="img"
                                     className="object-contain w-full h-full"
                                   />

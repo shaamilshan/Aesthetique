@@ -10,6 +10,7 @@ import axios from "axios";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import { getCategories } from "../../../../redux/actions/admin/categoriesAction";
 import { URL } from "@common/api";
+import { getImageUrl } from "@/Common/functions";
 import toast from "react-hot-toast";
 
 const EditProduct = () => {
@@ -282,7 +283,7 @@ const EditProduct = () => {
                   <div className="bg-gray-100 py-5 rounded-lg text-center border-dashed border-2">
                     <div className="h-56">
                       <img
-                        src={`${URL}/img/${fetchedData.imageURL}`}
+                        src={getImageUrl(fetchedData.imageURL, URL)}
                         alt="im"
                         className="h-full w-full object-contain"
                       />
@@ -357,7 +358,7 @@ const EditProduct = () => {
                         key={index}
                       >
                         <img
-                          src={`${URL}/img/${img}`}
+                          src={getImageUrl(img, URL)}
                           alt="img"
                           className="h-full w-full object-contain"
                         />

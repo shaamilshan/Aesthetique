@@ -4,6 +4,7 @@ import StatusComponent from "../../../components/StatusComponent";
 import { AiOutlineEdit } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { URL } from "@common/api";
+import { getImageUrl } from "@/Common/functions";
 
 const OrderTableRow = ({ item, index, toggleUpdateModal, classes }) => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ console.log(item);
         <div className="w-10 h-10 overflow-clip flex justify-center items-center  shrink-0">
           {item.products[0]?.productId && item.products[0].productId.imageURL ? (
             <img
-              src={`${URL}/img/${item.products[0].productId.imageURL}`}
+              src={getImageUrl(item.products[0].productId.imageURL, URL)}
               alt="img"
               className="object-contain w-full h-full"
             />

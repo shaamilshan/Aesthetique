@@ -4,6 +4,7 @@ import date from "date-and-time";
 import { useNavigate } from "react-router-dom";
 import StatusComponent from "../../../../components/StatusComponent";
 import { URL } from "@common/api";
+import { getImageUrl } from "@/Common/functions";
 import axios from "axios";
 import { config } from "@/Common/configurations";
 
@@ -46,7 +47,7 @@ const TableRow = ({ index, length, product }) => {
         <div className="w-10 h-10 overflow-clip flex justify-center items-center shrink-0">
           {product.imageURL ? (
             <img
-              src={`${URL}/img/${product.imageURL}`}
+              src={getImageUrl(product.imageURL, URL)}
               alt="img"
               className="object-contain w-full h-full"
             />

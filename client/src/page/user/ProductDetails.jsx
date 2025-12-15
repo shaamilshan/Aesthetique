@@ -147,7 +147,7 @@ const ProductDetails = () => {
                       <img
                         className="w-full h-full object-contain"
                         key={i}
-                        src={`${URL}/img/${image}`}
+                        src={getImageUrl(image, URL)}
                       />
                     </div>
                   ))}

@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import RatingStars from "./RatingStars";
 import { URL } from "@common/api";
+import { getImageUrl } from "@/Common/functions";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const ProductCard = ({ product }) => {
     >
       <div className="overflow-hidden rounded-lg h-56">
         <img
-          src={`${URL}/img/${product.imageURL}`}
+          src={getImageUrl(product.imageURL, URL)}
           alt={product.name}
           className="object-contain w-full h-full"
         />

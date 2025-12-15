@@ -1,5 +1,6 @@
 import React from "react";
 import { URL } from "../Common/api";
+import { getImageUrl } from "../Common/functions";
 import { Link } from "react-router-dom";
 
 const ProductCards = ({ data }) => {
@@ -8,7 +9,7 @@ const ProductCards = ({ data }) => {
       <div className="w-56 h-56 mx-auto">
         <img
           className="h-full w-full object-contain"
-          src={`${URL}/img/${data.imageURL}`}
+          src={getImageUrl(data.imageURL, URL)}
           alt={data.name}
         />
       </div>

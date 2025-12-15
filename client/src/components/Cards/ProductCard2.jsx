@@ -1,4 +1,5 @@
 import { URL } from "@/Common/api";
+import { getImageUrl } from "@/Common/functions";
 import React, { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -129,14 +130,14 @@ const ProductCard2 = ({ product }) => {
         <div className="aspect-square w-full bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-3xl relative">
           {/* Primary Image */}
           <img
-            src={`${URL}/img/${product?.imageURL}`}
+            src={getImageUrl(product?.imageURL, URL)}
             alt={product.name}
             className={`h-full w-full object-cover transition-opacity duration-500 ${isHovered && product?.moreImageURL?.length > 0 ? 'opacity-0' : 'opacity-100'}`}
           />
           {/* Secondary Image (shown on hover) */}
           {product?.moreImageURL?.length > 0 && (
             <img
-              src={`${URL}/img/${product.moreImageURL[0]}`}
+              src={getImageUrl(product.moreImageURL[0], URL)}
               alt={`${product.name} - alternate view`}
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
             />

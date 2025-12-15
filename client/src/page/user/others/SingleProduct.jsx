@@ -15,6 +15,7 @@ import ImageZoom from "@/components/ImageZoom";
 import Quantity from "../components/Quantity";
 import DescReview from "../components/DescReview";
 import { URL } from "@/Common/api";
+import { getImageUrl } from "@/Common/functions";
 import { addToWishlist } from "@/redux/actions/user/wishlistActions";
 import { config } from "@/Common/configurations";
 import ProductDetailsStarAndRating from "../components/ProductDetailsStarAndRating";
@@ -483,7 +484,7 @@ const SingleProduct = () => {
             {/* Main Image */}
             <div className="bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center h-[350px] sm:h-[400px] lg:h-[450px]">
               <img
-                src={`${URL}/img/${imageArray[selectedImageIndex]}`}
+                src={getImageUrl(imageArray[selectedImageIndex], URL)}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />

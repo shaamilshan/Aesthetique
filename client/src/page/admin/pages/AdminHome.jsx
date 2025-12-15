@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { BiPackage } from "react-icons/bi";
 import { URL } from "../../../Common/api";
+import { getImageUrl } from "@/Common/functions";
 import { getOrders } from "../../../redux/actions/admin/ordersAction";
 import SalesChart from "../Components/DashboardComponents/SalesChart";
 import ProfitChart from "../Components/DashboardComponents/ProfitChart";
@@ -150,7 +151,7 @@ const AdminHome = () => {
                             <div key={itemIndex} className="w-8 h-8 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden">
                               {product?.imageURL && (
                                 <img
-                                  src={`${URL}/img/${product.imageURL}`}
+                                  src={getImageUrl(product.imageURL, URL)}
                                   alt={product.name}
                                   className="w-full h-full object-cover"
                                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
