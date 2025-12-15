@@ -88,10 +88,11 @@ const addProduct = async (req, res) => {
       formData.moreImageURL = [];
       formData.imageURL = "";
       files.map((file) => {
+        const fileRef = file.path || file.filename;
         if (file.fieldname === "imageURL") {
-          formData.imageURL = file.filename;
+          formData.imageURL = fileRef;
         } else {
-          formData.moreImageURL.push(file.filename);
+          formData.moreImageURL.push(fileRef);
         }
       });
     }
@@ -144,12 +145,13 @@ const updateProduct = async (req, res) => {
       let newImageURL = existingProduct.imageURL; // Keep existing thumbnail
 
       files.map((file) => {
+        const fileRef = file.path || file.filename;
         if (file.fieldname === "imageURL") {
           // Update the thumbnail image only if a new one is provided
-          newImageURL = file.filename;
+          newImageURL = fileRef;
         } else {
           // Append new images to the existing array
-          newMoreImageURL.push(file.filename);
+          newMoreImageURL.push(fileRef);
         }
       });
 

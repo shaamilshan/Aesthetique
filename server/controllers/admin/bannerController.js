@@ -8,7 +8,7 @@ const addBanners = async (req, res) => {
     let filesNames = [];
 
     if (files && files.length > 0) {
-      files.forEach((file) => filesNames.push(file.filename));
+      files.forEach((file) => filesNames.push(file.path || file.filename));
     } else {
       throw Error("No files are uploaded");
     }
@@ -123,7 +123,7 @@ const updateHomeBanner = async (req, res) => {
     if (title !== undefined) updateData[`homeBanners.${bannerNumber}.title`] = title;
     if (subtitle !== undefined) updateData[`homeBanners.${bannerNumber}.subtitle`] = subtitle;
     if (isActive !== undefined) updateData[`homeBanners.${bannerNumber}.isActive`] = isActive;
-    if (file) updateData[`homeBanners.${bannerNumber}.image`] = file.filename;
+  if (file) updateData[`homeBanners.${bannerNumber}.image`] = file.path || file.filename;
 
     const banner = await Banner.findByIdAndUpdate(
       exists._id,

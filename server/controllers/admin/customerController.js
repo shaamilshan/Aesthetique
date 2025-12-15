@@ -165,9 +165,9 @@ const addCustomer = async (req, res) => {
       formData.imageURL = "";
       files.map((file) => {
         if (file.fieldname === "imageURL") {
-          formData.imageURL = file.filename;
+          formData.imageURL = file.path || file.filename;
         } else {
-          formData.moreImageURL.push(file.filename);
+          formData.moreImageURL.push(file.path || file.filename);
         }
       });
     }
