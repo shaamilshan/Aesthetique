@@ -32,6 +32,22 @@ export const commonReduxRequest = async (
     withCredentials: true,
   };
 
+  if (body instanceof FormData && requestConfig.headers) {
+    if (requestConfig.headers.hasOwnProperty("Content-Type")) {
+      delete requestConfig.headers["Content-Type"];
+    }
+  }
+
+  // If body is FormData, let the browser set the Content-Type (including boundary).
+  // Some callers pass a headers object like { 'Content-Type': 'multipart/form-data' }
+  // which prevents the browser from attaching the multipart boundary. Remove it here.
+  if (body instanceof FormData && requestConfig.headers) {
+    // Accept either plain headers object or the `headers` wrapper shape
+    if (requestConfig.headers.hasOwnProperty("Content-Type")) {
+      delete requestConfig.headers["Content-Type"];
+    }
+  }
+
   try {
     const response = await apiInstance(requestConfig);
 

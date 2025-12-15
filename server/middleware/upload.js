@@ -58,9 +58,11 @@ function createHandler(multerHandler) {
         try {
           req.files.forEach((file) => {
             const filename = `${Date.now()}-${file.originalname}`;
-            const outPath = path.join(process.cwd(), "public", "products", filename);
+            // Ensure files are written to the server's public/products directory
+            const outDir = path.join(__dirname, "..", "public", "products");
+            const outPath = path.join(outDir, filename);
             // Ensure directory exists
-            fs.mkdirSync(path.dirname(outPath), { recursive: true });
+            fs.mkdirSync(outDir, { recursive: true });
             fs.writeFileSync(outPath, file.buffer);
             // mimic multer disk storage fields
             file.filename = filename;
