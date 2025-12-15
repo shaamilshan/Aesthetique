@@ -45,6 +45,7 @@ import AdminDash from "./page/admin/Dashboard";
 import ManagerDash from "./page/manager/Dashboard";
 import AdminHome from "./page/admin/pages/AdminHome";
 import Banner from "./page/admin/pages/banner/Banner";
+import FAQs from "./page/admin/pages/content/FAQs";
 import Payments from "./page/admin/pages/payments/Payments";
 import Settings from "./page/admin/pages/Settings";
 import Help from "./page/admin/pages/Help";
@@ -259,6 +260,7 @@ function AdminRoutes() {
         <Route path="coupon/edit/:id" element={<EditCoupon />} />
 
         <Route path="banner" element={<Banner />} />
+  <Route path="faqs" element={<FAQs />} />
         <Route path="payments" element={<Payments />} />
         <Route path="customers" element={<Customers />} />
 

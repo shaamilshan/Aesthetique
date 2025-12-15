@@ -1,96 +1,127 @@
 
+import { useState, useEffect } from "react";
 import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaClock, FaInstagram, FaFacebookF, FaTwitter, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
+import { commonRequest } from '../../Common/api';
+import FAQAccordion from '../../components/FAQAccordion';
 
 
 export default function ContactSection({ id }) {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const defaultFaqs = [
+    {
+      q: "How often should I apply sunscreen?",
+      a: "Apply sunscreen every morning as the last step of your skincare routine and reapply every 2-3 hours when exposed to the sun, or after swimming/sweating.",
+    },
+    {
+      q: "Can I use serum and sunscreen together?",
+      a: "Yes — apply your serum first, allow it to absorb, then follow with sunscreen. Our RadiantBoost serum layers well under AquaShield sunscreen.",
+    },
+    {
+      q: "Is AquaShield suitable for oily skin?",
+      a: "AquaShield is formulated to be lightweight and non-greasy, making it suitable for most skin types including oily and combination skin.",
+    },
+    {
+      q: "Do your products contain fragrances?",
+      a: "Some of our products are fragrance-free; check the product page for full ingredient lists. We strive to provide gentle formulations for sensitive skin.",
+    },
+  ];
+
+  const [faqs, setFaqs] = useState(defaultFaqs);
+  const [faqsLoading, setFaqsLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchFaqs = async () => {
+      setFaqsLoading(true);
+      try {
+        // Public endpoint
+        const res = await commonRequest('get', '/public/faqs');
+        // commonRequest returns axios response object or data depending on interceptor; handle both
+        const data = res && res.faqs ? res.faqs : (res && res.data && res.data.faqs) ? res.data.faqs : null;
+        if (mounted && Array.isArray(data)) setFaqs(data.map(f => ({ q: f.question, a: f.answer })));
+      } catch (err) {
+        // keep defaults on error
+        console.warn('Failed to load FAQs', err);
+      } finally {
+        if (mounted) setFaqsLoading(false);
+      }
+    };
+    fetchFaqs();
+    return () => { mounted = false; };
+  }, []);
   return (
     <>
       <section className="py-16 bg-white" id={id}>
         <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
-          {/* Header Section - Center Aligned */}
-          <div className="text-center mb-12">
-            <button
-              className="inline-flex items-center rounded-full border border-black/20 px-6 py-2.5 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors mb-6"
-              type="button"
-            >
-              Contact Us
-            </button>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Get In <span className="font-serif italic">Touch</span>
-            </h1>
-            
-            <p className="text-lg text-gray-700 leading-relaxed max-w-2xl mx-auto">
-              We'd love to hear from you! Reach out for consultations, inquiries, or feedback about our skincare solutions.
-            </p>
-          </div>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Left: Large heading + contact details */}
+            <div className="order-2 md:order-1">
+              <button
+                className="inline-flex items-center rounded-full border border-black/20 px-6 py-2.5 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors mb-6"
+                type="button"
+              >
+                Get in touch
+              </button>
 
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+                We are always ready to help you and answer your <span className="font-serif italic">questions</span>
+              </h1>
+              <p className="text-sm text-gray-500 mb-8 max-w-lg">Reach out for consultations, product advice, or any questions about our sunscreen and serum range. We'll get back to you promptly.</p>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Left: Contact Form */}
-            <div className="bg-gray-50 rounded-3xl  p-8 flex flex-col justify-center border border-gray-100">
-              <form className="space-y-6">
+              <div className="grid grid-cols-2 gap-6 text-sm text-gray-700">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Your Name *</label>
-                  <input type="text" required placeholder="Enter your full name" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors" />
+                  <h4 className="font-semibold mb-2">Call Center</h4>
+                  <div>800 100 975 20 34<br />(+123) 1800-234-5678</div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                  <input type="email" required placeholder="your.email@example.com" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors" />
+                  <h4 className="font-semibold mb-2">Our Location</h4>
+                  <div>Coimbatore, Tamil Nadu<br />Opposite Amirtha School</div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2">Email</h4>
+                  <div>bmaesthetique@gmail.com</div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                  <input type="tel" placeholder="+91 98765 43210" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors" />
+                  <h4 className="font-semibold mb-2">Social</h4>
+                  <div className="flex items-center gap-3 mt-1">
+                    <a href="#" className="text-gray-500 hover:text-gray-800"><FaInstagram /></a>
+                    <a href="#" className="text-gray-500 hover:text-gray-800"><FaFacebookF /></a>
+                    <a href="#" className="text-gray-500 hover:text-gray-800"><FaLinkedinIn /></a>
+                    <a href="#" className="text-gray-500 hover:text-gray-800"><FaWhatsapp /></a>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Your Message *</label>
-                  <textarea required placeholder="Tell us how we can help you..." className="w-full border border-gray-300 rounded-xl px-4 py-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-colors" />
-                </div>
-                <button type="submit" className="w-full bg-black text-white font-medium py-3 px-6 rounded-full flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors duration-200">
-                  <span><svg width="18" height="18" fill="currentColor" className="inline"><path d="M2 16l14-7-14-7v5l9 2-9 2z"/></svg></span>
-                  Send Message
-                </button>
-              </form>
+              </div>
             </div>
-            {/* Right: Contact Info Cards */}
-            <div className="flex flex-col gap-4 justify-center">
-              <div className="bg-white rounded-3xl  p-6 flex gap-4 items-start border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <FaMapMarkerAlt className="text-[#A53030] text-xl mt-1 flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-sm text-gray-900 mb-2">ADDRESS</div>
-                  <div className="text-gray-600 text-sm leading-relaxed">BEST MED AESTHETIQUE PVT LTD<br />2nd floor, No-16, Alex Square,<br />Opposite to Amirtha School, Ettimadai,<br />Coimbatore, Tamil Nadu - 641112</div>
-                </div>
-              </div>
-              <div className="bg-white rounded-3xl  p-6 flex gap-4 items-center border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <FaEnvelope className="text-[#A53030] text-xl flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-sm text-gray-900 mb-2">EMAIL</div>
-                  <div className="text-gray-600 text-sm">bmaesthetique@gmail.com</div>
-                </div>
-              </div>
-              <div className="bg-white rounded-3xl  p-6 flex gap-4 items-center border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <FaPhoneAlt className="text-[#A53030] text-xl flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-sm text-gray-900 mb-2">PHONE</div>
-                  <div className="text-gray-600 text-sm">+91 81370 11855</div>
-                </div>
-              </div>
-              <div className="bg-white rounded-3xl  p-6 flex gap-4 items-center border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <FaClock className="text-[#A53030] text-xl flex-shrink-0" />
-                <div>
-                  <div className="font-bold text-sm text-gray-900 mb-2">BUSINESS HOURS</div>
-                  <div className="text-gray-600 text-sm leading-relaxed">Mon - Sat: 10:00 AM - 5:00 PM<br />Sundays: Closed</div>
-                </div>
-              </div>
-              <div className="bg-white rounded-3xl  p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                <div className="font-bold text-sm text-gray-900 mb-3">FOLLOW US</div>
-                <div className="flex gap-3">
-                  <a href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-[#A53030] hover:bg-[#A53030] hover:text-white transition-colors duration-200"><FaInstagram /></a>
-                  <a href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-[#A53030] hover:bg-[#A53030] hover:text-white transition-colors duration-200"><FaFacebookF /></a>
-                  <a href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-[#A53030] hover:bg-[#A53030] hover:text-white transition-colors duration-200"><FaTwitter /></a>
-                  <a href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-[#A53030] hover:bg-[#A53030] hover:text-white transition-colors duration-200"><FaLinkedinIn /></a>
-                  <a href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-[#A53030] hover:bg-[#A53030] hover:text-white transition-colors duration-200"><FaWhatsapp /></a>
-                </div>
+
+            {/* Right: form card */}
+            <div className="order-1 md:order-2">
+              <div className="bg-gray-50 rounded-3xl p-8 md:p-12  border border-gray-100 max-w-md ml-auto">
+                <h3 className="text-2xl font-semibold mb-4">Get in Touch</h3>
+                <p className="text-sm text-gray-500 mb-6">Define your goals and identify areas where our products can add value to your skincare routine.</p>
+
+                <form className="space-y-4">
+                  <div>
+                    <input placeholder="Full name" className="w-full bg-transparent border-b border-gray-200 py-3 focus:outline-none" />
+                  </div>
+                  <div>
+                    <input placeholder="Email" className="w-full bg-transparent border-b border-gray-200 py-3 focus:outline-none" />
+                  </div>
+                  <div>
+                    <input placeholder="Subject" className="w-full bg-transparent border-b border-gray-200 py-3 focus:outline-none" />
+                  </div>
+                  <div>
+                    <textarea placeholder="Message" className="w-full bg-transparent border-b border-gray-200 py-3 focus:outline-none h-28 resize-none" />
+                  </div>
+
+                  <div className="pt-4">
+                    <button type="submit" className="inline-flex items-center gap-3 bg-black text-white px-5 py-3 rounded-full">
+                      <span>Send a message</span>
+                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -119,6 +150,29 @@ export default function ContactSection({ id }) {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             ></iframe>
+          </div>
+        </div>
+      </section>
+      {/* FAQ Section - styled as left heading + right accordion like reference */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div>
+              <button
+                className="inline-flex items-center rounded-full border border-black/20 px-6 py-2.5 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors mb-6"
+                type="button"
+              >
+                Frequently asked questions
+              </button>
+
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Frequently asked <span className="font-serif italic ">questions</span></h2>
+
+              <p className="text-sm text-gray-500 max-w-md">Choose a plan that fits your needs and budget. No hidden fees, no surprises—just straightforward answers to common questions about our products and policies.</p>
+            </div>
+
+            <div>
+              <FAQAccordion faqs={faqs} initialOpen={0} />
+            </div>
           </div>
         </div>
       </section>

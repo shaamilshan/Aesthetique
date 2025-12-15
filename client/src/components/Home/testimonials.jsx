@@ -155,8 +155,14 @@ export default function TestimonialSection({ id }) {
     <section id={id} className="py-16 w-full overflow-visible">
       {/* Title container centered */}
       <div className="max-w-6xl mx-auto px-4 text-center">
-        <p className="text-sm text-gray-500">Rating & Reviews</p>
-        <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-10">Trusted by people</h2>
+        <button
+          className="inline-flex items-center rounded-full border border-black/20 px-6 py-2.5 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors mb-6"
+          type="button"
+        >
+          Rating & Reviews
+        </button>
+
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">Trusted by <span className="font-serif italic">people</span></h1>
       </div>
 
       {/* Full-width cards area */}

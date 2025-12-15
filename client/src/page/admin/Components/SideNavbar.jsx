@@ -9,6 +9,7 @@ import {
   CreditCard,
   LogOut,
   Users,
+  HelpCircle,
   ChevronLeft,
   ChevronRight,
   Ticket,
@@ -264,6 +265,30 @@ const SideNavbar = () => {
             {!isExpanded && (
               <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                 Banners
+              </div>
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/admin/faqs"
+            className={({ isActive }) =>
+              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
+                isExpanded 
+                  ? 'gap-3 px-4 py-2.5' 
+                  : 'justify-center px-2 py-3'
+              } ${
+                isActive 
+                  ? "bg-gray-100 text-gray-900" 
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`
+            }
+            title={!isExpanded ? "FAQs" : ""}
+          >
+            <HelpCircle size={20} className="flex-shrink-0" />
+            {isExpanded && <span>FAQs</span>}
+            {!isExpanded && (
+              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                FAQs
               </div>
             )}
           </NavLink>

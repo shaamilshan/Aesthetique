@@ -76,6 +76,7 @@ const {
   setActiveHomeBanner,
   deleteHomeBanner,
 } = require("../controllers/admin/bannerController");
+const { getFaqs, getFaq, addFaq, updateFaq, deleteFaq } = require("../controllers/admin/faqController");
 
 // Products controller functions mounting them to corresponding route
 router.get("/products", getProducts);
@@ -158,5 +159,12 @@ router.get("/home-banners", getHomeBanners);
 router.put("/home-banners/:bannerNumber", upload.single('image'), updateHomeBanner);
 router.patch("/home-banners/:bannerNumber/activate", setActiveHomeBanner);
 router.delete("/home-banners/:bannerNumber", deleteHomeBanner);
+
+// FAQ Controllers
+router.get('/faqs', getFaqs);
+router.get('/faq/:id', getFaq);
+router.post('/faq', addFaq);
+router.patch('/faq/:id', updateFaq);
+router.delete('/faq/:id', deleteFaq);
 
 module.exports = router;

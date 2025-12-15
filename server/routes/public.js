@@ -1,5 +1,6 @@
 const express = require("express");
 const { getBanners, getActiveHomeBanner, getAllHomeBanners } = require("../controllers/global/bannerController");
+const { getPublicFaqs } = require("../controllers/global/faqController");
 const { getCategories } = require("../controllers/global/collectionController");
 const { getIphone } = require("../controllers/global/iPhoneController");
 
@@ -12,5 +13,7 @@ router.get("/home-banners", getAllHomeBanners);
 router.get("/collections", getCategories);
 
 router.get("/new-iphone", getIphone);
+
+router.get('/faqs', getPublicFaqs);
 
 module.exports = router;
