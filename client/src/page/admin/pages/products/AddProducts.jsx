@@ -53,7 +53,7 @@ const AddProducts = () => {
     setMoreImageURL(files);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     var newStockQuantity = stockQuantity;
     if (stockQuantity <= 0) {
       newStockQuantity = 100;
@@ -117,7 +117,12 @@ const AddProducts = () => {
       }
     }
 
-    dispatch(createProduct(formData));
+    // Wait for create to finish so the products list updates before navigation
+    try {
+      await dispatch(createProduct(formData));
+    } catch (e) {
+      // ignore - error handling happens in Redux
+    }
     navigate(-1);
   };
 

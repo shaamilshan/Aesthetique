@@ -38,13 +38,14 @@ const productSlice = createSlice({
       .addCase(createProduct.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.error = null;
-        state.products = [...state.products, payload];
+        // payload comes from API as { product }
+        const newProduct = payload?.product || payload;
+        state.products = [...(state.products || []), newProduct];
+        state.totalAvailableProducts = (state.totalAvailableProducts || 0) + 1;
       })
       .addCase(createProduct.rejected, (state, { payload }) => {
         state.loading = false;
-        state.products = null;
         state.error = payload;
-        state.totalAvailableProducts = state.totalAvailableProducts + 1;
       })
 
       // Updating a product
@@ -54,12 +55,14 @@ const productSlice = createSlice({
       .addCase(updateProduct.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.error = null;
+        // payload comes as { product } from API
+        const updated = payload?.product || payload;
         const index = state.products.findIndex(
-          (product) => product._id === payload._id
+          (product) => product._id === updated._id
         );
 
         if (index !== -1) {
-          state.products[index] = payload;
+          state.products[index] = updated;
         }
       })
       .addCase(updateProduct.rejected, (state, { payload }) => {

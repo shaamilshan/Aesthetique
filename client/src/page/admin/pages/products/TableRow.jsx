@@ -7,6 +7,8 @@ import { URL } from "@common/api";
 import { getImageUrl } from "@/Common/functions";
 import axios from "axios";
 import { config } from "@/Common/configurations";
+import { useDispatch } from "react-redux";
+import { getProducts } from "../../../../redux/actions/admin/productActions";
 
 const TableRow = ({ index, length, product }) => {
   const navigate = useNavigate();
@@ -14,6 +16,8 @@ const TableRow = ({ index, length, product }) => {
   const isLast = index === length - 1;
   const classes = isLast ? "p-4" : "p-4 border-b border-gray-200 ";
 
+
+  const dispatch = useDispatch();
 
   const handleDelete = async (productId) => {
     const isConfirmed = window.confirm("Are you sure you want to delete this product?");
@@ -25,7 +29,13 @@ const TableRow = ({ index, length, product }) => {
 
         if (response.data.product) {
           alert("Product deleted successfully!");
-          // Optionally refresh the product list or navigate elsewhere
+          // Refresh products list in-place so UI updates without a full reload
+          try {
+            dispatch(getProducts());
+          } catch (e) {
+            // ignore
+          }
+          // Ensure we're on products list
           navigate("/admin/products");
         } else {
           alert("Failed to delete the product.");
