@@ -39,7 +39,9 @@ export default function Home2(props) {
 
   return (
     <>
-      <ImageSlider />
+      <div id="home">
+        <ImageSlider />
+      </div>
 
       <div className="max-w-screen-2xl mx-auto px-4">
         <AboutUs id="about"/>
@@ -102,7 +104,7 @@ export default function Home2(props) {
 
       <div className="max-w-screen-2xl mx-auto px-4">
         {/* <CounterStats/> */}
-        {/* <TestimonialSection id="testimonials"/> */}
+        <TestimonialSection id="testimonials"/>
         <ContactSection id="contact"/>
       </div>
 
