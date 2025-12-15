@@ -162,11 +162,13 @@ const Navbar = ({ usercheck }) => {
             className="will-change-transform absolute"
             style={{
               left: "100%",
+              top: "60%",
+              transform: "translateY(-50%)",
               whiteSpace: "nowrap",
               animation: "marquee 28s linear infinite",
             }}
           >
-            <span className="inline-block px-4 leading-8 text-sm">
+            <span className="inline-block px-4 leading-10 text-sm">
               {announcement}
             </span>
           </div>

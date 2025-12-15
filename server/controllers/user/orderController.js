@@ -387,6 +387,22 @@ const cancelOrder = async (req, res) => {
       "products.productId"
     );
 
+    // Do not allow cancellation if order has already been shipped or beyond
+    const nonCancellableStatuses = [
+      "shipped",
+      "delivered",
+      "cancelled",
+      "canceled",
+      "return request",
+      "return approved",
+      "pickup completed",
+      "returned",
+    ];
+
+    if (orderDetails && nonCancellableStatuses.includes(orderDetails.status)) {
+      return res.status(400).json({ error: "Order cannot be cancelled after it has been shipped." });
+    }
+
     const products = orderDetails.products.map((item) => ({
       productId: item.productId._id,
       quantity: item.quantity,
@@ -504,12 +520,46 @@ const requestReturn = async (req, res) => {
       find.orderId = id;
     }
 
-    const order = await Order.findOneAndUpdate(
+    // Find the order first to validate delivery date
+    const order = await Order.findOne(find);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Determine delivered date from statusHistory (use latest 'delivered' entry if present)
+    let deliveredAt = null;
+    if (Array.isArray(order.statusHistory) && order.statusHistory.length > 0) {
+      for (let i = order.statusHistory.length - 1; i >= 0; i--) {
+        const h = order.statusHistory[i];
+        if (h.status === "delivered") {
+          deliveredAt = h.date;
+          break;
+        }
+      }
+    }
+
+    // Fallback to deliveryDate field if present and no statusHistory entry
+    if (!deliveredAt && order.deliveryDate) {
+      deliveredAt = order.deliveryDate;
+    }
+
+    if (!deliveredAt) {
+      return res.status(400).json({ error: "Return can only be requested after delivery." });
+    }
+
+    const now = new Date();
+    const msDiff = now - new Date(deliveredAt);
+    const daysElapsed = msDiff / (1000 * 60 * 60 * 24);
+
+    if (daysElapsed > 7) {
+      return res.status(400).json({ error: "Return window expired. Returns are allowed only within 7 days of delivery." });
+    }
+
+    // Proceed to create a return request
+    const updated = await Order.findOneAndUpdate(
       find,
       {
-        $set: {
-          status: "return request",
-        },
+        $set: { status: "return request" },
         $push: {
           statusHistory: {
             status: "return request",
@@ -520,7 +570,8 @@ const requestReturn = async (req, res) => {
       },
       { new: true }
     );
-    res.status(200).json({ order });
+
+    res.status(200).json({ order: updated });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
