@@ -17,8 +17,9 @@ const AboutUs = ({ id = "about2" }) => {
     <section className="brand-story-section" id={id}>
       <div className="px-4 md:px-8 lg:px-12 py-16 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          {/* Left Column - Text Content */}
-          <div className="order-2 lg:order-1" 
+    {/* Left Column - Text Content */}
+    {/* Ensure text comes first on mobile (order-1) and stays left on large screens */}
+    <div className="order-1 lg:order-1" 
                data-aos="fade-up"
                data-aos-delay="800"
                data-aos-duration="1000">
@@ -43,8 +44,9 @@ const AboutUs = ({ id = "about2" }) => {
             </div>
           </div>
 
-          {/* Right Column - Product Image */}
-          <div className="order-1 lg:order-2 flex justify-center  lg:justify-end"
+    {/* Right Column - Product Image */}
+    {/* Ensure image comes second on mobile (order-2) and stays right on large screens */}
+    <div className="order-2 lg:order-2 flex justify-center  lg:justify-end"
                data-aos="fade-up"
                data-aos-delay="200"
                data-aos-duration="1000">

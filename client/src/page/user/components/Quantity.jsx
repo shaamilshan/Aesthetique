@@ -26,14 +26,15 @@ const Quantity = ({ increment, decrement, count, minimal = false }) => {
   }
 
   return (
-    <div className="flex gap-4 items-center justify-center">
+    // Left-align on small screens, keep centered on sm+ screens
+    <div className="flex gap-4 items-center justify-start sm:justify-center">
       <button
         onClick={decrement}
         className="flex items-center justify-center w-10 h-10 text-black hover:text-gray-600 transition-colors duration-200 text-xl font-medium"
       >
         -
       </button>
-      <span className="text-xl font-medium min-w-[2rem] text-center">{count}</span>
+  <span className="text-xl font-medium min-w-[2rem] text-left">{count}</span>
       <button
         onClick={increment}
         className="flex items-center justify-center w-10 h-10 text-black hover:text-gray-600 transition-colors duration-200 text-xl font-medium"

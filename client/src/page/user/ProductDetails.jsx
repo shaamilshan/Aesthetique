@@ -217,7 +217,7 @@ const ProductDetails = () => {
                     </p>
                   </div>
                 ))}
-              <div className="flex my-4 gap-3">
+              <div className="flex flex-col sm:flex-row my-4 gap-3 items-start">
                 <Quantity
                   count={count}
                   decrement={decrement}
@@ -225,7 +225,7 @@ const ProductDetails = () => {
                 />
                 <button
                   onClick={addToCart}
-                  className="w-full font-semibold text-blue-700 border border-blue-700 rounded-lg p-2 hover:bg-blue-700 hover:text-white"
+                  className="w-full sm:w-auto font-semibold text-blue-700 border border-blue-700 rounded-lg p-2 hover:bg-blue-700 hover:text-white"
                   disabled={cartLoading}
                 >
                   {cartLoading ? "Loading" : "Add to Cart"}

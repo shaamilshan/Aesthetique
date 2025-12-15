@@ -35,9 +35,9 @@ const OurProducts = ({ id }) => {
     <section id={id} className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         {/* Header Section - Split Layout like AboutUs */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start mb-12">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-start mb-8">
           {/* Left Column - Heading */}
-          <div>
+          <div className="text-center lg:text-left">
             <button
               className="inline-flex items-center rounded-full border border-black/20 px-6 py-2.5 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors mb-6"
               type="button"
@@ -45,13 +45,13 @@ const OurProducts = ({ id }) => {
               Our Products
             </button>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4">
               Our <span className="font-serif italic">Premium</span> Skin Care Range
             </h1>
           </div>
 
           {/* Right Column - View All Products Button */}
-          <div className="flex justify-start lg:justify-end items-center h-full">
+          <div className="flex justify-center lg:justify-end items-center h-full">
             <button
               onClick={() => navigate('/collections')}
               className="bg-white text-black font-medium py-3 px-8 rounded-lg   hover:text-black transition-colors duration-300 "
