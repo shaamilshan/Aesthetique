@@ -83,6 +83,13 @@ const EditProduct = () => {
 
   useEffect(() => {
     const getProductDetails = async () => {
+      if (!id) {
+        console.warn("EditProduct: missing product id in route params");
+        // Redirect back to products list when id is not present
+        navigate("/admin/products");
+        return;
+      }
+
       try {
         const { data } = await axios.get(`${URL}/admin/product/${id}`, {
           withCredentials: true,
@@ -91,11 +98,14 @@ const EditProduct = () => {
         setFetchedData({ ...data.product });
         setDuplicateFetchData({ ...data.product });
       } catch (error) {
-        console.log(error);
+        console.error("Failed fetching product details:", error);
+        // On error (404 / network), navigate back to product list
+        navigate("/admin/products");
       }
     };
+
     getProductDetails();
-  }, []);
+  }, [id]);
 
   // Auto-compute offer percentage based on strike price (markup) vs current price
   useEffect(() => {
