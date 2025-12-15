@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from "../assets/others/bm-logo.png";
 
 function Footer() {
   return (
@@ -6,7 +7,10 @@ function Footer() {
       <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-start gap-8">
         {/* Brand Section */}
         <div className="md:w-1/4">
-          <h4 className="text-lg font-medium mb-4">BM AESTHETIQUE</h4>
+          <div className="flex flex-col items-start gap-1 mb-4">
+            <img src={logo} alt="BM Aesthetique" className="h-10 w-auto object-contain" />
+            <h4 className="text-lg font-medium">BM AESTHETIQUE</h4>
+          </div>
           {/* <p className="text-sm">Karassery Junction, Mukkam, Calicut, India 673602</p> */}
         </div>
 
