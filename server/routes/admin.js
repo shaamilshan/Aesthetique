@@ -77,6 +77,7 @@ const {
   deleteHomeBanner,
 } = require("../controllers/admin/bannerController");
 const { getFaqs, getFaq, addFaq, updateFaq, deleteFaq } = require("../controllers/admin/faqController");
+const { getSetting, upsertSetting } = require("../controllers/admin/settingController");
 
 // Products controller functions mounting them to corresponding route
 router.get("/products", getProducts);
@@ -166,5 +167,9 @@ router.get('/faq/:id', getFaq);
 router.post('/faq', addFaq);
 router.patch('/faq/:id', updateFaq);
 router.delete('/faq/:id', deleteFaq);
+
+// Site settings (keyed)
+router.get('/setting/:key', getSetting);
+router.put('/setting/:key', upsertSetting);
 
 module.exports = router;

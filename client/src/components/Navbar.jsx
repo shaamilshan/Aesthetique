@@ -8,6 +8,7 @@ import { Heart, ShoppingCart, User, Menu, X, Search as SearchIcon } from "lucide
 import { motion, AnimatePresence } from 'framer-motion'
 import logo from "../assets/others/bm-logo.png";
 import SearchBar from "./SearchBar";
+import { commonRequest } from "../Common/api";
 
 const Navbar = ({ usercheck }) => {
   const { user } = useSelector((state) => state.user);
@@ -32,6 +33,7 @@ const Navbar = ({ usercheck }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const searchContainerRef = React.useRef(null);
+  const [announcement, setAnnouncement] = useState(null);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -127,8 +129,51 @@ const Navbar = ({ usercheck }) => {
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [searchExpanded]);
 
+  // Load announcement (marquee) from public settings
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await commonRequest("get", "/public/setting/marquee");
+        if (!mounted) return;
+        if (res) {
+          // server returns the value directly (we expect a string)
+          setAnnouncement(typeof res === 'string' ? res : (res.text || JSON.stringify(res)));
+        }
+      } catch (err) {
+        // ignore - keep fallback text
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <>
+    {/* Marquee banner above navbar (reduced height, vertically centered) - hidden when no announcement text */}
+    {announcement && announcement.toString().trim() !== "" && (
+      <div className="w-full bg-black text-white h-8">
+        <div className="overflow-hidden h-full flex items-center relative">
+          <div
+            aria-hidden="false"
+            role="region"
+            aria-label="Announcement"
+            className="will-change-transform absolute"
+            style={{
+              left: "100%",
+              whiteSpace: "nowrap",
+              animation: "marquee 28s linear infinite",
+            }}
+          >
+            <span className="inline-block px-4 leading-8 text-sm">
+              {announcement}
+            </span>
+          </div>
+        </div>
+      <style>{`@keyframes marquee { 0% { left: 100%; } 100% { left: -100%; } }`}</style>
+      </div>
+    )}
     <header className={`w-full bg-white`}
       role="banner">
       {/* Increased vertical padding for taller navbar */}
