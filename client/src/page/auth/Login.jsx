@@ -10,14 +10,33 @@ import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import LoginImg from "../../assets/authentication/loginbg.jpg";
+import TestimonialCarousel from "../../components/TestimonialCarousel";
 import siteLogo from "../../assets/others/bm-logo.png";
+import LoginImg from "../../assets/LoginBG.png";
 
 const Login = () => {
   const { user, loading, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+
+  const loginTestimonials = [
+    {
+      quote: "Untitled Labs were a breeze to work alongside, we can't recommend them enough. We launched 6 months earlier than expected and are growing 30% MoM.",
+      author: "Amélie Laurent",
+      title: "Founder, Sisyyphus"
+    },
+    {
+      quote: "The platform's intuitive design and seamless user experience have transformed how we connect with our customers. Highly recommended!",
+      author: "Marcus Chen",
+      title: "CEO, TechFlow"
+    },
+    {
+      quote: "Outstanding service and support. The login process is smooth and secure, giving our users complete peace of mind.",
+      author: "Sarah Johnson",
+      title: "Product Manager, InnovateCorp"
+    }
+  ];
 
   const initialValues = {
     email: "",
@@ -137,22 +156,11 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Right: image + testimonial */}
+          {/* Right: image + testimonial carousel */}
           <div className="hidden lg:block lg:w-1/2 relative bg-gray-100">
             <img src={LoginImg} alt="auth" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/30"></div>
-            <div className="absolute right-8 bottom-8 w-3/5 text-white">
-              <div className="mb-4">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" className="opacity-90">
-                  <path d="M7 7h3v10H7zM14 7h3v10h-3z" fill="currentColor" />
-                </svg>
-              </div>
-              <p className="text-lg leading-relaxed mb-4">
-                “Untitled Labs were a breeze to work alongside, we can't recommend them enough. We launched 6 months earlier than expected and are growing 30% MoM.”
-              </p>
-              <p className="font-semibold">Amélie Laurent</p>
-              <p className="text-sm">Founder, Sisyyphus</p>
-            </div>
+            <TestimonialCarousel testimonials={loginTestimonials} />
           </div>
         </div>
       </div>
