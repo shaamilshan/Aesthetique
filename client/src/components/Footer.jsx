@@ -34,6 +34,7 @@ function Footer() {
               <li><a href="/" className="hover:text-gray-700">Payment Options</a></li>
               <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/refund" className="hover:text-gray-700">Returns</a></li>
               <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/terms" className="hover:text-gray-700">Privacy Policies</a></li>
+              <li><a href="/return-policy" className="hover:text-gray-700">Return Policy</a></li>
               <li><a href="https://merchant.razorpay.com/policy/PQGLwBVaRsVDHy/shipping" className="hover:text-gray-700">Shipping & Delivery Policy</a></li>
             </ul>
           </div>

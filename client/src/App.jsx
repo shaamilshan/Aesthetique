@@ -81,6 +81,7 @@ import SingleProduct from "./page/user/others/SingleProduct";
 import SingleProduct2 from "./page/user/others/SingleProduct2";
 import LoginDemo from "./page/user/others/LoginDemo";
 import Home2 from "./page/user/others/Home2";
+import ReturnPolicy from "./page/user/others/ReturnPolicy";
 import ManagerSignup from "./page/manager/ManagerSignup";
 import ManagerHome from "./page/manager/pages/ManagerHome";
 import Enquiries from "./page/admin/pages/products/Enquiries";
@@ -142,6 +143,7 @@ function App() {
           <Route path="/login-demo" element={<LoginDemo />} />
           <Route path="/about-us" element={<About />} />
           <Route path="/contact-us" element={<Contact />} />
+          <Route path="/return-policy" element={<ReturnPolicy />} />
           <Route path="/collection" element={<Collectionsold />} />
           <Route path="/collections" element={<Collections />} />
           {/* <Route path="/productnew" element={<SingleProduct2 />} /> */}

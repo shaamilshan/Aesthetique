@@ -167,7 +167,7 @@ export default function ContactSection({ id }) {
 
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Frequently asked <span className="font-serif italic ">questions</span></h2>
 
-              <p className="text-sm text-gray-500 max-w-md">Choose a plan that fits your needs and budget. No hidden fees, no surprises—just straightforward answers to common questions about our products and policies.</p>
+              <p className="text-sm text-gray-500 max-w-md">Find clear answers to common questions about our sunscreens and serums. From ingredients to usage and safety, everything is transparent, simple, and honest.</p>
             </div>
 
             <div>

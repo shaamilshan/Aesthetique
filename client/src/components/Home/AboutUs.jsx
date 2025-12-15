@@ -44,14 +44,14 @@ const AboutUs = ({ id = "about2" }) => {
           </div>
 
           {/* Right Column - Product Image */}
-          <div className="order-1 lg:order-2 flex justify-center lg:justify-end"
+          <div className="order-1 lg:order-2 flex justify-center  lg:justify-end"
                data-aos="fade-up"
                data-aos-delay="200"
                data-aos-duration="1000">
             <img
               src={aboutusimg}
               alt="BM Aesthetique Golden Glow Products"
-              className="w-full max-w-lg lg:max-w-xl object-cover"
+              className="w-full max-w-lg lg:max-w-xl object-cover rounded-2xl"
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -728,8 +728,17 @@ const SingleProduct = () => {
                   />
                 </button>
                 {toggleStates.div2 && (
-                  <div className="py-2 text-sm text-gray-600">
-                    Easy 15-day returns. Defective or damaged products can be returned for a full refund or replacement.
+                  <div className="py-2 text-sm text-gray-600 space-y-2">
+                    <p>We offer a replacement or refund in the following cases:</p>
+                    <ul className="list-disc list-inside ml-4">
+                      <li>You received an incorrect product</li>
+                      <li>The product arrived damaged or leaking</li>
+                      <li>The product was delivered past its expiry date</li>
+                    </ul>
+
+                    <p className="mt-2">Eligibility: the product must be <strong>unused, unopened, and in its original packaging</strong> with labels and seals intact. Opened or used skincare products cannot be returned unless they are defective or damaged in transit.</p>
+
+                    <p className="mt-2">For full details, timelines, and instructions on how to submit a request, see our <Link to="/return-policy" className="text-blue-600 underline">Return & Refund Policy</Link>.</p>
                   </div>
                 )}
               </div>

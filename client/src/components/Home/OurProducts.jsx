@@ -54,7 +54,7 @@ const OurProducts = ({ id }) => {
           <div className="flex justify-start lg:justify-end items-center h-full">
             <button
               onClick={() => navigate('/collections')}
-              className="bg-white text-black font-medium py-3 px-8 rounded-lg   hover:text-black transition-colors duration-300 focus:outline-none focus:ring-2  focus:ring-opacity-50"
+              className="bg-white text-black font-medium py-3 px-8 rounded-lg   hover:text-black transition-colors duration-300 "
             >
               View All Products
             </button>
