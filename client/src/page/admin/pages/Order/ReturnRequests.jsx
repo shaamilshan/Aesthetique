@@ -128,27 +128,36 @@ const ReturnRequests = () => {
                     >
                       <td className="admin-table-row">{index + 1}</td>
                       <td className="admin-table-row flex items-center gap-2">
-                        <div className="w-10 h-10 overflow-clip flex justify-center items-center">
-                          {item.products[0].productId.imageURL ? (
-                            <img
-                              src={getImageUrl(item.products[0].productId.imageURL, URL)}
-                              alt="img"
-                              className="object-contain w-full h-full"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 bg-slate-300 rounded-md"></div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="line-clamp-1 mb-1 font-semibold w-40">
-                            {item.products[0].productId.name}
-                          </p>
-                          <p className="font-semibold text-gray-500">
-                            {item.totalQuantity === 1
-                              ? item.totalQuantity + " Product"
-                              : "+" + (item.totalQuantity - 1) + " Products"}
-                          </p>
-                        </div>
+                        {(() => {
+                          // Defensive access: products may be empty or productId may be null
+                          const firstItem = item.products && item.products.length > 0 ? item.products[0] : null;
+                          const firstProduct = firstItem ? (firstItem.productId || firstItem.product || firstItem) : null;
+                          return (
+                            <>
+                              <div className="w-10 h-10 overflow-clip flex justify-center items-center">
+                                {firstProduct && firstProduct.imageURL ? (
+                                  <img
+                                    src={getImageUrl(firstProduct.imageURL, URL)}
+                                    alt={firstProduct.name || 'img'}
+                                    className="object-contain w-full h-full"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 bg-slate-300 rounded-md"></div>
+                                )}
+                              </div>
+                              <div>
+                                <p className="line-clamp-1 mb-1 font-semibold w-40">
+                                  {firstProduct?.name || 'Product'}
+                                </p>
+                                <p className="font-semibold text-gray-500">
+                                  {item.totalQuantity === 1
+                                    ? item.totalQuantity + " Product"
+                                    : "+" + (item.totalQuantity - 1) + " Products"}
+                                </p>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </td>
                       <td className="admin-table-row">
                         {date.format(new Date(item.createdAt), "MMM DD YYYY")}
