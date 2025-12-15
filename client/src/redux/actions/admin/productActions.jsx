@@ -22,7 +22,7 @@ export const getProducts = createAsyncThunk(
   async (queries, { rejectWithValue }) => {
     return commonReduxRequest(
       "get",
-      `/admin/products${queries && `?${queries}`}`,
+  `/admin/products${queries ? `?${queries}` : ``}`,
       null,
       appJson,
       rejectWithValue
@@ -36,7 +36,7 @@ export const getNotifiers = createAsyncThunk(
   async (queries, { rejectWithValue }) => {
     return commonReduxRequest(
       "get",
-      `/manager/notifiers${queries && `?${queries}`}`,
+  `/manager/notifiers${queries ? `?${queries}` : ``}`,
       null,
       appJson,
       rejectWithValue

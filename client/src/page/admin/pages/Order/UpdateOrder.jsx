@@ -175,7 +175,7 @@ const UpdateOrder = ({ toggleModal, data }) => {
               <ErrorMessage
                 name="description"
                 component="div"
-                className="text-red-500"
+                className="text-black"
               />
             </div>
             <button

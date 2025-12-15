@@ -7,7 +7,7 @@ export const getPayments = createAsyncThunk(
   async (queries, { rejectWithValue }) => {
     return commonReduxRequest(
       "get",
-      `/admin/payments${queries && `?${queries}`}`,
+  `/admin/payments${queries ? `?${queries}` : ``}`,
       null,
       appJson,
       rejectWithValue

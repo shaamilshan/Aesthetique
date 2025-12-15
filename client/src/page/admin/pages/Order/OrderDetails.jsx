@@ -43,13 +43,27 @@ const OrderDetails = () => {
     try {
       const response = await axios.get(`${URL}/admin/order-invoice/${id}`, {
         responseType: "blob",
+        withCredentials: true,
       });
-
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const link = document.createElement("a");
-      link.href = window.URL.createObjectURL(blob);
-      link.download = "invoice.pdf";
-      link.click();
+      const contentType = response.headers["content-type"] || "";
+      if (contentType.includes("application/pdf")) {
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "invoice.pdf";
+        link.click();
+      } else {
+        // attempt to read error message returned as JSON
+        try {
+          const text = await response.data.text();
+          const json = JSON.parse(text);
+          console.error("Invoice generation error:", json);
+          alert(json.error || "Unable to generate invoice");
+        } catch (e) {
+          console.error("Unknown response while generating invoice", e);
+          alert("Unable to generate invoice");
+        }
+      }
     } catch (error) {
       console.error("Error generating invoice:", error);
     }
@@ -249,7 +263,7 @@ const OrderDetails = () => {
               </table>
             </div>
             <div className="bg-white rounded-lg p-5 font-semibold mt-5 lg:w-1/3 ">
-              <h1 className="text-lg font-bold">Order Summery</h1>
+              <h1 className="text-lg font-bold">Order Summary</h1>
               <div className="border-b border-gray-200 pb-2 mb-2">
                 <div className="cart-total-li">
                   <p className="cart-total-li-first">Sub Total</p>

@@ -130,13 +130,13 @@ const ExportModal = ({ toggleExportModal }) => {
 
       <div className="flex gap-5 justify-end mt-5">
         <button
-          className="btn-red-no-pad text-white py-2 px-5"
+          className="bg-black text-white py-2 px-5 rounded hover:bg-gray-900"
           onClick={toggleExportModal}
         >
           Cancel
         </button>
         <button
-          className="btn-blue-no-pad text-white py-2 px-5"
+          className="bg-black text-white py-2 px-5 rounded hover:bg-gray-900"
           onClick={handleDownload}
         >
           Download

@@ -21,7 +21,7 @@ export const getAdmins = createAsyncThunk(
   async (queries, { rejectWithValue }) => {
     return commonReduxRequest(
       "get",
-      `/super-admin/admins${queries && `?${queries}`}`,
+  `/super-admin/admins${queries ? `?${queries}` : ``}`,
       null,
       appJson,
       rejectWithValue

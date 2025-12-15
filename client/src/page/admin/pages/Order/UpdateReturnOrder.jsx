@@ -87,7 +87,7 @@ const UpdateReturnOrder = ({ toggleModal, data }) => {
               <ErrorMessage
                 name="status"
                 component="div"
-                className="text-red-500"
+                className="text-black"
               />
             </div>
             <div className="py-2">
@@ -102,7 +102,7 @@ const UpdateReturnOrder = ({ toggleModal, data }) => {
               <ErrorMessage
                 name="date"
                 component="div"
-                className="text-red-500"
+                className="text-black"
               />
             </div>
 
@@ -127,7 +127,7 @@ const UpdateReturnOrder = ({ toggleModal, data }) => {
                 <ErrorMessage
                   name="refund"
                   component="div"
-                  className="text-red-500"
+                   className="text-black"
                 />
               </div>
             )}
@@ -144,7 +144,7 @@ const UpdateReturnOrder = ({ toggleModal, data }) => {
                 <ErrorMessage
                   name="reason"
                   component="div"
-                  className="text-red-500"
+                  className="text-black"
                 />
               </div>
             )}
@@ -160,7 +160,7 @@ const UpdateReturnOrder = ({ toggleModal, data }) => {
               <ErrorMessage
                 name="description"
                 component="div"
-                className="text-red-500"
+             className="text-black"
               />
             </div>
             <button

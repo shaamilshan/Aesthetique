@@ -86,12 +86,24 @@ const OrderDetail = () => {
         responseType: "blob",
         withCredentials: true,
       });
-
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const link = document.createElement("a");
-      link.href = window.URL.createObjectURL(blob);
-      link.download = "invoice.pdf";
-      link.click();
+      const contentType = response.headers["content-type"] || "";
+      if (contentType.includes("application/pdf")) {
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "invoice.pdf";
+        link.click();
+      } else {
+        try {
+          const text = await response.data.text();
+          const json = JSON.parse(text);
+          console.error("Invoice generation error:", json);
+          alert(json.error || "Unable to generate invoice");
+        } catch (e) {
+          console.error("Unknown response while generating invoice", e);
+          alert("Unable to generate invoice");
+        }
+      }
     } catch (error) {
       console.error("Error generating invoice:", error);
     }

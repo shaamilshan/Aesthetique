@@ -334,13 +334,19 @@ const generateOrderInvoice = async (req, res) => {
 
     const order = await Order.findOne(find).populate("products.productId");
 
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
     const pdfBuffer = await generateInvoicePDF(order);
 
     // Set headers for the response
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+    res.setHeader("Content-Length", pdfBuffer.length);
 
-    res.status(200).end(pdfBuffer);
+    // Send buffer as response
+    res.status(200).send(pdfBuffer);
   } catch (error) {
     console.log(error);
     

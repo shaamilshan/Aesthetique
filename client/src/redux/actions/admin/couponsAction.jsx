@@ -35,7 +35,7 @@ export const getCoupons = createAsyncThunk(
   async (queries, { rejectWithValue }) => {
     return commonReduxRequest(
       "get",
-      `/admin/coupons${queries && `?${queries}`}`,
+  `/admin/coupons${queries ? `?${queries}` : ``}`,
       null,
       appJson,
       rejectWithValue

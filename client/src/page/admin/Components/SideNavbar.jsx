@@ -34,16 +34,16 @@ const SideNavbar = () => {
   };
 
   return (
-    <div className={`bg-white h-full shrink-0 rounded-lg shadow-sm border transition-all duration-300 ${isExpanded ? 'w-64' : 'w-16'} flex flex-col`}>
-      <div className="p-4 flex-1 flex flex-col">
+  <div className={`bg-white h-full shrink-0 shadow-md transition-all duration-300 ${isExpanded ? 'w-56' : 'w-14'} flex flex-col`}>
+  <div className="p-3 flex-1 flex flex-col">
         {/* Header */}
-        <div className="mb-6">
+  <div className="mb-4">
           {/* Logo Section */}
-          <div className={`flex items-center mb-3 ${isExpanded ? 'justify-start' : 'justify-center'}`}>
+          <div className={`flex items-center mb-2 ${isExpanded ? 'justify-start' : 'justify-center'}`}>
             <img 
               src={logo}
               alt="logo"
-              className={`opacity-80 hover:opacity-100 transition-opacity ${isExpanded ? 'w-16 h-16' : 'w-8 h-8'} object-contain`}
+              className={`opacity-90 ${isExpanded ? 'w-12 h-12' : 'w-8 h-8'} object-contain`}
               style={{ display: "block" }}
             />
           </div>
@@ -51,13 +51,13 @@ const SideNavbar = () => {
           {/* Title and Toggle Section */}
           {isExpanded ? (
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-sm font-semibold text-gray-800">Admin Panel</h2>
+              <h2 className="text-xs font-bold text-gray-900 tracking-wide uppercase">Admin Panel</h2>
               <button
                 onClick={toggleSidebar}
-                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-1.5 rounded hover:bg-gray-100"
                 title="Collapse sidebar"
               >
-                <ChevronLeft size={16} className="text-gray-600" />
+                <ChevronLeft size={16} className="text-gray-500" />
               </button>
             </div>
           ) : (

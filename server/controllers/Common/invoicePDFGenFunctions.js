@@ -1,9 +1,11 @@
 const PDFDocument = require("pdfkit");
 const moment = require("moment");
+const fs = require("fs");
+const path = require("path");
 
 // Table Row with Bottom Line
 function generateTableRow(doc, y, c1, c2, c3, c4, c5) {
-  c2 = c2.slice(0, 40);
+  c2 = (c2 || "").slice(0, 40);
 
   doc
     .fontSize(10)
@@ -21,7 +23,7 @@ function generateTableRow(doc, y, c1, c2, c3, c4, c5) {
 
 // Table row without bottom line
 function generateTableRowNoLine(doc, y, c1, c2, c3, c4, c5) {
-  c2 = c2.slice(0, 40);
+  c2 = (c2 || "").slice(0, 40);
 
   doc
     .fontSize(10)
@@ -43,49 +45,82 @@ const generateInvoicePDF = async (order) => {
       doc.on("end", () => resolve(Buffer.concat(buffers)));
       doc.on("error", (error) => reject(error));
 
-      // Header for the PDF
+      // Header for the PDF - professional layout with logo, company name and contact
+      const contactInfo = {
+        email: "trendkartonline@gmail.com",
+        phone: "+91 90373 95052",
+        addressLine:
+          "Trend Kart, Karassery junction, Mukkam, Calicut, Kerala, India 673602",
+      };
+
+      // Prefer the client-side logo used in the navbar, else fall back to server public logo
+      try {
+        const preferredLogoPaths = [
+          path.join(process.cwd(), "client", "src", "assets", "others", "bm-logo.png"),
+          path.join(process.cwd(), "public", "official", "Logo.svg"),
+          path.join(process.cwd(), "server", "public", "official", "Logo.svg"),
+        ];
+
+        let logoPlaced = false;
+        for (const p of preferredLogoPaths) {
+          if (fs.existsSync(p)) {
+            try {
+              doc.image(p, 50, 50, { width: 80 });
+              logoPlaced = true;
+              break;
+            } catch (e) {
+              // continue to next path
+            }
+          }
+        }
+      } catch (e) {
+        // ignore image errors and continue generating PDF
+      }
+
+      // Company name / left header
+      doc.fillColor("#222222").fontSize(18).font("Helvetica-Bold").text("BM Aesthetique Inc.", 140, 55);
+
+      // Contact details on the right
       doc
-        .image("public/official/Logo.svg", 50, 45, { width: 50 })
+        .fontSize(9)
+        .font("Helvetica")
         .fillColor("#444444")
-        .fontSize(20)
-        .text("BM Aesthetique Inc.", 110, 65)
-        .fontSize(10)
-        .text("Location Details", 200, 65, { align: "right" })
-        .text("Place, pincode, contact", 200, 80, { align: "right" })
+        .text(contactInfo.email, 350, 55, { align: "right" })
+        .text(contactInfo.phone, { align: "right" })
+        .moveDown(0.2)
+        .text(contactInfo.addressLine, { align: "right", width: 220 })
         .moveDown();
 
-      // Invoice details section
-      doc
-        .fontSize(20)
-        .text("Invoice", 50, 150)
-        .fontSize(10)
-        .moveTo(50, 190)
-        .lineTo(550, 190)
-        .lineWidth(0.5)
-        .strokeColor("#ccc")
-        .stroke()
-        .text(`Order Id: ${order.orderId ? order.orderId : order._id}`, 50, 200)
-        .text(
-          `Order Date: ${moment(new Date(order.createdAt)).format(
-            "DD/MM/YYYY"
-          )}`,
-          50,
-          215
-        )
-        .text(`Total Amount: ${order.totalPrice}`, 50, 230)
-        .text(order.address.firstName + " " + order.address.lastName, 300, 200)
-        .text(order.address.address, 300, 215)
-        .text(
-          `${order.address.city}, ${order.address.regionState}, ${order.address.country}, ${order.address.pinCode}`,
-          300,
-          230
-        )
-        .moveTo(50, 250)
-        .lineTo(550, 250)
-        .lineWidth(0.5)
-        .strokeColor("#ccc")
-        .stroke()
-        .moveDown();
+      // Draw a subtle separator
+      doc.moveTo(50, 120).lineTo(560, 120).lineWidth(0.5).strokeColor("#e6e6e6").stroke();
+
+      // Invoice title and meta box
+      doc.fontSize(20).font("Helvetica-Bold").fillColor("#111111").text("INVOICE", 50, 135);
+
+      const metaTop = 140;
+      const metaLeft = 380;
+      doc.roundedRect(metaLeft, metaTop, 170, 60, 4).fillOpacity(0.03).fillAndStroke("#000000", "#f0f0f0");
+      doc.fillOpacity(1).fillColor("#000").fontSize(10).font("Helvetica");
+      doc.text(`Order ID: ${order?.orderId ? order.orderId : order?._id || ""}`, metaLeft + 8, metaTop + 8);
+      doc.text(`Date: ${order?.createdAt ? moment(new Date(order.createdAt)).format("DD/MM/YYYY") : ""}`, metaLeft + 8, metaTop + 24);
+      doc.text(`Payment: ${order?.paymentMode || ""}`, metaLeft + 8, metaTop + 40);
+
+      // Billing / Shipping block
+      const billTop = 210;
+      doc.fontSize(11).font("Helvetica-Bold").text("Bill To:", 50, billTop);
+      doc.fontSize(10).font("Helvetica");
+      const billName = (order?.address?.firstName || "") + " " + (order?.address?.lastName || "");
+      doc.text(billName, 50, billTop + 16);
+      doc.text(order?.address?.address || "", 50, billTop + 32);
+      doc.text(`${order?.address?.city || ""}, ${order?.address?.regionState || ""}, ${order?.address?.country || ""} - ${order?.address?.pinCode || ""}`, 50, billTop + 48);
+      doc.text(order?.address?.phoneNumber || "", 50, billTop + 64);
+
+      // Order summary / totals area label to the right of bill
+      doc.fontSize(11).font("Helvetica-Bold").text("Summary:", 350, billTop);
+      doc.fontSize(10).font("Helvetica");
+      doc.text(`Subtotal: ${order?.subTotal ?? 0}`, 350, billTop + 18);
+      doc.text(`Tax: ${order?.tax ?? 0}`, 350, billTop + 34);
+      doc.text(`Total: ${order?.totalPrice ?? 0}`, 350, billTop + 50);
 
       // Products
       let i;
@@ -102,19 +137,19 @@ const generateInvoicePDF = async (order) => {
         "Sub Total"
       );
 
-      // order.products.map((item, index) => {
-      for (i = 0; i < order.products.length; i++) {
-        const item = order.products[i];
+      const products = Array.isArray(order?.products) ? order.products : [];
+      for (i = 0; i < products.length; i++) {
+        const item = products[i];
         const position = invoiceTableTop + (i + 1) * 30;
 
         generateTableRow(
           doc,
           position,
           i + 1,
-          item.productId.name,
-          item.price,
-          item.quantity,
-          item.price * item.quantity
+          item?.productId?.name || "",
+          item?.price ?? "",
+          item?.quantity ?? "",
+          (item?.price ?? 0) * (item?.quantity ?? 0)
         );
       }
 
@@ -126,7 +161,7 @@ const generateInvoicePDF = async (order) => {
         "",
         "Subtotal",
         "",
-        order.subTotal
+        order?.subTotal ?? ""
       );
 
       const paidToDatePosition = subtotalPosition + 30;
@@ -137,7 +172,7 @@ const generateInvoicePDF = async (order) => {
         "",
         "Tax",
         "",
-        order.tax
+        order?.tax ?? ""
       );
 
       const duePosition = paidToDatePosition + 30;
@@ -148,7 +183,7 @@ const generateInvoicePDF = async (order) => {
         "",
         "Total",
         "",
-        order.totalPrice
+        order?.totalPrice ?? ""
       );
 
       // Footer for the PDF
