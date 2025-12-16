@@ -48,6 +48,7 @@ import Banner from "./page/admin/pages/banner/Banner";
 import FAQs from "./page/admin/pages/content/FAQs";
 import Announcement from "./page/admin/pages/content/Announcement";
 import Payments from "./page/admin/pages/payments/Payments";
+import CreatePayment from "./page/admin/pages/payments/CreatePayment";
 import Settings from "./page/admin/pages/Settings";
 import Help from "./page/admin/pages/Help";
 
@@ -265,7 +266,8 @@ function AdminRoutes() {
         <Route path="banner" element={<Banner />} />
   <Route path="faqs" element={<FAQs />} />
   <Route path="announcement" element={<Announcement />} />
-        <Route path="payments" element={<Payments />} />
+  <Route path="payments" element={<Payments />} />
+  <Route path="payments/create" element={<CreatePayment />} />
         <Route path="customers" element={<Customers />} />
 
         <Route path="managers" element={<Managers />} />

@@ -79,7 +79,7 @@ const Categories = () => {
             />
           </div>
           <button
-            className="admin-button-fl bg-[#A53030] text-white"
+            className="admin-button-fl bg-black text-white"
             onClick={() => navigate("create")}
           >
             <AiOutlinePlus />

@@ -85,7 +85,7 @@ const CustomSingleFileInput = ({ onChange }) => {
           </p>
           <button
             type="button"
-            className="bg-zinc-200 text-[#A53030] text-sm font-semibold py-2 px-4 rounded"
+            className="bg-zinc-200 text-black text-sm font-semibold py-2 px-4 rounded"
             onClick={handleButtonClick}
           >
             Upload Image

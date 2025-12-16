@@ -78,7 +78,7 @@ const CreateCategories = () => {
             </button>
             <button
               type="submit"
-              className="admin-button-fl bg-[#A53030] text-white"
+              className="admin-button-fl bg-black text-white"
               onClick={() => {
                 formikRef.current.submitForm();
               }}

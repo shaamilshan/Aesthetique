@@ -48,25 +48,28 @@ const generateOrderExcel = async (req, res) => {
     ]);
 
     orders.map((item) => {
-      const productsDetails = item.products
+      const productsDetails = (item.products || [])
         .map((product) => {
-          return `${product.productId.name} (${product.quantity} units, ₹${product.price} each)`;
+          const name = product?.productId?.name || "(product removed)";
+          const qty = product?.quantity ?? "-";
+          const price = product?.price ?? "-";
+          return `${name} (${qty} units, ₹${price} each)`;
         })
         .join("\n");
 
       const row = {
-        _id: item._id.toString(),
-        "user._id": item.user._id.toString(),
-        "user.firstName": item.user.firstName + " " + item.user.lastName,
-        "user.email": item.user.email,
-        status: item.status,
-        "address.address": item.address.address,
-        "address.city": item.address.city,
+        _id: item._id ? item._id.toString() : "",
+        "user._id": item.user?._id ? item.user._id.toString() : "",
+        "user.firstName": (item.user?.firstName || "") + (item.user?.lastName ? " " + item.user.lastName : ""),
+        "user.email": item.user?.email || "",
+        status: item.status || "",
+        "address.address": item.address?.address || "",
+        "address.city": item.address?.city || "",
         products: productsDetails,
-        subTotal: item.subTotal,
-        shipping: item.shipping,
-        tax: item.tax,
-        totalPrice: item.totalPrice,
+        subTotal: item.subTotal ?? "",
+        shipping: item.shipping ?? "",
+        tax: item.tax ?? "",
+        totalPrice: item.totalPrice ?? "",
       };
 
       worksheet.addRow(row);
@@ -133,25 +136,28 @@ const generateOrderCSV = async (req, res) => {
     csvData.push(headers);
 
     orders.forEach((item) => {
-      const productsDetails = item.products
+      const productsDetails = (item.products || [])
         .map((product) => {
-          return `${product.productId.name} (${product.quantity} units, ₹${product.price} each)`;
+          const name = product?.productId?.name || "(product removed)";
+          const qty = product?.quantity ?? "-";
+          const price = product?.price ?? "-";
+          return `${name} (${qty} units, ₹${price} each)`;
         })
         .join("\n");
 
       const row = [
-        item._id.toString(),
-        item.user._id.toString(),
-        item.user.firstName + " " + item.user.lastName,
-        item.user.email,
-        item.status,
-        item.address.address,
-        item.address.city,
+        item._id ? item._id.toString() : "",
+        item.user?._id ? item.user._id.toString() : "",
+        (item.user?.firstName || "") + (item.user?.lastName ? " " + item.user.lastName : ""),
+        item.user?.email || "",
+        item.status || "",
+        item.address?.address || "",
+        item.address?.city || "",
         productsDetails,
-        item.subTotal,
-        item.shipping,
-        item.tax,
-        item.totalPrice,
+        item.subTotal ?? "",
+        item.shipping ?? "",
+        item.tax ?? "",
+        item.totalPrice ?? "",
       ];
 
       csvData.push(row);
@@ -271,7 +277,22 @@ const generateOrderPDF = async (req, res) => {
       "products.productId",
     ]);
 
-    const pdfBuffer = await generatePDF(orders);
+    // Normalize orders into a flat structure matching PDF headers to avoid nested key lookups
+    const orderDataFlat = orders.map((item) => ({
+      _id: item._id ? item._id.toString() : "",
+      "user._id": item.user?._id ? item.user._id.toString() : "",
+      "user.firstName": (item.user?.firstName || "") + (item.user?.lastName ? " " + item.user.lastName : ""),
+      "user.email": item.user?.email || "",
+      status: item.status || "",
+      "address.address": item.address?.address || "",
+      "address.city": item.address?.city || "",
+      subTotal: item.subTotal ?? "",
+      shipping: item.shipping ?? "",
+      tax: item.tax ?? "",
+      totalPrice: item.totalPrice ?? "",
+    }));
+
+    const pdfBuffer = await generatePDF(orderDataFlat);
 
     // Set headers for the response
     res.setHeader("Content-Type", "application/pdf");

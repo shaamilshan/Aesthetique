@@ -182,7 +182,7 @@ const AddProducts = () => {
           </div>
           <div className="flex gap-3">
             <button
-              className="admin-button-fl bg-gray-200 text-[#A53030]"
+              className="admin-button-fl bg-gray-200 text-black"
               onClick={() => navigate(-1)}
             >
               <AiOutlineClose />

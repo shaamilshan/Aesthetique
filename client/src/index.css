@@ -179,17 +179,19 @@ input[type="range"].slider-black::-moz-range-track {
   }
   
   .btn-red {
-    @apply bg-red-500 px-3 lg:px-12 py-3 rounded-lg hover:bg-red-600 active:bg-red-700;
+    /* changed to black variant per design request */
+    @apply bg-black px-3 lg:px-12 py-3 rounded-lg hover:bg-gray-800 active:bg-gray-900 text-white;
   }
   .btn-red-no-pad {
-    @apply bg-red-500 rounded-lg hover:bg-red-600 active:bg-red-700;
+    @apply bg-black rounded-lg hover:bg-gray-800 active:bg-gray-900 text-white;
   }
   
   .btn-blue-border {
     @apply border-2 text-blue-600 hover:text-blue-200 uppercase text-sm border-blue-600 px-5 font-semibold lg:px-12 py-3 rounded-lg hover:bg-blue-700;
   }
   .btn-red-border {
-    @apply border-2 text-red-500 hover:text-red-200 uppercase text-sm border-red-500 px-5 font-semibold lg:px-12 py-3 rounded-lg hover:bg-red-500;
+    /* border variant using black as primary */
+    @apply border-2 text-black hover:text-gray-600 uppercase text-sm border-black px-5 font-semibold lg:px-12 py-3 rounded-lg hover:bg-black hover:text-white;
   }
   
   .xy-center {
@@ -229,7 +231,7 @@ input[type="range"].slider-black::-moz-range-track {
   }
   
   .side-nav-link-sp {
-    @apply flex px-3 py-2 rounded items-center gap-4 active:bg-gray-200 active:text-[#A53030] hover:text-[#A53030] hover:bg-gray-200;
+    @apply flex px-3 py-2 rounded items-center gap-4 active:bg-gray-200 active:text-black hover:text-black hover:bg-gray-200;
   }
   
   .side-nav-sub-title {
@@ -257,6 +259,14 @@ input[type="range"].slider-black::-moz-range-track {
   .active {
     @apply bg-gray-200 text-blue-500  rounded;
   }
+
+  /* Override common red utilities to use black (product thumbnail and icons requested to be black) */
+  .text-red-500, .text-red-600, .text-red-700, .bg-red-100, .bg-red-500, .border-red-500 {
+    color: #000 !important;
+    background-color: transparent !important;
+    border-color: #000 !important;
+  }
+
   
   /* Hiding Scrollbar */
   
