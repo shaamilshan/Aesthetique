@@ -14,7 +14,7 @@ const AboutUs = ({ id = "about2" }) => {
   }, []);
 
   return (
-    <section className="brand-story-section" id={id}>
+  <section className="brand-story-section overflow-visible" id={id}>
       <div className="px-4 md:px-8 lg:px-12 py-16 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
     {/* Left Column - Text Content */}

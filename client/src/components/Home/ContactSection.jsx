@@ -25,7 +25,32 @@ export default function ContactSection({ id }) {
       q: "Do your products contain fragrances?",
       a: "Some of our products are fragrance-free; check the product page for full ingredient lists. We strive to provide gentle formulations for sensitive skin.",
     },
+    {
+      q: "What SPF level do your sunscreens provide?",
+      a: "Our AquaShield sunscreen provides broad-spectrum protection with SPF 50+, protecting against both UVA and UVB rays. Always check the product label for specific SPF and reapply as needed.",
+    },
+    {
+      q: "Are your products safe to use during pregnancy or breastfeeding?",
+      a: "Many of our formulations are considered safe during pregnancy, but ingredient sensitivities can vary. If you're pregnant or nursing, consult your healthcare provider or check the product ingredient list before use.",
+    },
+    {
+      q: "How water-resistant is the sunscreen?",
+      a: "Our sunscreen is water-resistant for up to 80 minutes. After swimming or heavy sweating, reapply immediately for continued protection.",
+    },
+    {
+      q: "Do I need to patch test new skincare products?",
+      a: "Patch testing is recommended for those with sensitive or reactive skin. Apply a small amount to the inner forearm for 48 hours to check for irritation before regular use.",
+    },
+    {
+      q: "How should I store the products and what's the shelf life?",
+      a: "Store products in a cool, dry place away from direct sunlight. Most products have a 12–24 month shelf life unopened; once opened, follow the PAO (period-after-opening) symbol on the packaging.",
+    },
+    {
+      q: "What is your returns and exchange policy for skincare products?",
+      a: "We accept returns and exchanges for unopened products within 14 days of delivery. Opened products can be returned only if they arrive damaged or defective—contact our support team with your order details.",
+    },
   ];
+
 
   const [faqs, setFaqs] = useState(defaultFaqs);
   const [faqsLoading, setFaqsLoading] = useState(false);

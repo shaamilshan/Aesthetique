@@ -193,10 +193,9 @@ export default function TestimonialSection({ id }) {
           </div>
         </div>
       ) : (
-        // Desktop: full-bleed stacked cards (span the full viewport to remove side gaps)
         <div
-          className="relative w-screen left-1/2 transform -translate-x-1/2 h-[420px] touch-none select-none overflow-visible"
-          style={{ maxWidth: '100vw' }}
+          className="relative h-[420px] touch-none select-none overflow-visible"
+          style={{ width: '100vw', marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           onPointerDown={handlePointerDown}

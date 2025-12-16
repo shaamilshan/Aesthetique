@@ -69,15 +69,27 @@ const OurProducts = ({ id }) => {
           <>
             {shuffledProducts && shuffledProducts.length > 0 ? (
               <>
-                <div className="overflow-x-auto">
-                  <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
-                    {shuffledProducts.slice(0, 8).map((product, index) => (
-                      <div key={product._id || index} className="flex-none w-80">
+                {shuffledProducts.length <= 4 ? (
+                  // If 4 or fewer products, show them in a responsive grid so they fill the row and feel balanced
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                    {shuffledProducts.slice(0, 4).map((product, index) => (
+                      <div key={product._id || index} className="w-full">
                         <ProductCard2 product={product} />
                       </div>
                     ))}
                   </div>
-                </div>
+                ) : (
+                  // More than 4 products: keep horizontal scroller for discoverability
+                  <div className="overflow-x-auto">
+                    <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                      {shuffledProducts.slice(0, 8).map((product, index) => (
+                        <div key={product._id || index} className="flex-none w-80">
+                          <ProductCard2 product={product} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
               <div className="h-60 flex items-center justify-center bg-white/10 rounded-lg backdrop-blur-sm">
