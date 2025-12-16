@@ -55,7 +55,7 @@ export default function Home2(props) {
       {/* Banner 1 - Between About Us and Products */}
       {!loading && banners.banner1?.image && (
         <MotionSection className="px-4 md:px-8 lg:px-12">
-          <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
+          <div className="relative h-[50vh] w-full rounded-3xl overflow-hidden shadow-xl">
             <img
               src={`${URL}/img/${banners.banner1.image}`}
               alt="Home Banner"
@@ -68,7 +68,7 @@ export default function Home2(props) {
       {/* Fallback banner 1 if no image */}
       {!loading && !banners.banner1?.image && (
         <MotionSection className="px-4 md:px-8 lg:px-12">
-          <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
+          <div className="relative h-[50vh] w-full rounded-3xl overflow-hidden shadow-xl">
             <img
               src={fallbackBanner}
               alt="The Greatest Natural Beauty is Happening to You"
@@ -81,7 +81,7 @@ export default function Home2(props) {
       {/* Banner 2 - Right below Banner 1, before Products */}
       {!loading && banners.banner2?.image && (
         <MotionSection className="px-4 md:px-8 lg:px-12 mt-16" delay={0.06}>
-          <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
+          <div className="relative h-[50vh] w-full rounded-3xl overflow-hidden shadow-xl">
             <img
               src={`${URL}/img/${banners.banner2.image}`}
               alt="Home Banner 2"
