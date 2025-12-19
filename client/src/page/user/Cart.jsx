@@ -23,6 +23,8 @@ const Cart = () => {
   const { cart, loading, error, cartId, couponCode } = useSelector(
     (state) => state.cart
   );
+  // Defensive fallback: ensure components never read `.length` of null
+  const safeCart = cart || [];
 
   const [inputCouponCode, setInputCouponCode] = useState("");
 
@@ -55,7 +57,7 @@ const Cart = () => {
   // Modal for deleting entire cart
   const [showConfirm, setShowConfirm] = useState(false);
   const toggleConfirm = () => {
-    if (cart.length > 0) {
+    if (safeCart.length > 0) {
       setShowConfirm(!showConfirm);
     } else {
       toast.error("Nothing in the cart");
@@ -96,7 +98,7 @@ const Cart = () => {
           negativeAction={() => toggleProductConfirm("")}
         />
       )}
-      {cart.length > 0 ? (
+  {safeCart.length > 0 ? (
         <>
           <div className="min-h-screen bg-white">
             {/* Header */}
@@ -112,7 +114,7 @@ const Cart = () => {
                     <span className="hidden sm:inline">Clear All</span>
                   </button>
                 </div>
-                <p className="text-gray-500 mt-1">{cart.length} {cart.length === 1 ? 'item' : 'items'}</p>
+                <p className="text-gray-500 mt-1">{safeCart.length} {safeCart.length === 1 ? 'item' : 'items'}</p>
               </div>
             </div>
 
@@ -126,7 +128,7 @@ const Cart = () => {
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-100">
-                      {cart.map((item, index) => (
+                      {safeCart.map((item, index) => (
                         <CartProductRow
                           item={item}
                           toggleProductConfirm={toggleProductConfirm}
@@ -177,7 +179,7 @@ const Cart = () => {
                     <button
                       className="w-full mt-6 bg-black text-white py-4 rounded-xl font-medium hover:bg-gray-900 transition-colors"
                       onClick={() => {
-                        if (cart.length > 0) {
+                        if (safeCart.length > 0) {
                           navigate("/checkout");
                         } else {
                           toast.error("No product in cart");
