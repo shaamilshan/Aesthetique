@@ -17,6 +17,7 @@ app.use(logger("dev"));
 const allowedOrigins = [
   "http://localhost:5173",
  "https://aesthetique.vercel.app",
+ "https://www.bmaesthetique.com"
 ];
 
 const corsOptions = {
