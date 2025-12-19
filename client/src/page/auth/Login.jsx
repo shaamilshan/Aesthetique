@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import TestimonialCarousel from "../../components/TestimonialCarousel";
 import siteLogo from "../../assets/others/bm-logo.png";
-import LoginImg from "../../assets/LoginBG.png";
+import LoginImg from "../../assets/others/about.jpg";
 
 const Login = () => {
   const { user, loading, error } = useSelector((state) => state.user);

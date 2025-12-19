@@ -67,7 +67,8 @@ const cartSlice = createSlice({
       })
       .addCase(getCart.rejected, (state, { payload }) => {
         state.loading = false;
-        state.cart = null;
+        // Keep cart as an empty array on errors to avoid UI break (components expect an array)
+        state.cart = [];
         state.error = payload;
       })
       .addCase(deleteEntireCart.pending, (state) => {
@@ -81,7 +82,7 @@ const cartSlice = createSlice({
       })
       .addCase(deleteEntireCart.rejected, (state, { payload }) => {
         state.loading = false;
-        state.cart = null;
+        state.cart = [];
         state.error = payload;
       })
       .addCase(deleteOneProduct.pending, (state) => {
@@ -101,7 +102,7 @@ const cartSlice = createSlice({
       })
       .addCase(deleteOneProduct.rejected, (state, { payload }) => {
         state.loading = false;
-        state.cart = null;
+        state.cart = [];
         state.error = payload;
       })
 
