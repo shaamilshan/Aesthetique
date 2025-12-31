@@ -11,7 +11,13 @@ function Footer() {
             <img src={logo} alt="BM Aesthetique" className="h-10 w-auto object-contain" />
             <h4 className="text-lg font-medium">BM AESTHETIQUE</h4>
           </div>
-          {/* <p className="text-sm">Karassery Junction, Mukkam, Calicut, India 673602</p> */}
+          {/* Contact details */}
+          <div className="text-sm text-gray-700">
+            <div className="font-semibold">BEST MED AESTHETIQUE PVT LTD</div>
+            <div className="mt-1">2nd floor, No-16, Alex Square, opposite to Amirtha School, Ettimadai, Coimbatore, Tamil Nadu</div>
+            <div className="mt-1">PIN CODE - 641112</div>
+            <div className="mt-1">phone no : <a href="tel:8137011855" className="text-blue-600 hover:underline">81370 11855</a></div>
+          </div>
         </div>
 
         {/* Grid Links */}

@@ -26,12 +26,14 @@ import { FaShareAlt } from "react-icons/fa";
 import "./singleproduct.css";
 import { useMediaQuery } from 'react-responsive'; 
 import { BsSlash } from "react-icons/bs";
+import FAQAccordion from "@/components/FAQAccordion";
 
 const SingleProduct = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [currentImage, setCurrentImage] = useState("");
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const isMobile = useMediaQuery({ maxWidth: 767 });
 
   const {
@@ -776,6 +778,14 @@ const SingleProduct = () => {
             </div>
           </div>
         </div>
+
+        {/* Product FAQ (styled like homepage FAQ accordion) */}
+        {product.faqs && product.faqs.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-bold mb-3">Frequently Asked Questions</h2>
+            <FAQAccordion faqs={product.faqs.map((f) => ({ q: f.question, a: f.answer }))} initialOpen={null} />
+          </div>
+        )}
 
         {/* Recommended Products */}
         <div className="w-full mt-10 mb-16">

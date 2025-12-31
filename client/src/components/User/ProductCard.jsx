@@ -25,11 +25,11 @@ const ProductCard = ({ product }) => {
         navigate(`/product/${product._id}`);
       }}
     >
-      <div className="overflow-hidden rounded-lg h-56">
+      <div className="relative w-full rounded-lg overflow-hidden" style={{ paddingTop: '100%' }}>
         <img
           src={getImageUrl(product.imageURL, URL)}
           alt={product.name}
-          className="object-contain w-full h-full"
+          className="absolute top-0 left-0 w-full h-full object-cover"
         />
       </div>
       {product.numberOfReviews > 0 ? (

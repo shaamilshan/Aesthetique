@@ -39,6 +39,7 @@ const AddProducts = () => {
   const [imageURL, setImageURL] = useState(null);
   const [status, setStatus] = useState("Published");
   const [attributes, setAttributes] = useState([]);
+  const [faqs, setFaqs] = useState([]);
   const [price, setPrice] = useState("");
   const [costPrice, setCostPrice] = useState("");
   const [markup, setMarkup] = useState("");
@@ -84,6 +85,10 @@ const AddProducts = () => {
   formData.append("longDescription", longDescription);
     formData.append("stockQuantity", newStockQuantity);
     formData.append("attributes", JSON.stringify(attributes));
+    // attach faqs
+    if (faqs && faqs.length > 0) {
+      formData.append("faqs", JSON.stringify(faqs));
+    }
     formData.append("price", price);
     if (costPrice) {
       formData.append("costPrice", costPrice);
@@ -154,6 +159,24 @@ const AddProducts = () => {
   };
 
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // FAQ handlers
+  const [faqQ, setFaqQ] = useState("");
+  const [faqA, setFaqA] = useState("");
+
+  const addFaq = (e) => {
+    e && e.preventDefault();
+    if (faqQ.trim() === "") return;
+    setFaqs([...faqs, { question: faqQ.trim(), answer: faqA.trim() }]);
+    setFaqQ("");
+    setFaqA("");
+  };
+
+  const removeFaq = (index) => {
+    const copy = [...faqs];
+    copy.splice(index, 1);
+    setFaqs(copy);
+  };
 
   const toggleConfirm = () => {
     setShowConfirm(!showConfirm);
@@ -250,6 +273,52 @@ const AddProducts = () => {
               <h1 className="font-bold">Product Images</h1>
               <p className="admin-label my-2">Drop Here</p>
               <CustomFileInput onChange={handleMultipleImageInput} />
+            </div>
+            {/* FAQ */}
+            <div className="admin-div">
+              <h1 className="font-bold">Product FAQ</h1>
+              <p className="admin-label">Add common questions & answers for this product</p>
+              <div className="flex flex-col gap-2">
+                <input
+                  type="text"
+                  placeholder="Question"
+                  className="admin-input"
+                  value={faqQ}
+                  onChange={(e) => setFaqQ(e.target.value)}
+                />
+                <textarea
+                  placeholder="Answer"
+                  className="admin-input h-24"
+                  value={faqA}
+                  onChange={(e) => setFaqA(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <button
+                    className="admin-button-fl bg-[#A53030] text-white"
+                    onClick={addFaq}
+                  >
+                    Add FAQ
+                  </button>
+                </div>
+                {faqs.length > 0 && (
+                  <div className="border rounded p-2">
+                    {faqs.map((f, idx) => (
+                      <div key={idx} className="mb-2">
+                        <div className="font-semibold">Q: {f.question}</div>
+                        <div className="text-gray-600">A: {f.answer}</div>
+                        <div className="mt-1">
+                          <button
+                            className="text-sm text-red-600"
+                            onClick={() => removeFaq(idx)}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             {/* Attributes */}
             {/* <div className="admin-div">

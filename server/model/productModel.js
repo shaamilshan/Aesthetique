@@ -123,6 +123,13 @@ const productsSchema = new Schema(
       min: [0, "Offer percentage cannot be negative"],
       max: [100, "Offer percentage cannot exceed 100"],
     },
+    // Frequently Asked Questions specific to this product
+    faqs: [
+      {
+        question: { type: String, trim: true, default: "" },
+        answer: { type: String, trim: true, default: "" },
+      },
+    ],
   },
   { 
     timestamps: true,

@@ -23,6 +23,8 @@ const ProductDetails = () => {
   let [loading, setLoading] = useState(false);
   let [error, setError] = useState(false);
   let [currentImage, setCurrentImage] = useState("");
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const FAQAccordion = require("../../components/FAQAccordion").default;
 
   // Adding a product to wishlist
   const dispatchAddWishlist = () => {
@@ -257,6 +259,14 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
+          {/* Product FAQ (styled like homepage FAQ accordion) */}
+          {product.faqs && product.faqs.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-bold mb-3">Frequently Asked Questions</h2>
+              <FAQAccordion faqs={product.faqs.map((f) => ({ q: f.question, a: f.answer }))} initialOpen={null} />
+            </div>
+          )}
+
           <DescReview product={product} id={id} />
         </>
       ) : (
