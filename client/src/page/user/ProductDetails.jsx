@@ -14,6 +14,7 @@ import { addToWishlist } from "../../redux/actions/user/wishlistActions";
 import ProductDetailsStarAndRating from "./components/ProductDetailsStarAndRating";
 import { addToBuyNowStore } from "../../redux/reducers/user/buyNowSlice";
 import ImageZoom from "../../components/ImageZoom";
+import FAQAccordion from "../../components/FAQAccordion";
 
 const ProductDetails = () => {  
   const { id } = useParams();
@@ -101,6 +102,15 @@ const ProductDetails = () => {
   // Checking if this product exists in the wishlist
   const { wishlist } = useSelector((state) => state.wishlist);
   const isProductInWishlist = wishlist.some((item) => item.product._id === id);
+
+  const productFaqs = Array.isArray(product?.faqs)
+    ? product.faqs
+        .map((f) => ({
+          q: (f?.question || "").toString().trim(),
+          a: (f?.answer || "").toString().trim(),
+        }))
+        .filter((f) => f.q && f.a)
+    : [];
 
   return (
     <div className="px-5 lg:px-40 py-20 bg-gray-100">
@@ -266,6 +276,33 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
+
+          {/* Description + FAQs */}
+          <div className="mt-6 bg-white p-5 rounded shadow">
+            {(product?.description || product?.longDescription) && (
+              <>
+                <h2 className="text-lg font-semibold mb-2">Description</h2>
+                {product?.description && (
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {product.description}
+                  </p>
+                )}
+                {product?.longDescription && (
+                  <p className="text-gray-700 text-sm leading-relaxed mt-3 whitespace-pre-line">
+                    {product.longDescription}
+                  </p>
+                )}
+              </>
+            )}
+
+            {productFaqs.length > 0 && (
+              <div className="mt-6">
+                <h2 className="text-lg font-semibold mb-3">FAQs</h2>
+                <FAQAccordion faqs={productFaqs} initialOpen={0} />
+              </div>
+            )}
+          </div>
+
           <DescReview product={product} id={id} />
         </>
       ) : (

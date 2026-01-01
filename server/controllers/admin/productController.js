@@ -80,9 +80,27 @@ const addProduct = async (req, res) => {
     }
     const files = req?.files;
 
-  const attributes = JSON.parse(formData.attributes);
+    const attributes = JSON.parse(formData.attributes);
 
     formData.attributes = attributes;
+
+    if (typeof formData.faqs === "string" && formData.faqs.trim() !== "") {
+      try {
+        const parsedFaqs = JSON.parse(formData.faqs);
+        if (Array.isArray(parsedFaqs)) {
+          formData.faqs = parsedFaqs
+            .map((f) => ({
+              question: (f?.question || "").toString().trim(),
+              answer: (f?.answer || "").toString().trim(),
+            }))
+            .filter((f) => f.question && f.answer);
+        } else {
+          delete formData.faqs;
+        }
+      } catch (e) {
+        delete formData.faqs;
+      }
+    }
 
     if (files && files.length > 0) {
       formData.moreImageURL = [];
@@ -177,6 +195,24 @@ const updateProduct = async (req, res) => {
     if (formData.attributes) {
       const attributes = JSON.parse(formData.attributes);
       formData.attributes = attributes;
+    }
+
+    if (typeof formData.faqs === "string" && formData.faqs.trim() !== "") {
+      try {
+        const parsedFaqs = JSON.parse(formData.faqs);
+        if (Array.isArray(parsedFaqs)) {
+          formData.faqs = parsedFaqs
+            .map((f) => ({
+              question: (f?.question || "").toString().trim(),
+              answer: (f?.answer || "").toString().trim(),
+            }))
+            .filter((f) => f.question && f.answer);
+        } else {
+          delete formData.faqs;
+        }
+      } catch (e) {
+        delete formData.faqs;
+      }
     }
 
     // Derive offer when price/markup are present in update

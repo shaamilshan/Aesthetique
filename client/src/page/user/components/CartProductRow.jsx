@@ -1,5 +1,6 @@
 import React from "react";
 import { URL } from "../../../Common/api";
+import { getImageUrl } from "../../../Common/functions";
 import {
   incrementCount,
   decrementCount,
@@ -41,7 +42,7 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
         >
           {item.product.imageURL ? (
             <img
-              src={`${URL}/img/${item.product.imageURL}`}
+              src={getImageUrl(item.product.imageURL, URL)}
               alt={item.product.name}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
             />
@@ -93,12 +94,21 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
         {/* Right column: Price, Total and Delete - always visible to align actions to row end */}
         <div className="flex flex-col items-end justify-between min-w-[72px]">
           {(() => {
-            const strike = item.product.originalPrice ?? item.product.markup ?? null;
-            const hasStrike = strike && Number(strike) > 0 && Number(strike) > Number(item.product.price);
+            const priceNum = Number(item.product.price) || 0;
+            const strikeRaw = item.product.originalPrice ?? item.product.markup ?? null;
+            const strikeNum = strikeRaw === "" || strikeRaw === null || strikeRaw === undefined ? null : Number(strikeRaw);
+            const hasStrike = strikeNum !== null && !Number.isNaN(strikeNum) && strikeNum > 0 && strikeNum > priceNum;
             return (
               <div className="text-right">
-                <div className="font-medium">₹{Number(item.product.price).toLocaleString()}{hasStrike && (<span className="text-xs text-gray-500 line-through ml-2">₹{Number(strike).toLocaleString()}</span>)}</div>
-                <div className="text-sm text-gray-500">Total: <span className="font-medium text-black">₹{Number(item.product.price * item.quantity).toLocaleString()}</span></div>
+                <div className="font-medium">
+                  ₹{priceNum.toLocaleString()}
+                  {hasStrike ? (
+                    <span className="text-xs text-gray-500 line-through ml-2">₹{strikeNum.toLocaleString()}</span>
+                  ) : null}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Total: <span className="font-medium text-black">₹{Number(priceNum * item.quantity).toLocaleString()}</span>
+                </div>
               </div>
             );
           })()}

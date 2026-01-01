@@ -6,12 +6,16 @@ const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "1d" });
 };
 
+const isProd = process.env.NODE_ENV === "production";
+
+// NOTE:
+// - Browsers reject `SameSite=None` cookies unless `Secure` is also true.
+// - In local HTTP development, we must use SameSite=Lax (or Strict) with Secure=false.
 const cookieConfig = {
-  // allow cross-site cookies when needed (public site <-> api on different origins)
-  sameSite: "none",
-  // set secure to true in production (HTTPS) and false in development (HTTP)
-  secure: process.env.NODE_ENV === "production",
+  sameSite: isProd ? "none" : "lax",
+  secure: isProd,
   httpOnly: true,
+  path: "/",
   maxAge: 1000 * 60 * 60 * 24,
 };
 
@@ -102,11 +106,11 @@ const logoutUser = async (req, res) => {
     console.log("Logout request from origin:", req.headers.origin);
     console.log("Request cookies:", req.headers.cookie);
 
-    // Clear using the same cookie settings (secure must match how it was set)
+    // Clear using the same cookie settings (secure/sameSite must match how it was set)
     res.clearCookie("user_token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       path: "/",
     });
 
