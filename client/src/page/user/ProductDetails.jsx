@@ -149,6 +149,14 @@ const ProductDetails = () => {
                         className="w-full h-full object-contain"
                         key={i}
                         src={getImageUrl(image, URL)}
+                        alt={`Product view ${i + 1}`}
+                        onError={(e) => {
+                          // Log failing thumbnail URL for debugging on hosted environments
+                          console.warn("Thumbnail failed to load:", e.target.src);
+                          // Fallback to main image or a placeholder to avoid broken icon
+                          e.target.onerror = null;
+                          e.target.src = getImageUrl(product.imageURL || currentImage, URL) || "/fallback-product.png";
+                        }}
                       />
                     </div>
                   ))}
