@@ -38,10 +38,13 @@ const Navbar = ({ usercheck }) => {
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setMenuOpen(false);
-    dispatch(logout());
-    navigate("/");
+    try {
+      await dispatch(logout()).unwrap();
+    } finally {
+      navigate("/login", { replace: true });
+    }
   };
 
   const onHomeClick = () => {
