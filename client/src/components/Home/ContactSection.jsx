@@ -97,7 +97,7 @@ export default function ContactSection({ id }) {
               <div className="grid grid-cols-2 gap-6 text-sm text-gray-700">
                 <div>
                   <h4 className="font-semibold mb-2">Call Center</h4>
-                  <div>800 100 975 20 34<br />(+123) 1800-234-5678</div>
+                  <div>81370 11855</div>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">Our Location</h4>
@@ -106,7 +106,7 @@ export default function ContactSection({ id }) {
 
                 <div>
                   <h4 className="font-semibold mb-2">Email</h4>
-                  <div>bmaesthetique@gmail.com</div>
+                  <div>bestmedaesthetique@gmail.com</div>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">Social</h4>

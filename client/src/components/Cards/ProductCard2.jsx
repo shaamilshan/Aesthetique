@@ -49,7 +49,7 @@ const ProductCard2 = ({ product }) => {
     return null;
   }
 
-  const hasStrike = product.markup && Number(product.markup) > Number(product.price);
+  const hasStrike = Boolean(product.markup) && Number(product.markup) > 0 && Number(product.markup) > Number(product.price);
   const strikePrice = hasStrike ? Number(product.markup) : null;
   const discountPercent = hasStrike
     ? Math.max(
@@ -127,7 +127,7 @@ const ProductCard2 = ({ product }) => {
     >
       {/* Image area */}
       <div className="relative bg-gray-50 w-full">
-        <div className="aspect-square w-full bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-3xl relative">
+        <div className="aspect-[3/4] w-full bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-3xl relative">
           {/* Primary Image */}
           <img
             src={getImageUrl(product?.imageURL, URL)}
@@ -181,18 +181,18 @@ const ProductCard2 = ({ product }) => {
       </div>
 
       {/* Card body */}
-      <div className="p-5 flex flex-col flex-1">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{product.name}</h3>
+      <div className="p-5 flex flex-col">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1 h-7">{product.name}</h3>
         
-        {/* Description area that grows to fill available space */}
-        <div className="flex-grow mb-4">
+        {/* Description area with fixed height */}
+        <div className="mb-4 h-10">
           <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
-            {product.description || "Premium skincare product designed to enhance your natural beauty."}
+            {product.description || "Premium skincare product."}
           </p>
         </div>
 
-        {/* Price and button always at bottom */}
-        <div className="flex items-center justify-between">
+        {/* Price always at bottom */}
+        <div className="flex items-center justify-between mt-auto">
           <div className="text-xl font-bold text-gray-900">
             ₹{Number(product.price).toLocaleString()}
             {hasStrike && (

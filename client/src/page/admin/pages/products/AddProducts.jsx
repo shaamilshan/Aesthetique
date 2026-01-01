@@ -9,11 +9,14 @@ import ConfirmModal from "../../../../components/ConfirmModal";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import toast from "react-hot-toast";
 import { getCategories } from "../../../../redux/actions/admin/categoriesAction";
+import JustLoading from "../../../../components/JustLoading";
 
 const AddProducts = () => {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
+
+  const [isSaving, setIsSaving] = useState(false);
 
   const { categories, loading, error } = useSelector(
     (state) => state.categories
@@ -53,7 +56,7 @@ const AddProducts = () => {
     setMoreImageURL(files);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     var newStockQuantity = stockQuantity;
     if (stockQuantity <= 0) {
       newStockQuantity = 100;
@@ -78,10 +81,10 @@ const AddProducts = () => {
     //   return;
     // }
 
-  const formData = new FormData();
+    const formData = new FormData();
     formData.append("name", name);
-  formData.append("description", description);
-  formData.append("longDescription", longDescription);
+    formData.append("description", description);
+    formData.append("longDescription", longDescription);
     formData.append("stockQuantity", newStockQuantity);
     formData.append("attributes", JSON.stringify(attributes));
     formData.append("price", price);
@@ -117,8 +120,19 @@ const AddProducts = () => {
       }
     }
 
-    dispatch(createProduct(formData));
-    navigate(-1);
+    try {
+      setIsSaving(true);
+      await dispatch(createProduct(formData)).unwrap();
+      setShowConfirm(false);
+      navigate("/admin/products", { state: { skipInitialFetch: true } });
+    } catch (err) {
+      const message =
+        err?.message ||
+        err?.error ||
+        (typeof err === "string" ? err : "Failed to create product");
+      toast.error(message);
+      setIsSaving(false);
+    }
   };
 
   const [attributeName, setAttributeName] = useState("");
@@ -156,6 +170,11 @@ const AddProducts = () => {
 
   return (
     <>
+      {isSaving && (
+        <div className="fixed inset-0 z-[60] bg-black/40 flex items-center justify-center">
+          <JustLoading size={18} />
+        </div>
+      )}
       {/* Modal */}
       {showConfirm && (
         <ConfirmModal
@@ -186,6 +205,7 @@ const AddProducts = () => {
             <button
               className="admin-button-fl bg-[#A53030] text-white"
               onClick={toggleConfirm}
+              disabled={isSaving}
             >
               <AiOutlineSave />
               Save

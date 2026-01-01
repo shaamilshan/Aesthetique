@@ -94,7 +94,7 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
         <div className="flex flex-col items-end justify-between min-w-[72px]">
           {(() => {
             const strike = item.product.originalPrice ?? item.product.markup ?? null;
-            const hasStrike = strike && Number(strike) > Number(item.product.price);
+            const hasStrike = strike && Number(strike) > 0 && Number(strike) > Number(item.product.price);
             return (
               <div className="text-right">
                 <div className="font-medium">₹{Number(item.product.price).toLocaleString()}{hasStrike && (<span className="text-xs text-gray-500 line-through ml-2">₹{Number(strike).toLocaleString()}</span>)}</div>

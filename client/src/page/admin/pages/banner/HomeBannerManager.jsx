@@ -89,7 +89,7 @@ const HomeBannerManager = () => {
     banner2: { name: 'Banner 2', location: 'Below Banner 1, before Products' },
     banner3: { name: 'Banner 3', location: 'Between Products & Contact' }
   };
-
+ 
   return (
     <div className="w-full bg-white p-5 rounded-lg">
       <div className="flex justify-between items-center mb-6">
@@ -119,7 +119,7 @@ const HomeBannerManager = () => {
               {banner.image ? (
                 <div className="relative">
                   <img
-                    src={`${URL}/img/${banner.image}`}
+                    src={banner.image?.startsWith?.("http") ? banner.image : `${URL}/img/${banner.image}`}
                     alt={banner.title || bannerKey}
                     className="w-full h-32 object-cover rounded-md"
                   />

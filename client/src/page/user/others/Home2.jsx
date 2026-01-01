@@ -18,7 +18,6 @@ import MotionSection from "@/components/MotionSection";
 import { FaWhatsapp } from "react-icons/fa";
 import useBanner from "@/hooks/useBanner";
 import { URL } from "@/Common/api";
-import fallbackBanner from "@/assets/homebnnr/b1.jpg";
 
 function WhatsAppFloatingButton() {
   return (
@@ -57,21 +56,8 @@ export default function Home2(props) {
         <MotionSection className="px-4 md:px-8 lg:px-12">
           <div className="relative h-[50vh] w-full rounded-3xl overflow-hidden shadow-xl">
             <img
-              src={`${URL}/img/${banners.banner1.image}`}
+              src={banners.banner1.image?.startsWith?.("http") ? banners.banner1.image : `${URL}/img/${banners.banner1.image}`}
               alt="Home Banner"
-              className="h-full w-full object-cover object-[50%_20%]"
-            />
-          </div>
-        </MotionSection>
-      )}
-
-      {/* Fallback banner 1 if no image */}
-      {!loading && !banners.banner1?.image && (
-        <MotionSection className="px-4 md:px-8 lg:px-12">
-          <div className="relative h-[50vh] w-full rounded-3xl overflow-hidden shadow-xl">
-            <img
-              src={fallbackBanner}
-              alt="The Greatest Natural Beauty is Happening to You"
               className="h-full w-full object-cover object-[50%_20%]"
             />
           </div>
@@ -83,7 +69,7 @@ export default function Home2(props) {
         <MotionSection className="px-4 md:px-8 lg:px-12 mt-16" delay={0.06}>
           <div className="relative h-[50vh] w-full rounded-3xl overflow-hidden shadow-xl">
             <img
-              src={`${URL}/img/${banners.banner2.image}`}
+              src={banners.banner2.image?.startsWith?.("http") ? banners.banner2.image : `${URL}/img/${banners.banner2.image}`}
               alt="Home Banner 2"
               className="h-full w-full object-cover object-[50%_20%]"
             />
@@ -101,7 +87,7 @@ export default function Home2(props) {
         <MotionSection className="px-4 md:px-8 lg:px-12 my-16" delay={0.08}>
           <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
             <img
-              src={`${URL}/img/${banners.banner3.image}`}
+              src={banners.banner3.image?.startsWith?.("http") ? banners.banner3.image : `${URL}/img/${banners.banner3.image}`}
               alt="Home Banner 3"
               className="h-full w-full object-cover object-[50%_20%]"
             />

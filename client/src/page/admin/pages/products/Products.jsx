@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getProducts } from "../../../../redux/actions/admin/productActions";
 import TableRow from "./TableRow";
@@ -24,6 +24,7 @@ const TotalProductsCard = ({ total }) => {
 
 const Products = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
   const { products, loading, error, totalAvailableProducts } = useSelector(
@@ -36,6 +37,8 @@ const Products = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const [skipInitialFetch] = useState(Boolean(location.state?.skipInitialFetch));
 
   const handleFilter = (type, value) => {
     const params = new URLSearchParams(window.location.search);
@@ -74,7 +77,9 @@ const Products = () => {
 
   // Getting products details
   useEffect(() => {
-    dispatch(getProducts(searchParams));
+    if (!skipInitialFetch) {
+      dispatch(getProducts(searchParams));
+    }
     const params = new URLSearchParams(window.location.search);
     const pageNumber = params.get("page");
     setPage(parseInt(pageNumber || 1));
