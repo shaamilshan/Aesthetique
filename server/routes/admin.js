@@ -78,6 +78,15 @@ const {
 } = require("../controllers/admin/bannerController");
 const { getFaqs, getFaq, addFaq, updateFaq, deleteFaq } = require("../controllers/admin/faqController");
 const { getSetting, upsertSetting } = require("../controllers/admin/settingController");
+const {
+  getAllAnnouncements,
+  getAnnouncementById,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
+  getMarqueeAnnouncements,
+  updateMarqueeAnnouncements
+} = require("../controllers/admin/announcementController");
 
 // Products controller functions mounting them to corresponding route
 router.get("/products", getProducts);
@@ -168,8 +177,24 @@ router.post('/faq', addFaq);
 router.patch('/faq/:id', updateFaq);
 router.delete('/faq/:id', deleteFaq);
 
+// Marquee compatibility routes (for backward compatibility)
+// These must be registered before the generic `/setting/:key` routes so
+// requests to `/setting/marquee` are handled by the marquee handlers.
+router.get('/setting/marquee', getMarqueeAnnouncements);
+router.put('/setting/marquee', updateMarqueeAnnouncements);
+
 // Site settings (keyed)
 router.get('/setting/:key', getSetting);
 router.put('/setting/:key', upsertSetting);
 
+// Announcement Controllers
+router.get('/announcements', getAllAnnouncements);
+router.get('/announcements/:id', getAnnouncementById);
+router.post('/announcements', createAnnouncement);
+router.patch('/announcements/:id', updateAnnouncement);
+router.delete('/announcements/:id', deleteAnnouncement);
+
+// Marquee compatibility routes (for backward compatibility)
+router.get('/setting/marquee', getMarqueeAnnouncements);
+router.put('/setting/marquee', updateMarqueeAnnouncements);
 module.exports = router;

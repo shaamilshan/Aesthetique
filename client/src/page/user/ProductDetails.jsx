@@ -23,8 +23,6 @@ const ProductDetails = () => {
   let [loading, setLoading] = useState(false);
   let [error, setError] = useState(false);
   let [currentImage, setCurrentImage] = useState("");
-  const [openFaqIndex, setOpenFaqIndex] = useState(null);
-  const FAQAccordion = require("../../components/FAQAccordion").default;
 
   // Adding a product to wishlist
   const dispatchAddWishlist = () => {
@@ -219,7 +217,7 @@ const ProductDetails = () => {
                     </p>
                   </div>
                 ))}
-              <div className="flex flex-col sm:flex-row my-4 gap-3 items-start">
+              <div className="flex my-4 gap-3">
                 <Quantity
                   count={count}
                   decrement={decrement}
@@ -227,7 +225,7 @@ const ProductDetails = () => {
                 />
                 <button
                   onClick={addToCart}
-                  className="w-full sm:w-auto font-semibold text-blue-700 border border-blue-700 rounded-lg p-2 hover:bg-blue-700 hover:text-white"
+                  className="w-full font-semibold text-blue-700 border border-blue-700 rounded-lg p-2 hover:bg-blue-700 hover:text-white"
                   disabled={cartLoading}
                 >
                   {cartLoading ? "Loading" : "Add to Cart"}
@@ -259,14 +257,6 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
-          {/* Product FAQ (styled like homepage FAQ accordion) */}
-          {product.faqs && product.faqs.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-xl font-bold mb-3">Frequently Asked Questions</h2>
-              <FAQAccordion faqs={product.faqs.map((f) => ({ q: f.question, a: f.answer }))} initialOpen={null} />
-            </div>
-          )}
-
           <DescReview product={product} id={id} />
         </>
       ) : (

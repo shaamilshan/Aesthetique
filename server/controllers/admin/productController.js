@@ -80,22 +80,9 @@ const addProduct = async (req, res) => {
     }
     const files = req?.files;
 
-  const attributes = JSON.parse(formData.attributes || "[]");
+  const attributes = JSON.parse(formData.attributes);
 
     formData.attributes = attributes;
-    // Parse FAQs if provided from frontend
-    if (formData.faqs) {
-      try {
-        formData.faqs = JSON.parse(formData.faqs);
-      } catch (e) {
-        // If it's already an object/array, keep it
-        if (!Array.isArray(formData.faqs)) {
-          formData.faqs = [];
-        }
-      }
-    } else {
-      formData.faqs = [];
-    }
 
     if (files && files.length > 0) {
       formData.moreImageURL = [];
@@ -190,16 +177,6 @@ const updateProduct = async (req, res) => {
     if (formData.attributes) {
       const attributes = JSON.parse(formData.attributes);
       formData.attributes = attributes;
-    }
-
-    // Parse FAQs if sent as JSON string
-    if (formData.faqs) {
-      try {
-        formData.faqs = JSON.parse(formData.faqs);
-      } catch (e) {
-        // keep as-is if already parsed or fallback to empty array
-        if (!Array.isArray(formData.faqs)) formData.faqs = [];
-      }
     }
 
     // Derive offer when price/markup are present in update

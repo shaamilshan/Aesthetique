@@ -15,6 +15,8 @@ exports.upsertSetting = async (req, res) => {
   try {
     const { key } = req.params;
     const { value } = req.body;
+    // Debug: log incoming payload to help diagnose connection/save issues during development
+    console.log(`upsertSetting called for key=${key} type=${typeof value} sample=`, Array.isArray(value) ? value.slice(0,5) : value);
     const s = await Setting.findOneAndUpdate(
       { key },
       { value },

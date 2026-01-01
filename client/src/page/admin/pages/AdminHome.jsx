@@ -14,6 +14,8 @@ import Modal from "../../../components/Modal";
 import UpdateOrder from "./Order/UpdateOrder";
 import { AiOutlineCalendar } from "react-icons/ai";
 import OutsideTouchCloseComponent from "../../../components/OutsideTouchCloseComponent";
+import { debounce } from "time-loom";
+import { useSearchParams } from "react-router-dom";
 
 const AdminHome = () => {
   const { orders, loading, error } = useSelector((state) => state.orders);
@@ -23,10 +25,9 @@ const AdminHome = () => {
   const [numberOfDates, setNumberOfDates] = useState(7);
 
   const [dropDown, setDropDown] = useState(false);
-  // Explicit open/close to avoid races with outside-click handler
-  const openDropDown = () => setDropDown(true);
-  const closeDropDown = () => setDropDown(false);
-  const toggleDropDown = () => setDropDown((prev) => !prev);
+  const toggleDropDown = debounce(() => {
+    setDropDown(!dropDown);
+  }, 100);
 
   useEffect(() => {
     dispatch(getOrders());
@@ -63,23 +64,21 @@ const AdminHome = () => {
           <h2 className="font-bold text-lg text-gray-800 mb-2 sm:mb-0">Dashboard Overview</h2>
           <div className="flex gap-2 relative">
             <button
-              type="button"
               className="bg-white border border-gray-200 rounded px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={openDropDown}
+              onClick={toggleDropDown}
             >
               <AiOutlineCalendar className="inline mr-1" />
               Last {numberOfDates} days
             </button>
             {dropDown && (
               <OutsideTouchCloseComponent
-                toggleVisibility={closeDropDown}
-                // smaller, tighter dropdown: narrower width, smaller radius and shadow
-                style="absolute top-10 right-2 z-50 font-normal w-40 bg-white rounded-md shadow"
+                toggleVisibility={toggleDropDown}
+                style="absolute top-10 right-0 font-normal w-44 bg-white rounded-lg shadow-2xl"
               >
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setNumberOfDates(7); closeDropDown(); }}>Last 7 Days</button>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setNumberOfDates(30); closeDropDown(); }}>Last 30 Days</button>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setNumberOfDates(180); closeDropDown(); }}>Last 180 Days</button>
-                <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setNumberOfDates(365); closeDropDown(); }}>Last 365 Days</button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setNumberOfDates(7); toggleDropDown(); }}>Last 7 Days</button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setNumberOfDates(30); toggleDropDown(); }}>Last 30 Days</button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setNumberOfDates(180); toggleDropDown(); }}>Last 180 Days</button>
+                <button className="w-full text-left px-4 py-2 hover:bg-gray-100" onClick={() => { setNumberOfDates(365); toggleDropDown(); }}>Last 365 Days</button>
               </OutsideTouchCloseComponent>
             )}
           </div>
@@ -106,7 +105,7 @@ const AdminHome = () => {
                 <button className="bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors duration-200 font-medium text-sm">View All</button>
               </Link>
             </div>
-            <div className="p-6 flex flex-col gap-4">
+            <div className="p-6 flex flex-col gap-4 max-h-[420px] overflow-y-auto">
               {orders.slice(0, 5).map((order, index) => (
                 <div key={order._id || index} className="group relative bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100 hover:shadow-md transition-all duration-200 hover:border-gray-200">
                   <div className="flex items-center justify-between">

@@ -43,7 +43,6 @@ const EditProduct = () => {
     imageURL: "",
     status: "",
     attributes: [],
-    faqs: [],
     price: "",
     markup: "",
     moreImageURL: [],
@@ -141,8 +140,6 @@ const EditProduct = () => {
       if (duplicateFetchData[key] !== fetchedData[key]) {
         if (key === "attributes") {
           formData.append("attributes", JSON.stringify(fetchedData.attributes));
-        } else if (key === "faqs") {
-          formData.append("faqs", JSON.stringify(fetchedData.faqs || []));
         } else if (key === "moreImageURL") {
           // Append existing images first
           fetchedData[key].forEach((item) => {
@@ -186,37 +183,6 @@ const EditProduct = () => {
   const [attributeImageIndex, setAttributeImageIndex] = useState("");
   const [attributeQuantity, setAttributeQuantity] = useState("");
   const [attributeHighlight, setAttributeHighlight] = useState(false);
-
-  // FAQ state & handlers
-  const [newFaqQ, setNewFaqQ] = useState("");
-  const [newFaqA, setNewFaqA] = useState("");
-
-  const addFaq = (e) => {
-    e && e.preventDefault();
-    if (!newFaqQ || newFaqQ.trim() === "") return;
-    setFetchedData((prev) => ({
-      ...prev,
-      faqs: [...(prev.faqs || []), { question: newFaqQ.trim(), answer: newFaqA.trim() }],
-    }));
-    setNewFaqQ("");
-    setNewFaqA("");
-  };
-
-  const handleFaqChange = (index, field, value) => {
-    setFetchedData((prev) => {
-      const copy = [...(prev.faqs || [])];
-      copy[index] = { ...copy[index], [field]: value };
-      return { ...prev, faqs: copy };
-    });
-  };
-
-  const removeFaq = (index) => {
-    setFetchedData((prev) => {
-      const copy = [...(prev.faqs || [])];
-      copy.splice(index, 1);
-      return { ...prev, faqs: copy };
-    });
-  };
 
   const attributeHandler = (e) => {
     e.preventDefault();
@@ -423,58 +389,6 @@ const EditProduct = () => {
                   <CustomFileInput onChange={handleMultipleImageInput} />
                 </>
               )}
-            </div>
-            {/* FAQ */}
-            <div className="admin-div">
-              <h1 className="font-bold">Product FAQ</h1>
-              <p className="admin-label">Add or edit common questions & answers for this product</p>
-              <div className="flex flex-col gap-2">
-                <input
-                  type="text"
-                  placeholder="Question"
-                  className="admin-input"
-                  value={newFaqQ}
-                  onChange={(e) => setNewFaqQ(e.target.value)}
-                />
-                <textarea
-                  placeholder="Answer"
-                  className="admin-input h-24"
-                  value={newFaqA}
-                  onChange={(e) => setNewFaqA(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <button
-                    className="admin-button-fl bg-[#A53030] text-white"
-                    onClick={addFaq}
-                  >
-                    Add FAQ
-                  </button>
-                </div>
-                {(fetchedData.faqs || []).length > 0 && (
-                  <div className="border rounded p-2">
-                    {(fetchedData.faqs || []).map((f, idx) => (
-                      <div key={idx} className="mb-3">
-                        <input
-                          type="text"
-                          className="admin-input mb-1"
-                          value={f.question}
-                          onChange={(e) => handleFaqChange(idx, "question", e.target.value)}
-                        />
-                        <textarea
-                          className="admin-input mb-1 h-20"
-                          value={f.answer}
-                          onChange={(e) => handleFaqChange(idx, "answer", e.target.value)}
-                        />
-                        <div>
-                          <button className="text-sm text-red-600" onClick={() => removeFaq(idx)}>
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
             {/* Add Additional Images */}
             <div className="admin-div">

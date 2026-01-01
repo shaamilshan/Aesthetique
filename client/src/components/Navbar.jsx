@@ -34,6 +34,7 @@ const Navbar = ({ usercheck }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
   const searchContainerRef = React.useRef(null);
   const [announcement, setAnnouncement] = useState(null);
+  const [announcementIndex, setAnnouncementIndex] = useState(0);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -129,16 +130,19 @@ const Navbar = ({ usercheck }) => {
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [searchExpanded]);
 
-  // Load announcement (marquee) from public settings
+  // Load announcement (marquee) from public announcements API
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const res = await commonRequest("get", "/public/setting/marquee");
+        const res = await commonRequest("get", "/public/announcements");
         if (!mounted) return;
-        if (res) {
-          // server returns the value directly (we expect a string)
-          setAnnouncement(typeof res === 'string' ? res : (res.text || JSON.stringify(res)));
+        // Debug: log the response so we can see what the public API returns
+        console.debug('public/announcements response', res);
+        if (res && res.success && res.data && res.data.marquee) {
+          // Extract content from marquee announcements
+          const marqueeContents = res.data.marquee.map(ann => ann.content);
+          setAnnouncement(marqueeContents);
         }
       } catch (err) {
         // ignore - keep fallback text
@@ -149,10 +153,23 @@ const Navbar = ({ usercheck }) => {
     };
   }, []);
 
+  // Rotate announcement items (one at a time) when announcement is an array
+  useEffect(() => {
+    if (!Array.isArray(announcement) || announcement.length <= 1) return;
+    setAnnouncementIndex(0);
+    const interval = setInterval(() => {
+      setAnnouncementIndex((i) => (i + 1) % announcement.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [announcement]);
+
   return (
     <>
     {/* Marquee banner above navbar (reduced height, vertically centered) - hidden when no announcement text */}
-    {announcement && announcement.toString().trim() !== "" && (
+    {(() => {
+      const hasAnnouncement = Array.isArray(announcement) ? announcement.some((x) => !!String(x).trim()) : (announcement && String(announcement).trim() !== "");
+      const displayText = Array.isArray(announcement) ? (announcement[announcementIndex] || "") : (announcement || "");
+      return hasAnnouncement ? (
       <div className="w-full bg-black text-white h-8">
         <div className="overflow-hidden h-full flex items-center relative">
           <div
@@ -169,13 +186,14 @@ const Navbar = ({ usercheck }) => {
             }}
           >
             <span className="inline-block px-4 leading-10 text-sm">
-              {announcement}
+              {displayText}
             </span>
           </div>
         </div>
       <style>{`@keyframes marquee { 0% { left: 100%; } 100% { left: -100%; } }`}</style>
       </div>
-    )}
+      ) : null;
+    })()}
     <header className={`w-full bg-white`}
       role="banner">
       {/* Increased vertical padding for taller navbar */}

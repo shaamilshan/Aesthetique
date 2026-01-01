@@ -4,6 +4,7 @@ const { getPublicFaqs } = require("../controllers/global/faqController");
 const { getPublicSetting } = require("../controllers/global/settingController");
 const { getCategories } = require("../controllers/global/collectionController");
 const { getIphone } = require("../controllers/global/iPhoneController");
+const { getActiveAnnouncements, getMarqueeAnnouncements } = require("../controllers/admin/announcementController");
 
 const router = express.Router();
 
@@ -19,5 +20,9 @@ router.get('/faqs', getPublicFaqs);
 
 // Public site settings
 router.get('/setting/:key', getPublicSetting);
+
+// Public announcements
+router.get('/announcements', getActiveAnnouncements);
+router.get('/setting/marquee', getMarqueeAnnouncements);
 
 module.exports = router;

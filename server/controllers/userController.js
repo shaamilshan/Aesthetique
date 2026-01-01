@@ -7,8 +7,10 @@ const createToken = (_id) => {
 };
 
 const cookieConfig = {
-  sameSite: "none", // in order to response to both first-party and cross-site requests
-  secure: "auto", // it should set automatically to secure if is https.
+  // allow cross-site cookies when needed (public site <-> api on different origins)
+  sameSite: "none",
+  // set secure to true in production (HTTPS) and false in development (HTTP)
+  secure: process.env.NODE_ENV === "production",
   httpOnly: true,
   maxAge: 1000 * 60 * 60 * 24,
 };
@@ -95,10 +97,11 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
+  // Clear using the same cookie settings (secure must match how it was set)
   res.clearCookie("user_token", {
     httpOnly: true,
-    secure: true,        // required on HTTPS (Render)
-    sameSite: 'None',    // required for cross-origin
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
   });
 
   res.status(200).json({ msg: "Logged out Successfully" });
