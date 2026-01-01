@@ -91,6 +91,13 @@ export const getImageUrl = (imageUrl, baseUrl) => {
     return imageUrl;
   }
   
-  // Otherwise, it's a local image, prepend the base URL
-  return `${baseUrl}/img/${imageUrl}`;
+  // Normalize baseUrl and handle whether it already contains '/api'
+  const normalizedBase = (baseUrl || '').replace(/\/$/, '');
+
+  if (normalizedBase.endsWith('/api')) {
+    return `${normalizedBase}/img/${imageUrl}`; // results in /api/img/...
+  }
+
+  // If baseUrl doesn't include '/api', assume we need to add it
+  return `${normalizedBase}/api/img/${imageUrl}`;
 };

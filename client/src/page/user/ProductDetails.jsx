@@ -8,6 +8,7 @@ import Quantity from "./components/Quantity";
 import toast from "react-hot-toast";
 import { URL } from "../../Common/api";
 import { config } from "../../Common/configurations";
+import { getImageUrl } from "../../Common/functions";
 import { useDispatch, useSelector } from "react-redux";
 import { addToWishlist } from "../../redux/actions/user/wishlistActions";
 import ProductDetailsStarAndRating from "./components/ProductDetailsStarAndRating";
@@ -115,7 +116,7 @@ const ProductDetails = () => {
               <div className="w-80 h-80 lg:w-96 lg:h-96 hidden lg:block">
                 {currentImage && (
                   <ImageZoom
-                    imageUrl={`${URL}/img/${currentImage}`}
+                    imageUrl={getImageUrl(currentImage, URL)}
                     width={400}
                     zoomedValue={820}
                     zoomedWidth={500}
@@ -125,7 +126,7 @@ const ProductDetails = () => {
               <div className="w-80 lg:w-96 lg:h-96 lg:hidden mx-auto">
                 {currentImage && (
                   <img
-                    src={`${URL}/img/${currentImage}`}
+                    src={getImageUrl(currentImage, URL)}
                     alt="Product"
                     className="w-60 h-60 object-cover"
                   />
