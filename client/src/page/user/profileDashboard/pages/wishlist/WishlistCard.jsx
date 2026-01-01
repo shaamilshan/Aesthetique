@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Trash2, ShoppingCart, Eye, Star } from "lucide-react";
 import axios from "axios";
 import { URL } from "../../../../../Common/api";
+import { getImageUrl } from "../../../../../Common/functions";
 import toast from "react-hot-toast";
 import { config } from "../../../../../Common/configurations";
 import { useNavigate } from "react-router-dom";
@@ -96,7 +97,7 @@ const WishlistCard = ({ item }) => {
         <div className="relative w-16 h-16 flex-shrink-0 overflow-hidden bg-gray-100 rounded-lg">
           {item.product.imageURL ? (
             <img
-              src={`${URL}/img/${item.product.imageURL}`}
+              src={getImageUrl(item.product.imageURL, URL)}
               alt={item.product.name}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
             />
@@ -121,6 +122,23 @@ const WishlistCard = ({ item }) => {
           >
             {item.product.name}
           </h3>
+
+          {(() => {
+            const priceNum = Number(item.product.price);
+            const safePrice = Number.isFinite(priceNum) ? priceNum : null;
+            const strikeRaw = item.product.originalPrice ?? item.product.markup ?? null;
+            const strikeNum = strikeRaw === "" || strikeRaw === null || strikeRaw === undefined ? null : Number(strikeRaw);
+            const hasStrike = strikeNum !== null && !Number.isNaN(strikeNum) && strikeNum > 0 && safePrice !== null && strikeNum > safePrice;
+
+            return (
+              <div className="text-sm font-semibold text-gray-900 mb-2">
+                {safePrice !== null ? `₹${safePrice.toLocaleString()}` : "—"}
+                {hasStrike ? (
+                  <span className="text-xs text-gray-500 line-through ml-2">₹{strikeNum.toLocaleString()}</span>
+                ) : null}
+              </div>
+            );
+          })()}
 
           {/* Price */}
           <div className="flex items-center gap-2 flex-shrink-0">

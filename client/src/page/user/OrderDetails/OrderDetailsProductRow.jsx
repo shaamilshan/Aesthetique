@@ -1,5 +1,6 @@
 import React from "react";
 import { URL } from "../../../Common/api";
+import { getImageUrl } from "../../../Common/functions";
 import { Link } from "react-router-dom";
 import { BiMessageSquareDetail } from "react-icons/bi";
 
@@ -19,7 +20,7 @@ const OrderDetailsProductRow = ({
           <div className="w-14 h-14 overflow-clip flex justify-center items-center shrink-0">
             {item.productId.imageURL ? (
               <img
-                src={`${URL}/img/${item.productId.imageURL}`}
+                src={getImageUrl(item.productId.imageURL, URL)}
                 alt="img"
                 className="object-contain w-full h-full"
               />
@@ -47,9 +48,9 @@ const OrderDetailsProductRow = ({
           </div>
         </div>
       </td>
-  <td className="admin-table-row">{item.price}</td>
+  <td className="admin-table-row">₹{Number(item.price).toLocaleString()}</td>
       <td className="admin-table-row">{item.quantity}</td>
-      <td className="admin-table-row">{item.price * item.quantity}</td>
+      <td className="admin-table-row">₹{Number(Number(item.price) * Number(item.quantity)).toLocaleString()}</td>
       {status !== "pending" &&
         status !== "processing" &&
         status !== "shipped" && (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { renderStars, timeAgo } from "@common/functions";
+import { getImageUrl, renderStars, timeAgo } from "@common/functions";
 import { URL } from "@common/api";
 import { AiOutlineEdit } from "react-icons/ai";
 import Modal from "../../../components/Modal";
@@ -28,11 +28,11 @@ const ReviewRow = ({ review, product }) => {
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-full overflow-hidden">
             {review.user.profileImgURL ? (
-              <img
-                src={`${URL}/img/${review.user.profileImgURL}`}
-                alt="User Profile"
-                className="w-full h-full object-cover"
-              />
+                  <img
+                    src={getImageUrl(review.user.profileImgURL, URL)}
+                    alt="reviewer"
+                    className="w-full h-full object-cover"
+                  />
             ) : (
               <div className="w-full h-full bg-gray-200"></div>
             )}
@@ -58,11 +58,11 @@ const ReviewRow = ({ review, product }) => {
           {product && product.productId && (
             <div className="border p-2 rounded-lg flex items-center gap-2">
               <div className="w-10 h-10 shrink-0">
-                <img
-                  src={`${URL}/img/${product.productId.imageURL}`}
-                  alt="Product"
-                  className="w-full h-full object-contain"
-                />
+                    <img
+                      src={getImageUrl(product.productId.imageURL, URL)}
+                      alt="img"
+                      className="object-contain w-full h-full"
+                    />
               </div>
               <p className="line-clamp-1">{product.productId.name}</p>
             </div>

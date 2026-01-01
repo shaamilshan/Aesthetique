@@ -3,6 +3,7 @@ import { AiFillStar, AiOutlineClose, AiOutlineStar } from "react-icons/ai";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { URL } from "../../../Common/api";
+import { getImageUrl } from "../../../Common/functions";
 import { useDispatch, useSelector } from "react-redux";
 import { updateReview } from "../../../redux/actions/user/reviewActions";
 
@@ -80,7 +81,7 @@ const ProductEditReview = ({ closeToggle, review, product }) => {
         <div className="w-10 h-10 overflow-clip flex justify-center items-center shrink-0">
           {product && product.productId && product.productId.imageURL ? (
             <img
-              src={`${URL}/img/${product.productId.imageURL}`}
+              src={getImageUrl(product.productId.imageURL, URL)}
               alt="img"
               className="object-contain w-full h-full"
             />
