@@ -97,14 +97,25 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-  // Clear using the same cookie settings (secure must match how it was set)
-  res.clearCookie("user_token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-  });
+  try {
+    // diagnostic log to help debug production cookie issues
+    console.log("Logout request from origin:", req.headers.origin);
+    console.log("Request cookies:", req.headers.cookie);
 
-  res.status(200).json({ msg: "Logged out Successfully" });
+    // Clear using the same cookie settings (secure must match how it was set)
+    res.clearCookie("user_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      path: "/",
+    });
+
+    res.status(200).json({ msg: "Logged out Successfully" });
+  } catch (err) {
+    console.error("Error during logout clearing cookie:", err);
+    // still respond success to client but log server-side
+    res.status(200).json({ msg: "Logged out (error during clear)" });
+  }
 };
 
 const editUser = async (req, res) => {

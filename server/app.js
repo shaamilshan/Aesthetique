@@ -40,6 +40,8 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", req.headers.origin);
     res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE");
     res.header("Access-Control-Allow-Headers", "Content-Type, Origin, Authorization");
+    // Allow cookies to be sent in preflight responses
+    res.header("Access-Control-Allow-Credentials", "true");
     return res.status(200).json({});
   }
   next();
