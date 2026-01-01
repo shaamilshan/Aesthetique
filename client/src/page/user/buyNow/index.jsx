@@ -27,7 +27,7 @@ const BuyNow = () => {
 
   let offer = 0;
   let couponType = "s";
-  let totalPrice = product ? product.price + product.markup : 0;
+  let totalPrice = product ? product.price : 0;
   let shipping = 0;
   let tax = 0;
   // let tax = parseInt(totalPrice * 0.08);
@@ -272,10 +272,10 @@ const BuyNow = () => {
             ></textarea>
           </div>
 
-          {/* Order Summery Session */}
+          {/* Order Summary Session */}
 
           <div className="lg:w-1/4 bg-white px-5 py-3 border border-gray-200 rounded shrink-0">
-            <h1 className="font-semibold py-2">Order Summery </h1>
+            <h1 className="font-semibold py-2">Order Summary </h1>
             <div className="py-1">
               {product && <CheckoutCartRow item={{ product, quantity }} />}
             </div>

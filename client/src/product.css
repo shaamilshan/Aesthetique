@@ -55,6 +55,7 @@
     margin-right: 10px;
     border-radius: 5px;
     cursor: pointer;
+    border: 1px solid #000; /* make thumbnail border black */
 }
 
 .live-chat-button button {

@@ -10,6 +10,7 @@ import axios from "axios";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import { getCategories } from "../../../../redux/actions/admin/categoriesAction";
 import { URL } from "@common/api";
+import { getImageUrl } from "@/Common/functions";
 import toast from "react-hot-toast";
 
 const EditProduct = () => {
@@ -36,6 +37,7 @@ const EditProduct = () => {
   const [fetchedData, setFetchedData] = useState({
     name: "",
     description: "",
+    longDescription: "",
     stockQuantity: 0,
     category: "",
     imageURL: "",
@@ -82,6 +84,13 @@ const EditProduct = () => {
 
   useEffect(() => {
     const getProductDetails = async () => {
+      if (!id) {
+        console.warn("EditProduct: missing product id in route params");
+        // Redirect back to products list when id is not present
+        navigate("/admin/products");
+        return;
+      }
+
       try {
         const { data } = await axios.get(`${URL}/admin/product/${id}`, {
           withCredentials: true,
@@ -90,11 +99,29 @@ const EditProduct = () => {
         setFetchedData({ ...data.product });
         setDuplicateFetchData({ ...data.product });
       } catch (error) {
-        console.log(error);
+        console.error("Failed fetching product details:", error);
+        // On error (404 / network), navigate back to product list
+        navigate("/admin/products");
       }
     };
+
     getProductDetails();
-  }, []);
+  }, [id]);
+
+  // Auto-compute offer percentage based on strike price (markup) vs current price
+  useEffect(() => {
+    setFetchedData((prev) => {
+      const p = Number(prev.price);
+      const m = Number(prev.markup);
+      if (!isNaN(p) && !isNaN(m) && m > 0) {
+        const off = Math.max(0, Math.round(((m - p) / m) * 100));
+        if (prev.offer !== off) return { ...prev, offer: off };
+      } else if (prev.offer !== 0) {
+        return { ...prev, offer: 0 };
+      }
+      return prev;
+    });
+  }, [fetchedData.price, fetchedData.markup]);
 
   const [newThumb, setNewThumb] = useState("");
   const handleSingleImageInput = (img) => {
@@ -118,6 +145,9 @@ const EditProduct = () => {
           fetchedData[key].forEach((item) => {
             formData.append("moreImageURL", item);
           });
+        } else if (key === "longDescription") {
+          // Ensure longDescription is submitted even if empty string
+          formData.append("longDescription", fetchedData.longDescription || "");
         } else {
           formData.append(key, fetchedData[key]);
         }
@@ -134,6 +164,15 @@ const EditProduct = () => {
     if (newThumb) {
       formData.append("imageURL", newThumb);
     }
+
+    // Ensure offer reflects markup (strike) vs price
+    const p = Number(fetchedData.price);
+    const m = Number(fetchedData.markup);
+    let computedOffer = 0;
+    if (!isNaN(p) && !isNaN(m) && m > 0) {
+      computedOffer = Math.max(0, Math.round(((m - p) / m) * 100));
+    }
+    formData.append("offer", computedOffer);
 
     dispatch(updateProduct({ id: id, formData: formData }));
     navigate(-1);
@@ -244,7 +283,7 @@ const EditProduct = () => {
                   <div className="bg-gray-100 py-5 rounded-lg text-center border-dashed border-2">
                     <div className="h-56">
                       <img
-                        src={`${URL}/img/${fetchedData.imageURL}`}
+                        src={getImageUrl(fetchedData.imageURL, URL)}
                         alt="im"
                         className="h-full w-full object-contain"
                       />
@@ -276,13 +315,23 @@ const EditProduct = () => {
                   value={fetchedData.name || ""}
                   onChange={handleInputChange}
                 />
-                <p className="admin-label">Description</p>
+                <p className="admin-label">Description (Short, max 125 chars)</p>
                 <textarea
                   name="description"
                   id="description"
-                  className="admin-input h-36"
-                  placeholder="Type product description here..."
+                  className="admin-input h-24"
+                  maxLength={125}
+                  placeholder="Type short product description here..."
                   value={fetchedData.description || ""}
+                  onChange={handleInputChange}
+                ></textarea>
+                <p className="admin-label mt-4">Additional Description (Long)</p>
+                <textarea
+                  name="longDescription"
+                  id="longDescription"
+                  className="admin-input h-36"
+                  placeholder="Type detailed product description here..."
+                  value={fetchedData.longDescription || ""}
                   onChange={handleInputChange}
                 ></textarea>
                 <p className="admin-label">Quantity</p>
@@ -309,7 +358,7 @@ const EditProduct = () => {
                         key={index}
                       >
                         <img
-                          src={`${URL}/img/${img}`}
+                          src={getImageUrl(img, URL)}
                           alt="img"
                           className="h-full w-full object-contain"
                         />
@@ -350,7 +399,7 @@ const EditProduct = () => {
               <CustomFileInput onChange={handleMultipleImageInput} />
             </div>
             {/* Attributes */}
-            <div className="admin-div">
+            {/* <div className="admin-div">
               <h1 className="font-bold mb-2">Product Attributes</h1>
               <form
                 className="flex flex-col lg:flex-row items-center gap-3"
@@ -490,41 +539,46 @@ const EditProduct = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </div> */}
           </div>
           {/* Pricing */}
           <div className="lg:w-2/6">
             <div className="admin-div">
               <h1 className="font-bold">Product Pricing</h1>
-              <p className="admin-label">Amount</p>
+              <p className="admin-label">Selling Price</p>
               <input
                 type="number"
                 name="price"
-                placeholder="Type product price here"
+                placeholder="Type product selling price here"
                 className="admin-input"
                 value={fetchedData.price || ""}
                 onChange={handleInputChange}
               />
-              <p className="admin-label">Markup</p>
+              <p className="admin-label">Cost Price</p>
               <input
-              hidden={true}
+                type="number"
+                name="costPrice"
+                placeholder="Type actual cost price here"
+                className="admin-input"
+                value={fetchedData.costPrice || ""}
+                onChange={handleInputChange}
+              />
+              <p className="admin-label">Strike Price (MRP)</p>
+              <input
                 type="number"
                 name="markup"
-                placeholder="Type product markup here"
+                placeholder="Type product strike price (MRP) here"
                 className="admin-input"
                 value={fetchedData.markup || ""}
                 onChange={handleInputChange}
               />
-              {/* <p className="admin-label">Offer</p> */}
+              <p className="admin-label">Discount (%)</p>
               <input
                 type="number"
                 name="offer"
-                placeholder="Type product offer here"
                 className="admin-input"
-                value={fetchedData.offer || ""}
-                min={1}
-                max={99}
-                onChange={handleInputChange}
+                value={fetchedData.offer || 0}
+                disabled
               />
             </div>
             <div className="admin-div">

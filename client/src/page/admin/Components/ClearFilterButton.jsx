@@ -4,7 +4,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 const ClearFilterButton = ({ handleClick }) => {
   return (
     <button
-      className="admin-button-fl bg-white hover:bg-gray-200 active:bg-gray-300"
+      className="admin-button-fl bg-white hover:bg-gray-200 active:bg-gray-300 rounded-full"
       onClick={handleClick}
     >
       <AiOutlineDelete />

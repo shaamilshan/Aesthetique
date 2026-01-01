@@ -61,7 +61,7 @@ const CustomFileInput = ({ onChange }) => {
         Drag and drop images here, or click add image
       </p>
       <button
-        className="bg-zinc-200 text-[#A53030] text-sm font-semibold py-2 px-4 rounded"
+        className="bg-zinc-200 text-black text-sm font-semibold py-2 px-4 rounded"
         onClick={handleButtonClick}
       >
         Add Image
@@ -97,7 +97,7 @@ const CustomFileInput = ({ onChange }) => {
             ))}
           </div>
           <button
-            className="mt-16 bg-red-500 text-white font-bold py-2 px-4 rounded"
+            className="mt-16 bg-black text-white font-bold py-2 px-4 rounded hover:bg-gray-900"
             onClick={handleClearFiles}
           >
             Clear Files

@@ -37,13 +37,39 @@ const readRevenueData = async (req, res) => {
         $unwind: "$products",
       },
       {
+        $lookup: {
+          from: "products",
+          localField: "products.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails",
+      },
+      {
+        $addFields: {
+          profit: {
+            $multiply: [
+              { 
+                $subtract: [
+                  "$products.price", 
+                  { $ifNull: ["$productDetails.costPrice", 0] }
+                ]
+              },
+              "$products.quantity",
+            ],
+          },
+        },
+      },
+      {
         $group: {
           _id: {
             date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
             orderId: "$_id",
           },
           totalSum: { $sum: "$totalPrice" },
-          totalMarkup: { $sum: "$products.markup" },
+          totalMarkup: { $sum: "$profit" },
         },
       },
       {
@@ -174,9 +200,35 @@ const readProfitData = async (req, res) => {
         $unwind: "$products",
       },
       {
+        $lookup: {
+          from: "products",
+          localField: "products.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails",
+      },
+      {
+        $addFields: {
+          profit: {
+            $multiply: [
+              { 
+                $subtract: [
+                  "$products.price", 
+                  { $ifNull: ["$productDetails.costPrice", 0] }
+                ]
+              },
+              "$products.quantity",
+            ],
+          },
+        },
+      },
+      {
         $group: {
           _id: null,
-          totalMarkupSum: { $sum: "$products.markup" },
+          totalMarkupSum: { $sum: "$profit" },
         },
       },
     ]);
@@ -191,11 +243,37 @@ const readProfitData = async (req, res) => {
         $unwind: "$products",
       },
       {
+        $lookup: {
+          from: "products",
+          localField: "products.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      {
+        $unwind: "$productDetails",
+      },
+      {
+        $addFields: {
+          profit: {
+            $multiply: [
+              { 
+                $subtract: [
+                  "$products.price", 
+                  { $ifNull: ["$productDetails.costPrice", 0] }
+                ]
+              },
+              "$products.quantity",
+            ],
+          },
+        },
+      },
+      {
         $group: {
           _id: {
             $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
           },
-          dailyMarkupSum: { $sum: "$products.markup" },
+          dailyMarkupSum: { $sum: "$profit" },
         },
       },
       {

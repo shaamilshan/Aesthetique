@@ -4,6 +4,7 @@ import date from "date-and-time";
 import { useNavigate } from "react-router-dom";
 import StatusComponent from "../../../../components/StatusComponent";
 import { URL } from "@common/api";
+import { getImageUrl } from "@/Common/functions";
 
 const TableRowEnquiries = ({ index, length, product,attr,attrvalue }) => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const TableRowEnquiries = ({ index, length, product,attr,attrvalue }) => {
         <div className="w-10 h-10 overflow-clip flex justify-center items-center shrink-0">
           {product.imageURL ? (
             <img
-              src={`${URL}/img/${product.imageURL}`}
+              src={getImageUrl(product.imageURL, URL)}
               alt="img"
               className="object-contain w-full h-full"
             />

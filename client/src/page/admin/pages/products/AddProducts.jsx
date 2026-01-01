@@ -33,15 +33,17 @@ const AddProducts = () => {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [longDescription, setLongDescription] = useState("");
   const [stockQuantity, setStockQuantity] = useState("");
   const [category, setCategory] = useState();
-  const [imageURL, setImageURL] = useState("");
+  const [imageURL, setImageURL] = useState(null);
   const [status, setStatus] = useState("Published");
   const [attributes, setAttributes] = useState([]);
   const [price, setPrice] = useState("");
+  const [costPrice, setCostPrice] = useState("");
   const [markup, setMarkup] = useState("");
-  const [moreImageURL, setMoreImageURL] = useState("");
-  const [offer, setOffer] = useState("");
+  const [moreImageURL, setMoreImageURL] = useState([]);
+  const [offer, setOffer] = useState(0);
 
   const handleSingleImageInput = (img) => {
     setImageURL(img);
@@ -62,26 +64,57 @@ const AddProducts = () => {
       toast.error("Price Should be greater than 0");
       return;
     }
+    if (costPrice && costPrice <= 0) {
+      toast.error("Cost Price Should be greater than 0");
+      return;
+    }
+    // Validate that at least one image is uploaded
+    if (!imageURL && (!moreImageURL || moreImageURL.length === 0)) {
+      toast.error("Please upload at least one product image");
+      return;
+    }
     // if (markup <= 0) {
     //   toast.error("Markup Should be greater than 0");
     //   return;
     // }
 
-    const formData = new FormData();
+  const formData = new FormData();
     formData.append("name", name);
-    formData.append("description", description);
+  formData.append("description", description);
+  formData.append("longDescription", longDescription);
     formData.append("stockQuantity", newStockQuantity);
     formData.append("attributes", JSON.stringify(attributes));
     formData.append("price", price);
-    formData.append("markup", markup);
+    if (costPrice) {
+      formData.append("costPrice", costPrice);
+    }
+    if (markup !== "" && markup !== null && markup !== undefined) {
+      formData.append("markup", markup);
+    }
     formData.append("category", category);
-    formData.append("offer", offer);
+    // compute offer percentage from strike price (markup) and price
+    const numericPrice = Number(price);
+    const numericMarkup = Number(markup);
+    let computedOffer = 0;
+    if (!isNaN(numericPrice) && !isNaN(numericMarkup) && numericMarkup > 0) {
+      computedOffer = Math.max(
+        0,
+        Math.round(((numericMarkup - numericPrice) / numericMarkup) * 100)
+      );
+    }
+    formData.append("offer", computedOffer);
     formData.append("status", status.toLowerCase());
 
-    formData.append("imageURL", imageURL);
+    // Only append imageURL if a file is selected
+    if (imageURL && imageURL instanceof File) {
+      formData.append("imageURL", imageURL);
+    }
 
-    for (const file of moreImageURL) {
-      formData.append("moreImageURL", file);
+    // Append multiple images
+    if (moreImageURL && moreImageURL.length > 0) {
+      for (const file of moreImageURL) {
+        formData.append("moreImageURL", file);
+      }
     }
 
     dispatch(createProduct(formData));
@@ -178,14 +211,24 @@ const AddProducts = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
-                <p className="admin-label">Description</p>
+                <p className="admin-label">Description (Short, max 125 chars)</p>
                 <textarea
                   name="description"
                   id="description"
-                  className="admin-input h-36"
-                  placeholder="Type product description here..."
+                  className="admin-input h-24"
+                  maxLength={125}
+                  placeholder="Type short product description here..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                ></textarea>
+                <p className="admin-label mt-4">Additional Description (Long)</p>
+                <textarea
+                  name="longDescription"
+                  id="longDescription"
+                  className="admin-input h-36"
+                  placeholder="Type detailed product description here..."
+                  value={longDescription}
+                  onChange={(e) => setLongDescription(e.target.value)}
                 ></textarea>
                 <p className="admin-label">Quantity</p>
                 <input
@@ -204,7 +247,7 @@ const AddProducts = () => {
               <CustomFileInput onChange={handleMultipleImageInput} />
             </div>
             {/* Attributes */}
-            <div className="admin-div">
+            {/* <div className="admin-div">
               <h1 className="font-bold mb-2">Product Attributes</h1>
               <form
                 className="flex flex-col lg:flex-row items-center gap-3"
@@ -272,38 +315,35 @@ const AddProducts = () => {
                   );
                 })}
               </div>
-            </div>
+            </div> */}
           </div>
           {/* Pricing */}
           <div className="lg:w-2/6">
             <div className="admin-div">
               <h1 className="font-bold">Product Pricing</h1>
-              <p className="admin-label">Amount</p>
+              <p className="admin-label">Selling Price</p>
               <input
                 type="number"
-                placeholder="Type product price here"
+                placeholder="Type product selling price here"
                 className="admin-input"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
-              <p className="admin-label">Markup</p>
+              <p className="admin-label">Cost Price</p>
               <input
-              hidden={true}
                 type="number"
-                placeholder="Type product markup here"
+                placeholder="Type actual cost price here"
+                className="admin-input"
+                value={costPrice}
+                onChange={(e) => setCostPrice(e.target.value)}
+              />
+              <p className="admin-label">Strike Price (MRP)</p>
+              <input
+                type="number"
+                placeholder="Type product strike price (MRP) here"
                 className="admin-input"
                 value={markup}
                 onChange={(e) => setMarkup(e.target.value)}
-              />
-              {/* <p className="admin-label">Offer</p> */}
-              <input
-                type="number"
-                placeholder="Type product markup here"
-                className="admin-input"
-                value={offer}
-                min={1}
-                max={100}
-                onChange={(e) => setOffer(e.target.value)}
               />
             </div>
             <div className="admin-div">

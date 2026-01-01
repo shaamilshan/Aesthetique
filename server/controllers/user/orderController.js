@@ -60,8 +60,8 @@ const updateProductList = async (id, count, attributes) => {
 
   // If decrementing, check for attribute quantities
   if (count < 0) {
-    // Check that attributes is a Map
-    if (attributes instanceof Map) {
+    // Check that attributes is a Map and has entries
+    if (attributes instanceof Map && attributes.size > 0) {
       for (let [key, value] of attributes) { // Destructure the Map
         const attribute = product.attributes.find(a => a.name === key && a.value === value);
         if (attribute) {
@@ -72,9 +72,9 @@ const updateProductList = async (id, count, attributes) => {
           throw new Error(`Attribute ${key}: ${value} not found for ${product.name}`);
         }
       }
-    } else {
-      throw new Error("Attributes must be provided when decrementing the quantity");
     }
+    // If attributes is an empty Map or not provided, we still allow the operation
+    // This handles products that don't have attributes or have simple stock management
   }
 
   // Update product stock quantity
@@ -148,7 +148,7 @@ const createOrder = async (req, res) => {
     let totalQuantity = 0;
 
     cart.items.map(async (item) => {
-      sum = sum + (item.product.price + item.product.markup) * item.quantity;
+      sum = sum + item.product.price * item.quantity;
       totalQuantity = totalQuantity + item.quantity;
     });
 
@@ -164,10 +164,10 @@ const createOrder = async (req, res) => {
     const products = cart.items.map((item) => ({
       productId: item.product._id,
       quantity: item.quantity,
-      totalPrice: item.product.price + item.product.markup,
+      totalPrice: item.product.price,
       price: item.product.price,
       markup: item.product.markup || 0,
-      attributes: item.attributes, // Include attributes here
+      attributes: item.attributes || new Map(), // Ensure attributes is always a Map
     }));
 
     let orderData = {
@@ -185,7 +185,7 @@ const createOrder = async (req, res) => {
           status: "pending",
         },
       ],
-      ...(notes ? notes : {}),
+  ...(notes ? { notes } : {}),
       ...(cart.coupon ? { coupon: cart.coupon } : {}),
       ...(cart.couponCode ? { couponCode: cart.couponCode } : {}),
       ...(cart.discount ? { discount: cart.discount } : {}),
@@ -220,7 +220,7 @@ const createOrder = async (req, res) => {
         console.log(order);
       }
 
-      sum = sum + (item.product.price + item.product.markup) * item.quantity;
+      sum = sum + item.product.price * item.quantity;
       totalQuantity = totalQuantity + item.quantity;
     });
 
@@ -326,12 +326,11 @@ const getOrders = async (req, res) => {
         deliveryDate: 0,
         user: 0,
         statusHistory: 0,
-        products: { $slice: 1 },
       }
     )
       .skip(skip)
       .limit(limit)
-      .populate("products.productId", { name: 1 })
+      .populate("products.productId", { name: 1, imageURL: 1 })
       .sort({ createdAt: -1 });
 
     const totalAvailableOrders = await Order.countDocuments({ user: _id });
@@ -388,13 +387,30 @@ const cancelOrder = async (req, res) => {
       "products.productId"
     );
 
+    // Do not allow cancellation if order has already been shipped or beyond
+    const nonCancellableStatuses = [
+      "shipped",
+      "delivered",
+      "cancelled",
+      "canceled",
+      "return request",
+      "return approved",
+      "pickup completed",
+      "returned",
+    ];
+
+    if (orderDetails && nonCancellableStatuses.includes(orderDetails.status)) {
+      return res.status(400).json({ error: "Order cannot be cancelled after it has been shipped." });
+    }
+
     const products = orderDetails.products.map((item) => ({
       productId: item.productId._id,
       quantity: item.quantity,
+      attributes: item.attributes || new Map(), // Ensure attributes is always a Map
     }));
 
     const updateProductPromises = products.map((item) => {
-      return updateProductList(item.productId, item.quantity,item.attributes);
+      return updateProductList(item.productId, item.quantity, item.attributes);
     });
 
     await Promise.all(updateProductPromises);
@@ -504,12 +520,46 @@ const requestReturn = async (req, res) => {
       find.orderId = id;
     }
 
-    const order = await Order.findOneAndUpdate(
+    // Find the order first to validate delivery date
+    const order = await Order.findOne(find);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Determine delivered date from statusHistory (use latest 'delivered' entry if present)
+    let deliveredAt = null;
+    if (Array.isArray(order.statusHistory) && order.statusHistory.length > 0) {
+      for (let i = order.statusHistory.length - 1; i >= 0; i--) {
+        const h = order.statusHistory[i];
+        if (h.status === "delivered") {
+          deliveredAt = h.date;
+          break;
+        }
+      }
+    }
+
+    // Fallback to deliveryDate field if present and no statusHistory entry
+    if (!deliveredAt && order.deliveryDate) {
+      deliveredAt = order.deliveryDate;
+    }
+
+    if (!deliveredAt) {
+      return res.status(400).json({ error: "Return can only be requested after delivery." });
+    }
+
+    const now = new Date();
+    const msDiff = now - new Date(deliveredAt);
+    const daysElapsed = msDiff / (1000 * 60 * 60 * 24);
+
+    if (daysElapsed > 7) {
+      return res.status(400).json({ error: "Return window expired. Returns are allowed only within 7 days of delivery." });
+    }
+
+    // Proceed to create a return request
+    const updated = await Order.findOneAndUpdate(
       find,
       {
-        $set: {
-          status: "return request",
-        },
+        $set: { status: "return request" },
         $push: {
           statusHistory: {
             status: "return request",
@@ -520,7 +570,8 @@ const requestReturn = async (req, res) => {
       },
       { new: true }
     );
-    res.status(200).json({ order });
+
+    res.status(200).json({ order: updated });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -541,13 +592,19 @@ const generateOrderInvoice = async (req, res) => {
 
     const order = await Order.findOne(find).populate("products.productId");
 
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
     const pdfBuffer = await generateInvoicePDF(order);
 
     // Set headers for the response
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+    res.setHeader("Content-Length", pdfBuffer.length);
 
-    res.status(200).end(pdfBuffer);
+    // Send buffer as response
+    res.status(200).send(pdfBuffer);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -605,8 +662,8 @@ const buyNow = async (req, res) => {
       throw Error("Insufficient Quantity");
     }
 
-    const sum = product.price + product.markup;
-    const sumWithTax = parseInt(sum);
+  const sum = product.price * quantity;
+  const sumWithTax = parseInt(sum);
     // const sumWithTax = parseInt(sum + sum * 0.08);
 
     // Request Body
@@ -621,7 +678,7 @@ const buyNow = async (req, res) => {
     products.push({
       productId: product._id,
       quantity: quantity,
-      totalPrice: product.price + product.markup,
+      totalPrice: product.price,
       price: product.price,
       markup: product.markup,
     });
@@ -630,7 +687,7 @@ const buyNow = async (req, res) => {
       user: _id,
       address: addressData,
       products: products,
-      subTotal: sum,
+  subTotal: sum,
       // tax: parseInt(sum * 0.08),
       tax: 0, // No tax
       totalPrice: sumWithTax,
@@ -641,14 +698,14 @@ const buyNow = async (req, res) => {
           status: "pending",
         },
       ],
-      ...(notes ? notes : {}),
+  ...(notes ? { notes } : {}),
       // ...(cart.coupon ? { coupon: cart.coupon } : {}),
       // ...(cart.couponCode ? { couponCode: cart.couponCode } : {}),
       // ...(cart.discount ? { discount: cart.discount } : {}),
       // ...(cart.type ? { couponType: cart.type } : {}),
     };
 
-    await updateProductList(id, -quantity);
+    await updateProductList(id, -quantity, new Map());
 
     const order = await Order.create(orderData);
 

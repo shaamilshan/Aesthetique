@@ -334,17 +334,57 @@ const generateOrderInvoice = async (req, res) => {
 
     const order = await Order.findOne(find).populate("products.productId");
 
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
     const pdfBuffer = await generateInvoicePDF(order);
 
     // Set headers for the response
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+    res.setHeader("Content-Length", pdfBuffer.length);
 
-    res.status(200).end(pdfBuffer);
+    // Send buffer as response
+    res.status(200).send(pdfBuffer);
   } catch (error) {
     console.log(error);
     
     res.status(400).json({ error: error.message, err: "err" });
+  }
+};
+
+// Get Latest Orders for Dashboard (minimum 5, maximum available)
+const getLatestOrders = async (req, res) => {
+  try {
+    let filter = {};
+
+    filter.status = {
+      $in: [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "returned",
+      ],
+    };
+
+    const orders = await Order.find(filter, {
+      address: 0,
+      statusHistory: 0,
+      products: { $slice: 1 },
+    })
+      .limit(10)
+      .populate("user", { firstName: 1, lastName: 1 })
+      .populate("products.productId", { imageURL: 1, name: 1 })
+      .sort({ createdAt: -1 });
+
+    const totalAvailableOrders = await Order.countDocuments(filter);
+
+    res.status(200).json({ orders, totalAvailableOrders });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -363,6 +403,7 @@ module.exports = {
   getOrders,
   getManagerOrders,
   getManagerOrder,
+  getLatestOrders,
   clearOrder,
   updateOrderStatus,
   getOrder,

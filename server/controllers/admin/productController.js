@@ -74,25 +74,47 @@ const getProduct = async (req, res) => {
 const addProduct = async (req, res) => {
   try {
     let formData = { ...req.body, isActive: true };
+    // Ensure longDescription is present (for new/old forms)
+    if (typeof formData.longDescription === 'undefined') {
+      formData.longDescription = '';
+    }
     const files = req?.files;
 
-    const attributes = JSON.parse(formData.attributes);
+  const attributes = JSON.parse(formData.attributes);
 
     formData.attributes = attributes;
 
     if (files && files.length > 0) {
       formData.moreImageURL = [];
       formData.imageURL = "";
-      files.map((file) => {
+      
+      files.forEach((file) => {
+        const fileRef = file.path || file.filename;
         if (file.fieldname === "imageURL") {
-          formData.imageURL = file.filename;
-        } else {
-          formData.moreImageURL.push(file.filename);
+          formData.imageURL = fileRef;
+        } else if (file.fieldname === "moreImageURL") {
+          formData.moreImageURL.push(fileRef);
         }
       });
+      
+      // If no explicit thumbnail (imageURL) was provided, use the first image as thumbnail
+      if (!formData.imageURL && formData.moreImageURL.length > 0) {
+        formData.imageURL = formData.moreImageURL[0];
+      }
     }
 
-    const product = await Product.create(formData);
+    // Derive offer from strike price (markup) and price if possible
+    if (formData.price !== undefined && formData.markup !== undefined) {
+      const p = Number(formData.price);
+      const m = Number(formData.markup);
+      if (!isNaN(p) && !isNaN(m) && m > 0) {
+        formData.offer = Math.max(0, Math.round(((m - p) / m) * 100));
+      } else {
+        formData.offer = 0;
+      }
+    }
+
+  const product = await Product.create(formData);
 
     res.status(200).json({ product });
   } catch (error) {
@@ -105,6 +127,10 @@ const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const formData = req.body;
+    // Ensure longDescription is present (for new/old forms)
+    if (typeof formData.longDescription === 'undefined') {
+      formData.longDescription = '';
+    }
     console.log("Updation: ", formData);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -125,12 +151,13 @@ const updateProduct = async (req, res) => {
       let newImageURL = existingProduct.imageURL; // Keep existing thumbnail
 
       files.map((file) => {
+        const fileRef = file.path || file.filename;
         if (file.fieldname === "imageURL") {
           // Update the thumbnail image only if a new one is provided
-          newImageURL = file.filename;
+          newImageURL = fileRef;
         } else {
           // Append new images to the existing array
-          newMoreImageURL.push(file.filename);
+          newMoreImageURL.push(fileRef);
         }
       });
 
@@ -150,6 +177,17 @@ const updateProduct = async (req, res) => {
     if (formData.attributes) {
       const attributes = JSON.parse(formData.attributes);
       formData.attributes = attributes;
+    }
+
+    // Derive offer when price/markup are present in update
+    if (formData.price !== undefined || formData.markup !== undefined) {
+      const p = formData.price !== undefined ? Number(formData.price) : Number(existingProduct.price);
+      const m = formData.markup !== undefined ? Number(formData.markup) : Number(existingProduct.markup);
+      if (!isNaN(p) && !isNaN(m) && m > 0) {
+        formData.offer = Math.max(0, Math.round(((m - p) / m) * 100));
+      } else {
+        formData.offer = 0;
+      }
     }
 
     // Update the product in the database

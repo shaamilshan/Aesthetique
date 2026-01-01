@@ -10,7 +10,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import JustLoading from "../../../components/JustLoading";
 
-const CartProductRow = ({ item, isLast, toggleProductConfirm }) => {
+const CartProductRow = ({ item, toggleProductConfirm }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { cartId, countLoading } = useSelector((state) => state.cart);
@@ -32,64 +32,86 @@ const CartProductRow = ({ item, isLast, toggleProductConfirm }) => {
   };
 
   return (
-    <tr className={isLast ? "" : "border-b"}>
-      <td
-        className="cart-table-row hover:underline cursor-pointer hover:text-blue-500"
-        onClick={() => navigate(`/product/${item.product._id}`)}
-      >
-        <div className="flex items-center gap-3 w-full">
+    <div className="py-6 first:pt-0 last:pb-0">
+      <div className="flex gap-4 sm:gap-6">
+        {/* Product Image */}
+        <div 
+          className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 cursor-pointer"
+          onClick={() => navigate(`/product/${item.product._id}`)}
+        >
           {item.product.imageURL ? (
-            <div className="w-10 h-10 shrink-0">
-              <img
-                src={`${URL}/img/${item.product.imageURL}`}
-                alt="Product"
-                className="h-full w-full object-contain"
-              />
-            </div>
+            <img
+              src={`${URL}/img/${item.product.imageURL}`}
+              alt={item.product.name}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            />
           ) : (
-            <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+            <div className="w-full h-full bg-gray-200"></div>
           )}
+        </div>
+
+        {/* Product Details */}
+        <div className="flex-1 flex flex-col justify-between min-w-0">
           <div>
-            <p className="line-clamp-1">{item.product.name}</p>
-            {/* Displaying attributes */}
-            {item.attributes && (
-              <div className="text-sm text-gray-500">
+            <h3 
+              className="font-medium text-sm sm:text-base line-clamp-2 cursor-pointer hover:text-gray-600 transition-colors"
+              onClick={() => navigate(`/product/${item.product._id}`)}
+            >
+              {item.product.name}
+            </h3>
+            
+            {/* Attributes */}
+            {item.attributes && Object.keys(item.attributes).length > 0 && (
+              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
                 {Object.entries(item.attributes).map(([key, value]) => (
-                  <p key={key}>
-                    <span className="font-medium">{key}:</span> {value}
-                  </p>
+                  <span key={key} className="text-xs sm:text-sm text-gray-500">
+                    {key}: {value}
+                  </span>
                 ))}
               </div>
             )}
+
+            {/* Price - moved to right column for consistent alignment */}
+          </div>
+
+          {/* Bottom Row - Quantity (delete moved to right column) */}
+          <div className="flex items-center mt-3 sm:mt-0">
+            <div className="flex items-center gap-3">
+              {countLoading ? (
+                <JustLoading size={6} />
+              ) : (
+                <Quantity
+                  count={item.quantity}
+                  increment={() => dispatchIncrement(item)}
+                  decrement={() => dispatchDecrement(item)}
+                  minimal={true}
+                />
+              )}
+            </div>
           </div>
         </div>
-      </td>
-      <td className="cart-table-row">
-        {item.product.price + item.product.markup}
-      </td>
-      <td className="cart-table-row w-36">
-        {countLoading ? (
-          <JustLoading size={10} />
-        ) : (
-          <Quantity
-            count={item.quantity}
-            increment={() => dispatchIncrement(item)}
-            decrement={() => dispatchDecrement(item)}
-          />
-        )}
-      </td>
-      <td className="cart-table-row">
-        {(item.product.price + item.product.markup) * item.quantity}
-      </td>
-      <td>
-        <div
-          onClick={() => toggleProductConfirm(item.product._id)}
-          className="cursor-pointer"
-        >
-          <AiOutlineDelete className="text-xl" />
+        {/* Right column: Price, Total and Delete - always visible to align actions to row end */}
+        <div className="flex flex-col items-end justify-between min-w-[72px]">
+          {(() => {
+            const strike = item.product.originalPrice ?? item.product.markup ?? null;
+            const hasStrike = strike && Number(strike) > Number(item.product.price);
+            return (
+              <div className="text-right">
+                <div className="font-medium">₹{Number(item.product.price).toLocaleString()}{hasStrike && (<span className="text-xs text-gray-500 line-through ml-2">₹{Number(strike).toLocaleString()}</span>)}</div>
+                <div className="text-sm text-gray-500">Total: <span className="font-medium text-black">₹{Number(item.product.price * item.quantity).toLocaleString()}</span></div>
+              </div>
+            );
+          })()}
+
+          <button
+            onClick={() => toggleProductConfirm(item.product._id)}
+            className="mt-2 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <AiOutlineDelete className="text-lg sm:text-xl" />
+          </button>
         </div>
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 };
 

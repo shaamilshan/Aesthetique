@@ -150,7 +150,7 @@ const EditCategory = () => {
                     />
                   )}
                   <ErrorMessage
-                    className="text-sm text-red-500"
+                    className="text-sm text-black"
                     name="imageURL"
                     component="span"
                   />
@@ -172,7 +172,7 @@ const EditCategory = () => {
                   <ErrorMessage
                     name="isActive"
                     component="div"
-                    className="text-red-500"
+                    className="text-black"
                   />
                   <p>
                     <label htmlFor="title" className="admin-label">
@@ -185,7 +185,7 @@ const EditCategory = () => {
                     className="admin-input"
                   />
                   <ErrorMessage
-                    className="text-sm text-red-500"
+                    className="text-sm text-black"
                     name="title"
                     component="span"
                   />
@@ -202,7 +202,7 @@ const EditCategory = () => {
                     placeholder="Type the category description here"
                   />
                   <ErrorMessage
-                    className="text-sm text-red-500"
+                    className="text-sm text-black"
                     name="description"
                     component="span"
                   />

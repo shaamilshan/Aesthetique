@@ -8,6 +8,7 @@ import Quantity from "./components/Quantity";
 import toast from "react-hot-toast";
 import { URL } from "../../Common/api";
 import { config } from "../../Common/configurations";
+import { getImageUrl } from "../../Common/functions";
 import { useDispatch, useSelector } from "react-redux";
 import { addToWishlist } from "../../redux/actions/user/wishlistActions";
 import ProductDetailsStarAndRating from "./components/ProductDetailsStarAndRating";
@@ -82,6 +83,7 @@ const ProductDetails = () => {
         {
           product: id,
           quantity: count,
+          attributes: {},
         },
         { ...config, withCredentials: true }
       )
@@ -114,7 +116,7 @@ const ProductDetails = () => {
               <div className="w-80 h-80 lg:w-96 lg:h-96 hidden lg:block">
                 {currentImage && (
                   <ImageZoom
-                    imageUrl={`${URL}/img/${currentImage}`}
+                    imageUrl={getImageUrl(currentImage, URL)}
                     width={400}
                     zoomedValue={820}
                     zoomedWidth={500}
@@ -124,7 +126,7 @@ const ProductDetails = () => {
               <div className="w-80 lg:w-96 lg:h-96 lg:hidden mx-auto">
                 {currentImage && (
                   <img
-                    src={`${URL}/img/${currentImage}`}
+                    src={getImageUrl(currentImage, URL)}
                     alt="Product"
                     className="w-60 h-60 object-cover"
                   />
@@ -146,7 +148,15 @@ const ProductDetails = () => {
                       <img
                         className="w-full h-full object-contain"
                         key={i}
-                        src={`${URL}/img/${image}`}
+                        src={getImageUrl(image, URL)}
+                        alt={`Product view ${i + 1}`}
+                        onError={(e) => {
+                          // Log failing thumbnail URL for debugging on hosted environments
+                          console.warn("Thumbnail failed to load:", e.target.src);
+                          // Fallback to main image or a placeholder to avoid broken icon
+                          e.target.onerror = null;
+                          e.target.src = getImageUrl(product.imageURL || currentImage, URL) || "/fallback-product.png";
+                        }}
                       />
                     </div>
                   ))}
@@ -186,22 +196,21 @@ const ProductDetails = () => {
                 </p>
               </div>
               <p className="text-xl font-semibold my-2">
-                <span className="text-blue-600">
-                  {product.price + product.markup}₹
-                </span>
-                {"  "}
-                {product.offer && (
+                <span className="text-blue-600">{product.price}₹</span>
+                {product.markup && product.markup > product.price && (
                   <>
-                    <span className="text-gray-500 line-through">
-                      {parseInt(
-                        ((product.price + product.markup) *
-                          (product.offer + 100)) /
-                          100
-                      )}
-                      ₹
+                    <span className="text-gray-500 line-through ml-3">
+                      {product.markup}₹
                     </span>
                     <span className="bg-orange-500 px-3 py-1 ml-5 text-base rounded">
-                      {product.offer}%Off
+                      {Math.max(
+                        0,
+                        Math.round(
+                          ((Number(product.markup) - Number(product.price)) /
+                            Number(product.markup)) *
+                            100
+                        )
+                      )}%Off
                     </span>
                   </>
                 )}

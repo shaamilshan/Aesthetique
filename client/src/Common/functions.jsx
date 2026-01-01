@@ -81,3 +81,23 @@ export const modifyPaymentModeText = (mode) => {
     return "My Wallet";
   }
 };
+
+// Get proper image URL - handles both local and Cloudinary URLs
+export const getImageUrl = (imageUrl, baseUrl) => {
+  if (!imageUrl) return '';
+  
+  // If the image URL is already a complete URL (Cloudinary), use it directly
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // Normalize baseUrl and handle whether it already contains '/api'
+  const normalizedBase = (baseUrl || '').replace(/\/$/, '');
+
+  if (normalizedBase.endsWith('/api')) {
+    return `${normalizedBase}/img/${imageUrl}`; // results in /api/img/...
+  }
+
+  // If baseUrl doesn't include '/api', assume we need to add it
+  return `${normalizedBase}/api/img/${imageUrl}`;
+};

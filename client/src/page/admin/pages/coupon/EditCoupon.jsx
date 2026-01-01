@@ -143,7 +143,7 @@ const CreateCoupon = () => {
                 className="admin-input uppercase"
               />
               <ErrorMessage
-                className="text-sm text-red-500"
+                className="text-sm text-black"
                 name="code"
                 component="span"
               />
@@ -160,7 +160,7 @@ const CreateCoupon = () => {
                 placeholder="Type the coupon description here"
               />
               <ErrorMessage
-                className="text-sm text-red-500"
+                className="text-sm text-black"
                 name="description"
                 component="span"
               />
@@ -177,7 +177,7 @@ const CreateCoupon = () => {
               <ErrorMessage
                 name="type"
                 component="div"
-                className="text-red-500"
+                className="text-black"
               />
             </div>
 
@@ -199,7 +199,7 @@ const CreateCoupon = () => {
                 <ErrorMessage
                   name="isActive"
                   component="div"
-                  className="text-red-500"
+                  className="text-black"
                 />
                 <p>
                   <label htmlFor="used" className="admin-label">
@@ -214,7 +214,7 @@ const CreateCoupon = () => {
                 <ErrorMessage
                   name="used"
                   component="div"
-                  className="text-red-500"
+                  className="text-black"
                 />
               </div>
 
@@ -230,7 +230,7 @@ const CreateCoupon = () => {
                   className="admin-input"
                 />
                 <ErrorMessage
-                  className="text-sm text-red-500"
+                  className="text-sm text-black"
                   name="value"
                   component="span"
                 />
@@ -248,7 +248,7 @@ const CreateCoupon = () => {
                   className="admin-input"
                 />
                 <ErrorMessage
-                  className="text-sm text-red-500"
+                  className="text-sm text-black"
                   name="minimumPurchaseAmount"
                   component="span"
                 />
@@ -263,7 +263,7 @@ const CreateCoupon = () => {
                   className="admin-input"
                 />
                 <ErrorMessage
-                  className="text-sm text-red-500"
+                  className="text-sm text-black"
                   name="maximumUses"
                   component="span"
                 />
@@ -282,7 +282,7 @@ const CreateCoupon = () => {
                   className="admin-input"
                 />
                 <ErrorMessage
-                  className="text-sm text-red-500"
+                  className="text-sm text-black"
                   name="expirationDate"
                   component="span"
                 />

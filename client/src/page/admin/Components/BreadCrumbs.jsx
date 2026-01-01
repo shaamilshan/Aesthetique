@@ -11,7 +11,7 @@ const BreadCrumbs = ({ list }) => {
         >
           <p
             className={`font-semibold ${
-              index === list.length - 1 && "text-[#A53030]"
+              index === list.length - 1 && "text-black"
             }`}
           >
             {li}

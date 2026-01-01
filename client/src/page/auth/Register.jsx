@@ -3,34 +3,46 @@ import SignUpBG from "../../assets/authentication/registerbg.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signUpUser } from "../../redux/actions/userActions";
-import { Formik, Form, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import InputWithIcon from "../../components/InputWithIcon";
-import PasswordInputWithIcon from "../../components/PasswordInputWithIcon";
-import CustomSingleFileInput from "../../components/CustomSingleFileInput";
-import OTPEnterSection from "./Register/OTPEnterSection";
-import OTPExpired from "./components/OTPExpired";
+// ...existing code...
 import { toast } from "react-hot-toast";
 import { appJson } from "../../Common/configurations";
 import { commonRequest } from "../../Common/api";
 import { updateError } from "../../redux/reducers/userSlice";
-import {
-  AiOutlineLock,
-  AiOutlineMail,
-  AiOutlinePhone,
-  AiOutlineUser,
-} from "react-icons/ai";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Eye, EyeOff } from "lucide-react";
+import siteLogo from "../../assets/others/bm-logo.png";
+import TestimonialCarousel from "../../components/TestimonialCarousel";
 
 const Register = () => {
   const { user, loading, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [emailSec, setEmailSec] = useState(true);
-  const [otpSec, setOTPSec] = useState(false);
-  const [otpExpired, setOTPExpired] = useState(false);
-  const [otpLoading, setOTPLoading] = useState(false);
-  const [data, setData] = useState({});
+  const [loadingLocal, setLoadingLocal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const registerTestimonials = [
+    {
+      quote: "Join thousands of satisfied customers who trust BM AESTHETIQUE for quality and style. The registration process was seamless and secure.",
+      author: "Customer Review",
+      title: "Verified Buyer"
+    },
+    {
+      quote: "Creating an account opened up a world of premium beauty products. The user experience is exceptional from day one.",
+      author: "Emma Rodriguez",
+      title: "Beauty Enthusiast"
+    },
+    {
+      quote: "The sign-up was quick and easy. Now I have access to exclusive deals and personalized recommendations. Highly recommended!",
+      author: "David Kim",
+      title: "Loyal Customer"
+    }
+  ];
 
   useEffect(() => {
     if (user) {
@@ -57,10 +69,7 @@ const Register = () => {
     email: Yup.string().email().required("Email is required"),
     password: Yup.string()
       .required("Password is required")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
-        "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character"
-      ),
+      .min(6, "Password must be at least 6 characters long"),
     passwordAgain: Yup.string()
       .required("Password is required")
       .oneOf([Yup.ref("password"), null], "Password must match"),
@@ -69,157 +78,191 @@ const Register = () => {
       .moreThan(999999999, "Not valid phone number"),
   });
 
-  const dispatchSignUp = () => {
-    let formData = new FormData();
-    formData.append("firstName", data.firstName);
-    formData.append("lastName", data.lastName);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("passwordAgain", data.passwordAgain);
-    formData.append("phoneNumber", data.phoneNumber);
-    if (data.profileImgURL) {
-      formData.append("profileImgURL", data.profileImgURL);
-    }
-
-    dispatch(signUpUser(formData));
-  };
+  // ...existing code...
 
   const handleRegister = async (value) => {
-    setOTPLoading(true);
-    setData(value);
-
+    setLoadingLocal(true);
     try {
-      const res = await commonRequest(
-        "POST",
-        "/auth/send-otp",
-        { email: value.email },
-        appJson
-      );
-
-      if (res.success) {
-        setEmailSec(false);
-        setOTPSec(true);
-        toast.success("OTP sent successfully!");
-      } else {
-        throw new Error(res.response.data.error || "OTP request failed");
+      let formData = new FormData();
+      formData.append("firstName", value.firstName);
+      formData.append("lastName", value.lastName);
+      formData.append("email", value.email);
+      formData.append("password", value.password);
+      formData.append("passwordAgain", value.passwordAgain);
+      formData.append("phoneNumber", value.phoneNumber);
+      if (value.profileImgURL) {
+        formData.append("profileImgURL", value.profileImgURL);
       }
+      dispatch(signUpUser(formData));
     } catch (err) {
-      toast.error(err.message || "An error occurred while sending OTP");
+      toast.error(err.message || "An error occurred while signing up");
     } finally {
-      setOTPLoading(false);
+      setLoadingLocal(false);
     }
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-gray-50">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={SignUpBG}
-          alt="Sign Up Background"
-          className="w-full h-full object-cover"
-        />
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-6xl mx-4">
+        <div className="flex bg-white shadow-lg overflow-hidden rounded-lg">
+          {/* Left: form panel */}
+          <div className="w-full lg:w-1/2 p-8 md:p-12">
+            <div className="flex items-center gap-3 mb-6">
+              <img src={siteLogo} alt="logo" className="h-10 w-auto object-contain" />
+              <h2 className="text-lg font-semibold">BM AESTHETIQUE</h2>
+            </div>
+            <h1 className="text-3xl font-bold mb-6">Create your account</h1>
 
-      {/* Form Container */}
-      <div className="relative z-10 bg-white p-8 rounded-none shadow-lg w-full max-w-lg mx-4" style={{ borderRadius: 0 }}>
-        <h1 className="text-4xl font-bold mb-6 text-center">Sign Up</h1>
+            <Formik
+              initialValues={initialValues}
+              onSubmit={handleRegister}
+              validationSchema={validationSchema}
+            >
+              {({ values, setFieldValue }) => (
+                <Form className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* First Name Field */}
+                    <div className="space-y-2">
+                      <label htmlFor="firstName" className="text-sm font-medium leading-none">
+                        First Name
+                      </label>
+                      <Field
+                        as={Input}
+                        id="firstName"
+                        name="firstName"
+                        placeholder="Enter your first name"
+                        className="h-12"
+                      />
+                      <ErrorMessage name="firstName" component="p" className="text-red-500 text-sm" />
+                    </div>
 
-        {emailSec && (
-          <Formik
-            initialValues={initialValues}
-            onSubmit={handleRegister}
-            validationSchema={validationSchema}
-          >
-            {({ values, setFieldValue }) => (
-              <Form className="space-y-6">
-                {/* First Name Field */}
-                <InputWithIcon
-                  icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="First Name"
-                  name="firstName"
-                  placeholder="Enter your first name"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
+                    {/* Last Name Field */}
+                    <div className="space-y-2">
+                      <label htmlFor="lastName" className="text-sm font-medium leading-none">
+                        Last Name
+                      </label>
+                      <Field
+                        as={Input}
+                        id="lastName"
+                        name="lastName"
+                        placeholder="Enter your last name"
+                        className="h-12"
+                      />
+                      <ErrorMessage name="lastName" component="p" className="text-red-500 text-sm" />
+                    </div>
 
-                {/* Last Name Field */}
-                <InputWithIcon
-                  icon={<AiOutlineUser className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Last Name"
-                  name="lastName"
-                  placeholder="Enter your last name"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
+                    {/* Phone Number Field */}
+                    <div className="space-y-2">
+                      <label htmlFor="phoneNumber" className="text-sm font-medium leading-none">
+                        Phone Number
+                      </label>
+                      <Field
+                        as={Input}
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        placeholder="Enter your phone number"
+                        className="h-12"
+                      />
+                      <ErrorMessage name="phoneNumber" component="p" className="text-red-500 text-sm" />
+                    </div>
 
-                {/* Phone Number Field */}
-                <InputWithIcon
-                  icon={<AiOutlinePhone className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Phone Number"
-                  name="phoneNumber"
-                  placeholder="Enter your phone number"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
+                    {/* Email Field */}
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="text-sm font-medium leading-none">
+                        Email
+                      </label>
+                      <Field
+                        as={Input}
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        type="email"
+                        className="h-12"
+                      />
+                      <ErrorMessage name="email" component="p" className="text-red-500 text-sm" />
+                    </div>
 
-                {/* Email Field */}
-                <InputWithIcon
-                  icon={<AiOutlineMail className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Email"
-                  name="email"
-                  placeholder="Enter your email"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
+                    {/* Password Field */}
+                    <div className="space-y-2">
+                      <label htmlFor="password" className="text-sm font-medium leading-none">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <Field
+                          as={Input}
+                          id="password"
+                          name="password"
+                          placeholder="Enter your password"
+                          type={showPassword ? "text" : "password"}
+                          className="h-12 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                      </div>
+                      <ErrorMessage name="password" component="p" className="text-red-500 text-sm" />
+                    </div>
 
-                {/* Password Field */}
-                <PasswordInputWithIcon
-                  icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Password"
-                  name="password"
-                  placeholder="Enter your password"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
+                    {/* Confirm Password Field */}
+                    <div className="space-y-2">
+                      <label htmlFor="passwordAgain" className="text-sm font-medium leading-none">
+                        Confirm Password
+                      </label>
+                      <div className="relative">
+                        <Field
+                          as={Input}
+                          id="passwordAgain"
+                          name="passwordAgain"
+                          placeholder="Confirm your password"
+                          type={showConfirmPassword ? "text" : "password"}
+                          className="h-12 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                      </div>
+                      <ErrorMessage name="passwordAgain" component="p" className="text-red-500 text-sm" />
+                    </div>
+                  </div>
 
-                {/* Confirm Password Field */}
-                <PasswordInputWithIcon
-                  icon={<AiOutlineLock className="text-gray-500 group-hover:text-gray-700 transition duration-200" />}
-                  // title="Confirm Password"
-                  name="passwordAgain"
-                  placeholder="Confirm your password"
-                  className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-[#C84332] shadow-sm"
-                />
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    className="h-12 w-full bg-black text-white hover:bg-white hover:text-black hover:border-2 hover:border-black rounded-full transition duration-300"
+                    disabled={loadingLocal}
+                  >
+                    {loadingLocal ? "Loading..." : "Sign Up"}
+                  </Button>
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  className="h-12 w-full bg-gradient-to-r from-[#C84332] to-red-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-300"
-                  disabled={otpLoading}
-                >
-                  {otpLoading ? "Loading..." : "Sign Up"}
-                </button>
+                  {/* Error Message */}
+                  {error && <p className="text-red-500 text-sm text-center mt-4">{error}</p>}
+                </Form>
+              )}
+            </Formik>
 
-                {/* Error Message */}
-                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-              </Form>
-            )}
-          </Formik>
-        )}
+            <p className="mt-6 text-sm">
+              Already have an account?{" "}
+              <Link to="/login" className="font-medium text-primary hover:underline">
+                Login now
+              </Link>
+            </p>
+          </div>
 
-        {otpSec && (
-          <OTPEnterSection
-            email={data.email}
-            setOTPExpired={setOTPExpired}
-            setOTPSec={setOTPSec}
-            dispatchSignUp={dispatchSignUp}
-          />
-        )}
-
-        {otpExpired && <OTPExpired />}
-
-        <p className="mt-6 text-center text-sm">
-          Already have an account?{" "}
-          <Link to="/login" className="font-medium text-primary hover:underline">
-            Login now
-          </Link>
-        </p>
+          {/* Right: image + testimonial carousel */}
+          <div className="hidden lg:block lg:w-1/2 relative bg-gray-100">
+            <img src={SignUpBG} alt="auth" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/30"></div>
+            <TestimonialCarousel testimonials={registerTestimonials} />
+          </div>
+        </div>
       </div>
     </div>
   );

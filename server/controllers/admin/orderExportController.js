@@ -48,25 +48,28 @@ const generateOrderExcel = async (req, res) => {
     ]);
 
     orders.map((item) => {
-      const productsDetails = item.products
+      const productsDetails = (item.products || [])
         .map((product) => {
-          return `${product.productId.name} (${product.quantity} units, ₹${product.price} each)`;
+          const name = product?.productId?.name || "(product removed)";
+          const qty = product?.quantity ?? "-";
+          const price = product?.price ?? "-";
+          return `${name} (${qty} units, ₹${price} each)`;
         })
         .join("\n");
 
       const row = {
-        _id: item._id.toString(),
-        "user._id": item.user._id.toString(),
-        "user.firstName": item.user.firstName + " " + item.user.lastName,
-        "user.email": item.user.email,
-        status: item.status,
-        "address.address": item.address.address,
-        "address.city": item.address.city,
+        _id: item._id ? item._id.toString() : "",
+        "user._id": item.user?._id ? item.user._id.toString() : "",
+        "user.firstName": (item.user?.firstName || "") + (item.user?.lastName ? " " + item.user.lastName : ""),
+        "user.email": item.user?.email || "",
+        status: item.status || "",
+        "address.address": item.address?.address || "",
+        "address.city": item.address?.city || "",
         products: productsDetails,
-        subTotal: item.subTotal,
-        shipping: item.shipping,
-        tax: item.tax,
-        totalPrice: item.totalPrice,
+        subTotal: item.subTotal ?? "",
+        shipping: item.shipping ?? "",
+        tax: item.tax ?? "",
+        totalPrice: item.totalPrice ?? "",
       };
 
       worksheet.addRow(row);
@@ -133,25 +136,28 @@ const generateOrderCSV = async (req, res) => {
     csvData.push(headers);
 
     orders.forEach((item) => {
-      const productsDetails = item.products
+      const productsDetails = (item.products || [])
         .map((product) => {
-          return `${product.productId.name} (${product.quantity} units, ₹${product.price} each)`;
+          const name = product?.productId?.name || "(product removed)";
+          const qty = product?.quantity ?? "-";
+          const price = product?.price ?? "-";
+          return `${name} (${qty} units, ₹${price} each)`;
         })
         .join("\n");
 
       const row = [
-        item._id.toString(),
-        item.user._id.toString(),
-        item.user.firstName + " " + item.user.lastName,
-        item.user.email,
-        item.status,
-        item.address.address,
-        item.address.city,
+        item._id ? item._id.toString() : "",
+        item.user?._id ? item.user._id.toString() : "",
+        (item.user?.firstName || "") + (item.user?.lastName ? " " + item.user.lastName : ""),
+        item.user?.email || "",
+        item.status || "",
+        item.address?.address || "",
+        item.address?.city || "",
         productsDetails,
-        item.subTotal,
-        item.shipping,
-        item.tax,
-        item.totalPrice,
+        item.subTotal ?? "",
+        item.shipping ?? "",
+        item.tax ?? "",
+        item.totalPrice ?? "",
       ];
 
       csvData.push(row);
@@ -179,7 +185,8 @@ const generateOrderCSV = async (req, res) => {
 const generatePDF = async (orderData) => {
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ margin: 50 });
+  // Use a wider page (A4 landscape) so table content fits horizontally
+  const doc = new PDFDocument({ size: "A4", layout: "landscape", margin: 50 });
 
       const buffers = [];
       doc.on("data", (buffer) => buffers.push(buffer));
@@ -189,42 +196,56 @@ const generatePDF = async (orderData) => {
       doc.text("Order History", { align: "center", fontSize: 18 }).moveDown();
 
       // Headers
-      const headers = [
-        "_id",
-        "user._id",
-        "user.firstName",
-        "user.email",
-        "status",
-        "address.address",
-        "address.city",
-        "subTotal",
-        "shipping",
-        "tax",
-        "totalPrice",
+      // Keep only the requested fields in the PDF: Username, Status, Address, Total Price
+      // Define columns with label and key so we can show friendly headers and map data
+      const columns = [
+        { label: "Name", key: "user.firstName" },
+        { label: "Email", key: "user.email" },
+        { label: "Status", key: "status" },
+        { label: "Address", key: "address.address" },
+        { label: "Price", key: "totalPrice" },
       ];
 
-      // Calculate column widths
-      const columnWidths = headers.map((header) =>
+      // Calculate column widths based on labels and data (approximate pixel widths)
+      const columnCharWidths = columns.map((col) =>
         Math.max(
-          header.length,
-          ...orderData.map((item) => String(item[header]).length)
+          col.label.length,
+          ...orderData.map((item) => String(item[col.key] || "").length)
         )
       );
 
-      // Table row with bottom line
+      // Convert character counts to approximate pixel widths and add padding
+      const pixelWidths = columnCharWidths.map((w) => w * 7 + 24); // ~7px per char + padding
+
+      // Add extra gap between Email (index 1) and Status (index 2)
+      const extraGapAfterEmail = 40;
+
+      // Compute x positions for each column
+      const startX = 50;
+      const xPositions = [];
+      (function computeXPositions() {
+        let x = startX;
+        for (let i = 0; i < pixelWidths.length; i++) {
+          xPositions.push(x);
+          x += pixelWidths[i] + 12; // base padding between columns
+          if (i === 1) x += extraGapAfterEmail; // extra space after Email column
+        }
+      })();
+
+      // Table row with bottom line using computed x positions
       const generateTableRow = (y, values) => {
         values.forEach((value, index) => {
-          doc.text(value, 50 + index * 100, y);
+          const x = xPositions[index] || (50 + index * 100);
+          doc.text(value, x, y);
           if (index < values.length - 1) {
-            doc
-              .moveTo(50 + (index + 1) * 100, y)
-              .lineTo(50 + (index + 1) * 100, y + 15);
+            const nextX = xPositions[index + 1] || (50 + (index + 1) * 100);
+            doc.moveTo(nextX, y).lineTo(nextX, y + 15);
           }
         });
       };
 
-      // Print headers with styling
-      generateTableRow(doc.y + 10, headers);
+  // Print headers with styling (friendly labels)
+  generateTableRow(doc.y + 10, columns.map((c) => c.label));
 
       doc.moveDown();
 
@@ -232,7 +253,7 @@ const generatePDF = async (orderData) => {
       orderData.forEach((item) => {
         generateTableRow(
           doc.y,
-          headers.map((header) => String(item[header]))
+          columns.map((col) => String(item[col.key] || ""))
         );
 
         doc.moveDown(); // Move down for the next row
@@ -271,7 +292,18 @@ const generateOrderPDF = async (req, res) => {
       "products.productId",
     ]);
 
-    const pdfBuffer = await generatePDF(orders);
+    // Normalize orders into a flat structure matching PDF headers to avoid nested key lookups
+    // Note: we intentionally omit _id and user._id from the PDF export per UI request
+    // Only include fields requested for PDF export
+    const orderDataFlat = orders.map((item) => ({
+      "user.firstName": (item.user?.firstName || "") + (item.user?.lastName ? " " + item.user.lastName : ""),
+      "user.email": item.user?.email || "",
+      status: item.status || "",
+      "address.address": item.address?.address || "",
+      totalPrice: item.totalPrice ?? "",
+    }));
+
+    const pdfBuffer = await generatePDF(orderDataFlat);
 
     // Set headers for the response
     res.setHeader("Content-Type", "application/pdf");

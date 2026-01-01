@@ -5,6 +5,7 @@ import axios from "axios";
 import date from "date-and-time";
 
 import { URL } from "../../../../Common/api";
+import { getImageUrl } from "@/Common/functions";
 import { FiDownload } from "react-icons/fi";
 import { BiCalendar, BiHash } from "react-icons/bi";
 import { FaRegCreditCard, FaMapMarkerAlt } from "react-icons/fa";
@@ -43,13 +44,26 @@ const ReturnOrderDetails = () => {
     try {
       const response = await axios.get(`${URL}/admin/order-invoice/${id}`, {
         responseType: "blob",
+        withCredentials: true,
       });
-
-      const blob = new Blob([response.data], { type: "application/pdf" });
-      const link = document.createElement("a");
-      link.href = window.URL.createObjectURL(blob);
-      link.download = "invoice.pdf";
-      link.click();
+      const contentType = response.headers["content-type"] || "";
+      if (contentType.includes("application/pdf")) {
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "invoice.pdf";
+        link.click();
+      } else {
+        try {
+          const text = await response.data.text();
+          const json = JSON.parse(text);
+          console.error("Invoice generation error:", json);
+          alert(json.error || "Unable to generate invoice");
+        } catch (e) {
+          console.error("Unknown response while generating invoice", e);
+          alert("Unable to generate invoice");
+        }
+      }
     } catch (error) {
       console.error("Error generating invoice:", error);
     }
@@ -208,7 +222,7 @@ const ReturnOrderDetails = () => {
                               <div className="w-10 h-10 overflow-clip flex justify-center items-center shrink-0">
                                 {item.productId.imageURL ? (
                                   <img
-                                    src={`${URL}/img/${item.productId.imageURL}`}
+                                    src={getImageUrl(item.productId.imageURL, URL)}
                                     alt="img"
                                     className="object-contain w-full h-full"
                                   />
@@ -233,7 +247,7 @@ const ReturnOrderDetails = () => {
               </table>
             </div>
             <div className="bg-white rounded-lg p-5 font-semibold mt-5 lg:w-1/3 ">
-              <h1 className="text-lg font-bold">Order Summery</h1>
+              <h1 className="text-lg font-bold">Order Summary</h1>
               <div className="border-b border-gray-200 pb-2 mb-2">
                 <div className="cart-total-li">
                   <p className="cart-total-li-first">Sub Total</p>

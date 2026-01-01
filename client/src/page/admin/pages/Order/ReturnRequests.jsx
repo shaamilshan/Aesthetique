@@ -17,6 +17,7 @@ import FilterArray from "../../Components/FilterArray";
 import UpdateReturnOrder from "./UpdateReturnOrder";
 import SearchBar from "../../../../components/SearchBar";
 import { URL } from "@common/api";
+import { getImageUrl } from "@/Common/functions";
 
 const ReturnRequests = () => {
   const dispatch = useDispatch();
@@ -130,7 +131,7 @@ const ReturnRequests = () => {
                         <div className="w-10 h-10 overflow-clip flex justify-center items-center">
                           {item.products[0].productId.imageURL ? (
                             <img
-                              src={`${URL}/img/${item.products[0].productId.imageURL}`}
+                              src={getImageUrl(item.products[0].productId.imageURL, URL)}
                               alt="img"
                               className="object-contain w-full h-full"
                             />

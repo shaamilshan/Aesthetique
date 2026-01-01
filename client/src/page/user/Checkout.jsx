@@ -14,6 +14,7 @@ import TotalAndSubTotal from "./components/TotalAndSubTotal";
 import Loading from "../../components/Loading";
 import { clearCartOnOrderPlaced } from "../../redux/reducers/user/cartSlice";
 import CheckoutPaymentOption from "./components/CheckoutPaymentOption";
+import VoucherCodeSection from "./components/VoucherCodeSection";
 
 const Checkout = () => {
   const dispatch = useDispatch();
@@ -310,52 +311,85 @@ const Checkout = () => {
       {orderPlacedLoading ? (
         <Loading />
       ) : (
-        <div className="pt-20 px-5 lg:p-20 lg:flex items-start gap-5 bg-gray-100">
-          <div className="lg:w-3/4">
-            <AddressCheckoutSession
-              selectedAddress={selectedAddress}
-              setSelectedAddress={setSelectedAddress}
-            />
-            <div className="bg-white my-5 p-5 rounded">
-              <h1 className="text-xl font-semibold border-b pb-2 mb-3">
-                Payment Option
-              </h1>
-              <CheckoutPaymentOption
-                handleSelectedPayment={handleSelectedPayment}
-                selectedPayment={selectedPayment}
-                walletBalance={walletBalance}
-                setWalletBalance={setWalletBalance}
-              />
-            </div>
+        <div className="pt-20 px-4 lg:px-8 pb-16 bg-gray-50 min-h-screen">
+          <div className="max-w-6xl mx-auto lg:flex lg:items-stretch lg:gap-8">
+            <main className="lg:flex-1 lg:flex lg:flex-col">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold text-gray-800">Checkout</h1>
+                <p className="text-sm text-gray-500 mt-1">Review your items, choose delivery address and payment method.</p>
+              </div>
 
-            <p className="my-1 font-semibold">Additional Notes</p>
-            <textarea
-              placeholder="Notes about your order e.g. special notes for delivery"
-              className="w-full h-40 px-3 py-2 outline-none rounded resize-none"
-              value={additionalNotes}
-              onChange={(e) => {
-                setAdditionalNotes(e.target.value);
-              }}
-            ></textarea>
+              <div className="lg:flex lg:flex-col lg:h-full lg:gap-6">
+                <div className="bg-white shadow-sm rounded-lg p-6 mb-6 lg:mb-0 lg:flex-1">
+                <AddressCheckoutSession
+                  selectedAddress={selectedAddress}
+                  setSelectedAddress={setSelectedAddress}
+                />
+                </div>
+
+                <div className="bg-white shadow-sm rounded-lg p-6 mb-6 lg:mb-0 lg:flex-1">
+                  <h2 className="text-lg font-semibold mb-3">Payment Options</h2>
+                  <CheckoutPaymentOption
+                    handleSelectedPayment={handleSelectedPayment}
+                    selectedPayment={selectedPayment}
+                    walletBalance={walletBalance}
+                    setWalletBalance={setWalletBalance}
+                  />
+                </div>
+              </div>
+
+              {/* Voucher moved to order summary sidebar for easier access during review */}
+
+              {/* Additional Notes moved below to span full container width on large screens */}
+            </main>
+
+            {/* Order Summary Session */}
+            <aside className="w-full lg:w-96 mt-6 lg:mt-0">
+              <div className="bg-white shadow sticky top-28 rounded-lg p-6 border border-gray-100">
+                  {/* Voucher section placed above order summary for quick access */}
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
+                    <div className="bg-white">
+                      <VoucherCodeSection />
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-lg mb-3">Order Summary</h3>
+                <div className="divide-y divide-gray-100 space-y-3 mb-3">
+                  <div className="pt-1 pb-3">
+                    {cart && cart.map((item, index) => (
+                      <CheckoutCartRow item={item} key={index} />
+                    ))}
+                  </div>
+                </div>
+
+                <TotalAndSubTotal />
+
+                <button
+                  className="mt-6 w-full bg-black text-white uppercase font-semibold text-sm py-3 rounded-md hover:bg-gray-900 transition-colors"
+                  onClick={placeOrder}
+                >
+                  Place order
+                </button>
+              </div>
+            </aside>
           </div>
 
-          {/* Order Summary Session */}
-          <div className="lg:w-1/4 bg-white px-5 py-3 border border-gray-200 rounded shrink-0">
-            <h1 className="font-semibold py-2">Order Summary</h1>
-            <div className="py-1">
-              {cart &&
-                cart.map((item, index) => (
-                  <CheckoutCartRow item={item} key={index} />
-                ))}
-            </div>
-            <TotalAndSubTotal />
-            <button
-              className="btn-blue w-full text-white uppercase font-semibold text-sm my-5"
-              onClick={placeOrder}
-            >
-              Place order
-            </button>
+          {/* Full width Additional Notes */}
+          <div className="max-w-6xl mx-auto mt-6">
+            <div className="bg-white shadow-sm rounded-lg p-6 border border-gray-100">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Delivery instructions (optional)</h3>
+                <textarea
+                  aria-label="Delivery instructions"
+                  placeholder="Delivery instructions (optional) — e.g. gate code, preferred drop-off spot"
+                  className="w-full h-40 px-4 py-3 outline-none rounded-lg resize-none border border-gray-100 bg-gray-50"
+                  value={additionalNotes}
+                  onChange={(e) => {
+                    setAdditionalNotes(e.target.value);
+                  }}
+                ></textarea>
+              </div>
           </div>
+
         </div>
       )}
     </>

@@ -7,7 +7,7 @@ export const getWallet = createAsyncThunk(
   async (queries, { rejectWithValue }) => {
     return commonReduxRequest(
       "get",
-      `/user/wallet${queries && `?${queries}`}`,
+  `/user/wallet${queries ? `?${queries}` : ``}`,
       null,
       appJson,
       rejectWithValue

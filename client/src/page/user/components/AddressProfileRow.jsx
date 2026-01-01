@@ -1,5 +1,5 @@
 import React from "react";
-import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import { Edit3, Trash2, MapPin, User } from "lucide-react";
 
 const AddressProfileRow = ({
   item,
@@ -8,27 +8,59 @@ const AddressProfileRow = ({
   toggleEditAddress,
 }) => {
   return (
-    <div
-      className={`border rounded my-1 py-2 px-4 cursor-pointer hover:bg-gray-100 flex justify-between items-center `}
-    >
-      <p className="line-clamp-1">
-        <span className="font-semibold">
-          {item.firstName} {item.lastName},
-        </span>{" "}
-        {item.address}
-      </p>
-      <div className="flex gap-3">
-        <AiOutlineEdit
-          className="hover:text-gray-500"
-          onClick={() => {
-            setToBeEditedAddress(item);
-            toggleEditAddress();
-          }}
-        />
-        <AiOutlineDelete
-          onClick={() => toggleDeleteModal(item._id)}
-          className="hover:text-gray-500"
-        />
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-200 cursor-pointer">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <MapPin className="w-4 h-4 text-gray-600" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-gray-500" />
+                <span className="font-semibold text-gray-900">
+                  {item.firstName} {item.lastName}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="ml-11">
+            <p className="text-gray-700 leading-relaxed">
+              {item.address}
+            </p>
+            {item.city && (
+              <p className="text-sm text-gray-500 mt-1">
+                {item.city}{item.state && `, ${item.state}`}{item.zipCode && ` - ${item.zipCode}`}
+              </p>
+            )}
+            {item.phone && (
+              <p className="text-sm text-gray-500 mt-1">
+                Phone: {item.phone}
+              </p>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex gap-2 ml-4">
+          <button
+            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+            onClick={() => {
+              setToBeEditedAddress(item);
+              toggleEditAddress();
+            }}
+            title="Edit Address"
+          >
+            <Edit3 className="w-4 h-4" />
+          </button>
+          <button
+            className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+            onClick={() => toggleDeleteModal(item._id)}
+            title="Delete Address"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

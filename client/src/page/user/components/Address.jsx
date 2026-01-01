@@ -17,7 +17,6 @@ const Address = ({ closeToggle }) => {
   const initialValues = {
     firstName: "",
     lastName: "",
-    companyName: "",
     address: "",
     country: "",
     regionState: "",
@@ -30,7 +29,6 @@ const Address = ({ closeToggle }) => {
   const validationSchema = Yup.object().shape({
     firstName: Yup.string().required("Required"),
     lastName: Yup.string().required("Required"),
-    companyName: Yup.string(),
     address: Yup.string().required("Required"),
     country: Yup.string().required("Required"),
     regionState: Yup.string().required("Required"),
@@ -76,46 +74,35 @@ const Address = ({ closeToggle }) => {
       >
         {({ values, setFieldValue }) => (
           <Form className="px-5 pb-5">
-            <div className="lg:flex gap-5 justify-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <InputType
                 name="firstName"
-                placeholder="Your first name"
+                placeholder="John"
                 title="First Name"
               />
               <InputType
                 name="lastName"
-                placeholder="Your last name"
+                placeholder="Doe"
                 title="Last Name"
               />
-              <InputType
-                name="companyName"
-                placeholder="Your company name"
-                title="Company Name"
-                optional={true}
-              />
             </div>
-            <InputType name="address" placeholder="" title="Address" />
-            <div className="lg:flex gap-5 justify-stretch">
+
+            <InputType name="address" placeholder="House number, street, landmark" title="Address" />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <InputType
                 name="country"
-                placeholder="Your country"
+                placeholder="Country"
                 title="Country"
               />
               <InputType
                 name="regionState"
-                placeholder="Your state"
+                placeholder="State/Region"
                 title="State/Region"
               />
-              <InputType name="city" placeholder="Your city" title="City" />
-              
-              <InputType
-                name="companyName"
-                placeholder="Your company name"
-                title="Company Name"
-                optional={true}
-              />
+              <InputType name="city" placeholder="City" title="City" />
             </div>
-            <div className="lg:flex gap-5 justify-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* <SearchInput
                 onInput={setFieldValue}
                 onSelect={handleCountrySelect}
@@ -141,7 +128,7 @@ const Address = ({ closeToggle }) => {
                 name={"city"}
               /> */}
 
-              <InputType name="pinCode" placeholder="" title="Pin Code" />
+              <InputType name="pinCode" placeholder="Pin Code" title="Pin Code" />
             </div>
             <InputType name="email" placeholder="" title="Email" />
             <InputType name="phoneNumber" placeholder="" title="Phone Number" />

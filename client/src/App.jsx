@@ -21,7 +21,7 @@ import Footer from "./components/Footer";
 // Auth
 import Login from "./page/auth/Login";
 import Register from "./page/auth/Register";
-import ValidateOTP from "./page/auth/ValidateOTP";
+// ...existing code...
 import ForgetPassword from "./page/auth/ForgetPassword";
 
 // User
@@ -45,7 +45,10 @@ import AdminDash from "./page/admin/Dashboard";
 import ManagerDash from "./page/manager/Dashboard";
 import AdminHome from "./page/admin/pages/AdminHome";
 import Banner from "./page/admin/pages/banner/Banner";
+import FAQs from "./page/admin/pages/content/FAQs";
+import Announcement from "./page/admin/pages/content/Announcement";
 import Payments from "./page/admin/pages/payments/Payments";
+import CreatePayment from "./page/admin/pages/payments/CreatePayment";
 import Settings from "./page/admin/pages/Settings";
 import Help from "./page/admin/pages/Help";
 
@@ -80,6 +83,7 @@ import SingleProduct from "./page/user/others/SingleProduct";
 import SingleProduct2 from "./page/user/others/SingleProduct2";
 import LoginDemo from "./page/user/others/LoginDemo";
 import Home2 from "./page/user/others/Home2";
+import ReturnPolicy from "./page/user/others/ReturnPolicy";
 import ManagerSignup from "./page/manager/ManagerSignup";
 import ManagerHome from "./page/manager/pages/ManagerHome";
 import Enquiries from "./page/admin/pages/products/Enquiries";
@@ -141,6 +145,7 @@ function App() {
           <Route path="/login-demo" element={<LoginDemo />} />
           <Route path="/about-us" element={<About />} />
           <Route path="/contact-us" element={<Contact />} />
+          <Route path="/return-policy" element={<ReturnPolicy />} />
           <Route path="/collection" element={<Collectionsold />} />
           <Route path="/collections" element={<Collections />} />
           {/* <Route path="/productnew" element={<SingleProduct2 />} /> */}
@@ -152,7 +157,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="old-register" element={<OldRegister />} />
-          <Route path="otp" element={<ValidateOTP />} />
+// ...existing code...
           <Route path="forgot-password" element={<ForgetPassword />} />
           {/* <Route path="/admin/managers/:id" element={<AllManagerOrders />} /> */}
 
@@ -259,7 +264,10 @@ function AdminRoutes() {
         <Route path="coupon/edit/:id" element={<EditCoupon />} />
 
         <Route path="banner" element={<Banner />} />
-        <Route path="payments" element={<Payments />} />
+  <Route path="faqs" element={<FAQs />} />
+  <Route path="announcement" element={<Announcement />} />
+  <Route path="payments" element={<Payments />} />
+  <Route path="payments/create" element={<CreatePayment />} />
         <Route path="customers" element={<Customers />} />
 
         <Route path="managers" element={<Managers />} />

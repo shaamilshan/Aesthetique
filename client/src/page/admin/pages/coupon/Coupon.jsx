@@ -92,7 +92,7 @@ const Coupon = () => {
           </div>
           <div className="flex gap-3">
             <button
-              className="admin-button-fl bg-blue-700 text-white"
+              className="admin-button-fl px-2 py-4 rounded-full bg-black text-white"
               onClick={() => navigate("create")}
             >
               <AiOutlinePlus />

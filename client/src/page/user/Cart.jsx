@@ -23,6 +23,8 @@ const Cart = () => {
   const { cart, loading, error, cartId, couponCode } = useSelector(
     (state) => state.cart
   );
+  // Defensive fallback: ensure components never read `.length` of null
+  const safeCart = cart || [];
 
   const [inputCouponCode, setInputCouponCode] = useState("");
 
@@ -55,7 +57,7 @@ const Cart = () => {
   // Modal for deleting entire cart
   const [showConfirm, setShowConfirm] = useState(false);
   const toggleConfirm = () => {
-    if (cart.length > 0) {
+    if (safeCart.length > 0) {
       setShowConfirm(!showConfirm);
     } else {
       toast.error("Nothing in the cart");
@@ -80,130 +82,165 @@ const Cart = () => {
     <>
       {showConfirm && (
         <ConfirmModel
-          title="Confirm Clearing Cart?"
+          title="Clear Shopping Cart?"
+          description="Are you sure you want to remove all items from your cart? This action cannot be undone."
+          type="warning"
           positiveAction={deleteCart}
           negativeAction={toggleConfirm}
         />
       )}
       {showProductConfirm && (
         <ConfirmModel
-          title="Confirm Delete?"
+          title="Remove Product?"
+          description="This item will be removed from your cart. You can add it back later if needed."
+          type="warning"
           positiveAction={dispatchDeleteProduct}
           negativeAction={() => toggleProductConfirm("")}
         />
       )}
-      {cart.length > 0 ? (
+  {safeCart.length > 0 ? (
         <>
-          <div className="bg-gray-100 flex lg:flex-row flex-col gap-5 lg:px-28 px-5 py-20 min-h-screen">
-            <div className="lg:w-2/3 bg-white border border-gray-200">
-              <div className=" px-5 py-3 border-b flex justify-between">
-                <h1 className="text-lg font-semibold">Shopping Cart</h1>
-                <button
-                  onClick={toggleConfirm}
-                  className="flex items-center bg-gray-100 px-2 rounded hover:bg-gray-300 gap-2"
-                >
-                  <AiOutlineDelete />
-                  Clear
-                </button>
-              </div>
-              <div className="overflow-x-auto h-full">
-                {loading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <JustLoading size={10} />
-                  </div>
-                ) : cart.length > 0 ? (
-                  <table className="w-full table-auto">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="cart-table-header">Products</th>
-                        <th className="cart-table-header">Price</th>
-                        <th className="cart-table-header">Quantity</th>
-                        <th className="cart-table-header">Total</th>
-                        <th className="cart-table-header"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cart.map((item, index) => {
-                        const isLast = index === cart.length - 1;
-
-                        return (
-                          <CartProductRow
-                            item={item}
-                            toggleProductConfirm={toggleProductConfirm}
-                            isLast={isLast}
-                            key={index}
-                          />
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <p>Nothing in this cart</p>
-                  </div>
-                )}
+          <div className="min-h-screen bg-white">
+            {/* Header */}
+            <div className="border-b">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Shopping Bag</h1>
+                  <button
+                    onClick={toggleConfirm}
+                    className="text-sm text-gray-500 hover:text-black transition-colors flex items-center gap-1.5"
+                  >
+                    <AiOutlineDelete className="text-lg" />
+                    <span className="hidden sm:inline">Clear All</span>
+                  </button>
+                </div>
+                <p className="text-gray-500 mt-1">{safeCart.length} {safeCart.length === 1 ? 'item' : 'items'}</p>
               </div>
             </div>
-            {/* Cart total details */}
-            <div className="lg:w-1/3">
-              <div className="bg-white p-5 mb-5  border border-gray-200">
-                <h3 className="text-lg font-semibold">Cart Total</h3>
-                <TotalAndSubTotal />
-                <button
-                  className="btn-blue bg-red-500 w-full text-white uppercase font-semibold text-sm"
-                  onClick={() => {
-                    if (cart.length > 0) {
-                      navigate("/checkout");
-                    } else {
-                      toast.error("No product in cart");
-                    }
-                  }}
-                >
-                  Proceed to checkout
-                </button>
-              </div>
-              {/* Coupon session */}
-              {/* <div className="bg-white border border-gray-200">
-                <h3 className="p-5 border-b border-gray-200">Coupon Code</h3>
-                <div className="p-5">
-                  <input
-                    type="text"
-                    className="w-full py-2 px-3 rounded border border-gray-200"
-                    placeholder="Enter Coupon Code"
-                    value={inputCouponCode}
-                    onChange={(e) => setInputCouponCode(e.target.value)}
-                  />
-                  <div className="flex justify-between">
+
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                {/* Cart Items */}
+                <div className="flex-1">
+                  {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                      <JustLoading size={10} />
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {safeCart.map((item, index) => (
+                        <CartProductRow
+                          item={item}
+                          toggleProductConfirm={toggleProductConfirm}
+                          key={index}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Order Summary - Sticky */}
+                <div className="lg:w-[380px] lg:sticky lg:top-8 lg:self-start">
+                  <div className="bg-gray-50 rounded-2xl p-6">
+                    <h3 className="text-lg font-semibold mb-6">Order Summary</h3>
+                    <TotalAndSubTotal />
+                    
+                    {/* Coupon Section */}
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                      <p className="text-sm font-medium mb-3">Have a promo code?</p>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 bg-white text-sm focus:border-black focus:outline-none transition-colors"
+                          placeholder="Enter code"
+                          value={inputCouponCode}
+                          onChange={(e) => setInputCouponCode(e.target.value)}
+                          disabled={couponCode !== ""}
+                        />
+                        <button
+                          className="px-5 py-2.5 bg-black text-white text-sm rounded-xl hover:bg-gray-800 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          onClick={dispatchApplyCoupon}
+                          disabled={couponCode !== "" || inputCouponCode.trim() === ""}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                      {couponCode && (
+                        <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span>"{couponCode}" applied</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Checkout Button */}
                     <button
-                      className="btn-blue-border my-3"
-                      onClick={dispatchApplyCoupon}
+                      className="w-full mt-6 bg-black text-white py-4 rounded-xl font-medium hover:bg-gray-900 transition-colors"
+                      onClick={() => {
+                        if (safeCart.length > 0) {
+                          navigate("/checkout");
+                        } else {
+                          toast.error("No product in cart");
+                        }
+                      }}
                     >
-                      Apply Coupon
+                      Checkout
                     </button>
-                    <button
-                      className="flex items-center gap-2 hover:text-blue-500 hover:underline"
-                      onClick={() => navigate("/dashboard/find-coupons")}
-                    >
-                      Find <BiSearchAlt />
-                    </button>
+                    
+                    <p className="text-center text-xs text-gray-400 mt-4">
+                      Shipping & taxes calculated at checkout
+                    </p>
                   </div>
                 </div>
-              </div> */}
+              </div>
             </div>
           </div>
         </>
       ) : (
-        <div className="flex items-center justify-center h-screen">
-          <div className="flex flex-col items-center">
-            <img
-              src={EmptyCart}
-              alt="Empty Cart Icon"
-              className="w-full lg:w-1/2"
-            />
-            <p className="text-gray-500 mt-4 text-lg">Your cart is empty</p>
-            <Link to="/" className="py-2 text-blue-500 hover:underline text-sm">
-              Go back to shopping
-            </Link>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-16 px-4">
+          <div className="max-w-md w-full">
+            <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+              {/* Empty Cart Icon */}
+              <div className="mb-8">
+                <img
+                  src={EmptyCart}
+                  alt="Empty Cart Icon"
+                  className="w-48 h-48 mx-auto object-contain"
+                />
+              </div>
+              
+              {/* Content */}
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Your cart is empty
+                </h2>
+                <p className="text-gray-600 leading-relaxed">
+                  Looks like you haven't added anything to your cart yet. 
+                  Start shopping to fill it up with amazing products!
+                </p>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="mt-8 space-y-3">
+                <Link 
+                  to="/collections" 
+                  className="block w-full bg-black text-white py-3 px-6 rounded-xl font-medium hover:bg-gray-800 transition-all duration-200"
+                >
+                  Browse Products
+                </Link>
+                <Link 
+                  to="/" 
+                  className="block w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200"
+                >
+                  Back to Home
+                </Link>
+              </div>
+            </div>
+            
+            {/* Quick Links */}
+            
           </div>
         </div>
       )}

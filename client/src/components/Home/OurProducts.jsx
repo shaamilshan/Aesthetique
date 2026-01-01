@@ -32,17 +32,33 @@ const OurProducts = ({ id }) => {
   };
   
   return (  
-    <section 
-      className=" py-7 px-4 sm:px-6 lg:px-8 bg-gradient-to-b  from-[#A53030] to-[#8A2929]" 
-      // data-aos="fade-up" 
-      id={id}
-    >
+    <section id={id} className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h2 data-aos="fade-right"  className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight">
-            Our Products
-            <div className="h-1 w-20 bg-[#FF9E80] mt-2 rounded-full"></div>
-          </h2>
+        {/* Header Section - Split Layout like AboutUs */}
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-start mb-8">
+          {/* Left Column - Heading */}
+          <div className="text-center lg:text-left">
+            <button
+              className="inline-flex items-center rounded-full border border-black/20 px-6 py-2.5 text-sm font-medium text-black hover:bg-black hover:text-white transition-colors mb-6"
+              type="button"
+            >
+              Our Products
+            </button>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4">
+              Our <span className="font-serif italic">Premium</span> Skin Care Range
+            </h1>
+          </div>
+
+          {/* Right Column - View All Products Button */}
+          <div className="flex justify-center lg:justify-end items-center h-full">
+            <button
+              onClick={() => navigate('/collections')}
+              className="bg-white text-black font-medium py-3 px-8 rounded-lg   hover:text-black transition-colors duration-300 "
+            >
+              View All Products
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -53,27 +69,25 @@ const OurProducts = ({ id }) => {
           <>
             {shuffledProducts && shuffledProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 ">
-                  {shuffledProducts.slice(0, visibleProducts).map((product, index) => (
-                 <div 
-                 key={index} 
-                 className="relative transform transition-all duration-300 hover:scale-105 hover:z-10 w-full my-5 max-w-[280px] mx-auto"
-               >
-                 <ProductCard2 product={product} />
-               </div>
-               
-                  
-                  ))}
-                </div>
-                
-                {visibleProducts < shuffledProducts.length && visibleProducts < 20 && (
-                  <div className="flex justify-center mt-8">
-                    <button
-                      onClick={loadMore}
-                      className="bg-white text-[#A53030] font-medium py-2 px-6 rounded-lg shadow-md hover:bg-[#FF9E80] hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FF9E80] focus:ring-opacity-50"
-                    >
-                      Load More
-                    </button>
+                {shuffledProducts.length <= 4 ? (
+                  // If 4 or fewer products, show them in a responsive grid so they fill the row and feel balanced
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                    {shuffledProducts.slice(0, 4).map((product, index) => (
+                      <div key={product._id || index} className="w-full">
+                        <ProductCard2 product={product} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  // More than 4 products: keep horizontal scroller for discoverability
+                  <div className="overflow-x-auto">
+                    <div className="flex gap-6 pb-4" style={{ width: 'max-content' }}>
+                      {shuffledProducts.slice(0, 8).map((product, index) => (
+                        <div key={product._id || index} className="flex-none w-80">
+                          <ProductCard2 product={product} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </>

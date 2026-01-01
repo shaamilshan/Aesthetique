@@ -22,7 +22,7 @@ const userProductSlice = createSlice({
       })
       .addCase(getUserProducts.rejected, (state, { payload }) => {
         state.loading = false;
-        state.userProducts = null;
+        state.userProducts = [];
         state.error = payload;
       });
   },

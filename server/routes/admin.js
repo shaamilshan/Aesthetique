@@ -30,6 +30,7 @@ const {
 const {
   getOrders,
   getOrder,
+  getLatestOrders,
   clearOrder,
   updateOrderStatus,
   generateOrderInvoice,
@@ -70,7 +71,22 @@ const {
   readBanners,
   deleteBanner,
   updateBannerOrder,
+  updateHomeBanner,
+  getHomeBanners,
+  setActiveHomeBanner,
+  deleteHomeBanner,
 } = require("../controllers/admin/bannerController");
+const { getFaqs, getFaq, addFaq, updateFaq, deleteFaq } = require("../controllers/admin/faqController");
+const { getSetting, upsertSetting } = require("../controllers/admin/settingController");
+const {
+  getAllAnnouncements,
+  getAnnouncementById,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
+  getMarqueeAnnouncements,
+  updateMarqueeAnnouncements
+} = require("../controllers/admin/announcementController");
 
 // Products controller functions mounting them to corresponding route
 router.get("/products", getProducts);
@@ -94,10 +110,16 @@ router.get("/categories", getCategories);
 router.get("/category/:id", getCategory);
 router.delete("/category/:id", deleteCategory);
 router.patch("/category/:id", upload.single("imgURL"), updateCategory);
-router.post("/category", upload.single("imgURL"), createCategory);
+router.post("/category", (req, res, next) => {
+  upload.single("imgURL")(req, res, (err) => {
+    if (err) return next(err);
+    next();
+  });
+}, createCategory);
 
 // Order controller functions mounting them to corresponding route
 router.get("/orders", getOrders);
+router.get("/latest-orders", getLatestOrders);
 router.delete("/clear-orders", clearOrder);
 router.get("/order/:id", getOrder);
 router.patch("/order-status/:id", updateOrderStatus);
@@ -142,4 +164,37 @@ router.get("/banners", readBanners);
 router.patch("/banners/", updateBannerOrder);
 router.delete("/banner/:id", deleteBanner);
 
+// Home Banner Controllers
+router.get("/home-banners", getHomeBanners);
+router.put("/home-banners/:bannerNumber", upload.single('image'), updateHomeBanner);
+router.patch("/home-banners/:bannerNumber/activate", setActiveHomeBanner);
+router.delete("/home-banners/:bannerNumber", deleteHomeBanner);
+
+// FAQ Controllers
+router.get('/faqs', getFaqs);
+router.get('/faq/:id', getFaq);
+router.post('/faq', addFaq);
+router.patch('/faq/:id', updateFaq);
+router.delete('/faq/:id', deleteFaq);
+
+// Marquee compatibility routes (for backward compatibility)
+// These must be registered before the generic `/setting/:key` routes so
+// requests to `/setting/marquee` are handled by the marquee handlers.
+router.get('/setting/marquee', getMarqueeAnnouncements);
+router.put('/setting/marquee', updateMarqueeAnnouncements);
+
+// Site settings (keyed)
+router.get('/setting/:key', getSetting);
+router.put('/setting/:key', upsertSetting);
+
+// Announcement Controllers
+router.get('/announcements', getAllAnnouncements);
+router.get('/announcements/:id', getAnnouncementById);
+router.post('/announcements', createAnnouncement);
+router.patch('/announcements/:id', updateAnnouncement);
+router.delete('/announcements/:id', deleteAnnouncement);
+
+// Marquee compatibility routes (for backward compatibility)
+router.get('/setting/marquee', getMarqueeAnnouncements);
+router.put('/setting/marquee', updateMarqueeAnnouncements);
 module.exports = router;

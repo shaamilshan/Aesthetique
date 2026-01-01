@@ -17,6 +17,13 @@ const productsSchema = new Schema(
       type: String,
       required: [true, "Product description is required"],
       trim: true,
+      maxlength: 125, // Short description limit
+    },
+    longDescription: {
+      type: String,
+      required: false,
+      trim: true,
+      default: '',
     },
     stockQuantity: {
       type: Number, 
@@ -36,6 +43,12 @@ const productsSchema = new Schema(
       type: Number,
       required: [true, "Price is required"],
       min: [0, "Price cannot be negative"],
+    },
+    costPrice: {
+      type: Number,
+      required: false, // Make optional for backward compatibility
+      min: [0, "Cost price cannot be negative"],
+      default: 0,
     },
     markup: {
       type: Number,
@@ -110,6 +123,13 @@ const productsSchema = new Schema(
       min: [0, "Offer percentage cannot be negative"],
       max: [100, "Offer percentage cannot exceed 100"],
     },
+    // Frequently Asked Questions specific to this product
+    faqs: [
+      {
+        question: { type: String, trim: true, default: "" },
+        answer: { type: String, trim: true, default: "" },
+      },
+    ],
   },
   { 
     timestamps: true,

@@ -116,24 +116,26 @@ const addToCart = async (req, res) => {
     console.log("attributes");
     console.log(attributes);
 
-    // Check for sufficient attribute quantity
-    for (let i = 0; i < productData.attributes.length; i++) {
-      const attributeKey = Object.keys(attributes)[i]; // Assuming a single attribute for now
-      // Destructure the Map
-      const attributeValue = attributes[attributeKey];
+    // Check for sufficient attribute quantity only if attributes are provided
+    if (attributes && Object.keys(attributes).length > 0) {
+      for (let i = 0; i < productData.attributes.length; i++) {
+        const attributeKey = Object.keys(attributes)[i]; // Assuming a single attribute for now
+        // Destructure the Map
+        const attributeValue = attributes[attributeKey];
 
-      const attribute = productData.attributes.find(
-        (attr) => attr.name === attributeKey && attr.value === attributeValue
-      );
+        const attribute = productData.attributes.find(
+          (attr) => attr.name === attributeKey && attr.value === attributeValue
+        );
 
-      if (attribute) {
-        if (attribute.quantity < quantity) {
-          throw new Error(`Insufficient quantity for the ${attribute.value}`);
+        if (attribute) {
+          if (attribute.quantity < quantity) {
+            throw new Error(`Insufficient quantity for the ${attribute.value}`);
+          }
         }
+        // else {
+        //   throw new Error(`Chose Type`);
+        // }
       }
-      // else {
-      //   throw new Error(`Chose Type`);
-      // }
     }
 
     let cart = await Cart.findOne({ user: _id });
@@ -141,7 +143,7 @@ const addToCart = async (req, res) => {
       const existingProductIndex = cart.items.findIndex(
         (item) =>
           item.product.equals(product) &&
-          JSON.stringify(item.attributes) === JSON.stringify(attributes)
+          JSON.stringify(item.attributes || {}) === JSON.stringify(attributes || {})
       );
 
       if (existingProductIndex !== -1) {

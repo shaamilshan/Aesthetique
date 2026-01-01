@@ -89,17 +89,17 @@ const Payments = () => {
             <BreadCrumbs list={["Dashboard", "Payments"]} />
           </div>
           <div className="flex gap-3">
-            <button className="admin-button-fl bg-gray-200 text-[#A53030]">
+            <button className="admin-button-fl bg-gray-200 text-black">
               <FiDownload />
               Export
             </button>
-            <button
-              className="admin-button-fl bg-[#A53030] text-white"
+            {/* <button
+              className="admin-button-fl bg-black text-white"
               onClick={() => navigate("create")}
             >
               <AiOutlinePlus />
               Create Order
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="lg:flex justify-between items-center font-semibold">

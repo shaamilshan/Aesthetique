@@ -3,7 +3,7 @@ import { AiOutlineSave, AiOutlineClose } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { createNewCategory } from "../../../../redux/actions/admin/categoriesAction";
-import CustomSingleFileInput from "../../Components/CustomSingleFileInput";
+
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -26,8 +26,9 @@ const CreateCategories = () => {
 
     const updatedFormData = new FormData();
     updatedFormData.append("name", value.title);
-    updatedFormData.append("description", value.description);
-    updatedFormData.append("imgURL", value.imageURL);
+    if (value.description && value.description.trim() !== "") {
+      updatedFormData.append("description", value.description);
+    }
     setFormData(updatedFormData);
   };
 
@@ -40,13 +41,11 @@ const CreateCategories = () => {
   const initialValues = {
     title: "",
     description: "",
-    imageURL: null,
   };
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
-    description: Yup.string().required("Description is required"),
-    imageURL: Yup.mixed().required("File is required"),
+    description: Yup.string(),
   });
 
   return (
@@ -79,7 +78,7 @@ const CreateCategories = () => {
             </button>
             <button
               type="submit"
-              className="admin-button-fl bg-[#A53030] text-white"
+              className="admin-button-fl bg-black text-white"
               onClick={() => {
                 formikRef.current.submitForm();
               }}
@@ -98,21 +97,8 @@ const CreateCategories = () => {
             validationSchema={validationSchema}
           >
             {({ values, setFieldValue }) => (
-              <Form className="lg:flex gap-5">
-                <div className="lg:w-1/3 mb-3 lg:mb-0">
-                  <h1 className="font-bold mb-3">Product Thumbnail</h1>
-                  <CustomSingleFileInput
-                    onChange={(file) => {
-                      setFieldValue("imageURL", file);
-                    }}
-                  />
-                  <ErrorMessage
-                    className="text-sm text-red-500"
-                    name="imageURL"
-                    component="span"
-                  />
-                </div>
-                <div className="lg:w-2/3">
+              <Form>
+                <div>
                   <p>
                     <label htmlFor="title" className="admin-label">
                       Category Title
@@ -124,7 +110,7 @@ const CreateCategories = () => {
                     className="admin-input"
                   />
                   <ErrorMessage
-                    className="text-sm text-red-500"
+                    className="text-sm text-black"
                     name="title"
                     component="span"
                   />
@@ -141,7 +127,7 @@ const CreateCategories = () => {
                     placeholder="Type the category description here"
                   />
                   <ErrorMessage
-                    className="text-sm text-red-500"
+                    className="text-sm text-black"
                     name="description"
                     component="span"
                   />

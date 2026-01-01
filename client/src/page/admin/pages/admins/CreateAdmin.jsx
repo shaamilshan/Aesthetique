@@ -141,7 +141,7 @@ const CreateAdmin = () => {
             >
               {loading ? "Loading..." : "Sign Up"}
             </button>
-            {error && <p className="my-2 text-red-400">{error}</p>}
+            {error && <p className="my-2 text-black">{error}</p>}
           </Form>
         </Formik>
       </div>
