@@ -15,7 +15,7 @@ const ProductCards = ({ data }) => {
       </div>
       <p className="text-orange-800 font-bold my-2">New</p>
       <h1 className="text-2xl font-bold my-2 w-56 line-clamp-1">{data.name}</h1>
-  <h2 className=" my-2">From ₹{data.price}</h2>
+  <h2 className=" my-2">From ₹{Number(data.price).toLocaleString()}</h2>
       <Link
         className="btn-blue-no-pad px-3 lg:px-12 py-1 text-white"
         to="/login"

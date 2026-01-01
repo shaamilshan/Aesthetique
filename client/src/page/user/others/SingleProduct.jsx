@@ -481,12 +481,12 @@ const SingleProduct = () => {
         <div className="w-full my-2 flex flex-col lg:flex-row gap-6">
           {/* Product Images Section - Nike Style */}
           <div className="w-full lg:w-1/2 flex flex-col">
-            {/* Main Image */}
-            <div className="bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center h-[350px] sm:h-[400px] lg:h-[450px]">
+            {/* Main Image - Flexible aspect ratio */}
+            <div className="bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center w-full max-w-md mx-auto">
               <img
                 src={getImageUrl(imageArray[selectedImageIndex], URL)}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-auto object-contain"
               />
             </div>
             
@@ -514,7 +514,7 @@ const SingleProduct = () => {
                     >
                       <img
                         className="w-full h-full object-cover"
-                        src={`${URL}/img/${image}`}
+                        src={getImageUrl(image, URL)}
                         alt={`Product view ${i+1}`}
                       />
                     </div>
@@ -558,7 +558,7 @@ const SingleProduct = () => {
                 ₹{Number(product.price).toFixed(2)}
               </h1>
 
-              {product.markup && Number(product.markup) > Number(product.price) && (
+              {Number(product.markup) > 0 && Number(product.markup) > Number(product.price) && (
                 <div className="flex items-center ml-3">
                   <h1 className="text-sm sm:text-base font-light text-gray-500 line-through mr-3">
                     ₹{Number(product.markup).toFixed(2)}
