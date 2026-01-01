@@ -26,7 +26,7 @@ export default function Home2() {
       </div>
 
       {/* Full-width OurProducts section */}
-      <OurProducts id="products" />
+      {/* <OurProducts id="products" /> */}
 
       <div className="max-w-screen-2xl mx-auto px-4">
         <CounterStats/>

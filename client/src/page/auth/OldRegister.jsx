@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import SignUpBG from "../../assets/SignUpBG.png";
+import SignUpBG from "../../assets/authentication/register.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Formik, Form, Field, ErrorMessage } from "formik";
