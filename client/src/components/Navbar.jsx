@@ -171,26 +171,21 @@ const Navbar = ({ usercheck }) => {
       const displayText = Array.isArray(announcement) ? (announcement[announcementIndex] || "") : (announcement || "");
       return hasAnnouncement ? (
       <div className="w-full bg-black text-white h-8">
-        <div className="overflow-hidden h-full flex items-center relative">
-          <div
-            aria-hidden="false"
-            role="region"
-            aria-label="Announcement"
-            className="will-change-transform absolute"
-            style={{
-              left: "100%",
-              top: "60%",
-              transform: "translateY(-50%)",
-              whiteSpace: "nowrap",
-              animation: "marquee 28s linear infinite",
-            }}
+        <div
+          aria-hidden={false}
+          role="region"
+          aria-label="Announcement"
+          className="h-full flex items-center justify-center px-4"
+        >
+          <span
+            key={announcementIndex}
+            className="text-sm text-center"
+            style={{ animation: "fadeUp 420ms ease-out" }}
           >
-            <span className="inline-block px-4 leading-10 text-sm">
-              {displayText}
-            </span>
-          </div>
+            {displayText}
+          </span>
         </div>
-      <style>{`@keyframes marquee { 0% { left: 100%; } 100% { left: -100%; } }`}</style>
+      <style>{`@keyframes fadeUp { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }`}</style>
       </div>
       ) : null;
     })()}

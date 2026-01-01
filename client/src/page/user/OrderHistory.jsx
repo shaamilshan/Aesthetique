@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getOrders } from "../../redux/actions/user/userOrderActions";
 import date from "date-and-time";
 import { URL } from "../../Common/api";
+import { getImageUrl } from "../../Common/functions";
 import EmptyCart from "../../assets/emptyCart.png";
 import { Link, useSearchParams } from "react-router-dom";
 import { BsArrowRight } from "react-icons/bs";
@@ -85,7 +86,7 @@ const OrderHistory = () => {
                               return singleImg ? (
                                 <div className="w-12 h-12 rounded-md overflow-hidden bg-gray-100">
                                   <img
-                                    src={`${URL}/img/${singleImg}`}
+                                    src={getImageUrl(singleImg, URL)}
                                     alt={single?.name || 'Product'}
                                     className="w-full h-full object-cover"
                                     loading="lazy"
@@ -115,7 +116,7 @@ const OrderHistory = () => {
                                     <div key={idx} className={`w-8 h-8 rounded-md overflow-hidden ring-2 ring-white bg-gray-100 ${idx === 0 ? '' : ''}`}>
                                       {img ? (
                                         <img
-                                          src={`${URL}/img/${img}`}
+                                          src={getImageUrl(img, URL)}
                                           alt={p?.name || 'Product'}
                                           className="w-full h-full object-cover"
                                           loading="lazy"

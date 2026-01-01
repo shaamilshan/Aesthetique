@@ -48,6 +48,33 @@ const AddProducts = () => {
   const [moreImageURL, setMoreImageURL] = useState([]);
   const [offer, setOffer] = useState(0);
 
+  const [faqs, setFaqs] = useState([]);
+  const [faqQuestion, setFaqQuestion] = useState("");
+  const [faqAnswer, setFaqAnswer] = useState("");
+
+  const addFaq = (e) => {
+    e?.preventDefault?.();
+    const q = faqQuestion.trim();
+    const a = faqAnswer.trim();
+    if (!q || !a) return;
+    setFaqs((prev) => [...prev, { question: q, answer: a }]);
+    setFaqQuestion("");
+    setFaqAnswer("");
+  };
+
+  const removeFaq = (indexToRemove) => {
+    setFaqs((prev) => prev.filter((_, i) => i !== indexToRemove));
+  };
+
+  const updateFaq = (index, field, value) => {
+    setFaqs((prev) => {
+      const next = [...prev];
+      const current = next[index] || { question: "", answer: "" };
+      next[index] = { ...current, [field]: value };
+      return next;
+    });
+  };
+
   const handleSingleImageInput = (img) => {
     setImageURL(img);
   };
@@ -117,6 +144,18 @@ const AddProducts = () => {
     if (moreImageURL && moreImageURL.length > 0) {
       for (const file of moreImageURL) {
         formData.append("moreImageURL", file);
+      }
+    }
+
+    if (Array.isArray(faqs) && faqs.length > 0) {
+      const cleanedFaqs = faqs
+        .map((f) => ({
+          question: (f?.question || "").trim(),
+          answer: (f?.answer || "").trim(),
+        }))
+        .filter((f) => f.question && f.answer);
+      if (cleanedFaqs.length > 0) {
+        formData.append("faqs", JSON.stringify(cleanedFaqs));
       }
     }
 
@@ -265,6 +304,80 @@ const AddProducts = () => {
               <h1 className="font-bold">Product Images</h1>
               <p className="admin-label my-2">Drop Here</p>
               <CustomFileInput onChange={handleMultipleImageInput} />
+            </div>
+
+            {/* FAQs */}
+            <div className="admin-div">
+              <h1 className="font-bold mb-2">Product FAQs</h1>
+              <p className="text-xs text-gray-500 mb-4">
+                Leave this section blank if the product has no FAQs.
+              </p>
+
+              <form className="flex flex-col gap-3" onSubmit={addFaq}>
+                <div>
+                  <p className="admin-label">Question</p>
+                  <input
+                    type="text"
+                    placeholder="Type FAQ question"
+                    className="admin-input"
+                    value={faqQuestion}
+                    onChange={(e) => setFaqQuestion(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <p className="admin-label">Answer</p>
+                  <textarea
+                    placeholder="Type FAQ answer"
+                    className="admin-input h-24"
+                    value={faqAnswer}
+                    onChange={(e) => setFaqAnswer(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="admin-button-fl w-full lg:w-auto bg-black text-white"
+                >
+                  Add FAQ
+                </button>
+              </form>
+
+              {faqs.length > 0 && (
+                <div className="border mt-5 rounded-lg">
+                  {faqs.map((f, index) => (
+                    <div
+                      key={index}
+                      className={`px-3 py-2 ${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="admin-label">Question</p>
+                          <input
+                            type="text"
+                            className="admin-input"
+                            value={f?.question || ""}
+                            onChange={(e) => updateFaq(index, "question", e.target.value)}
+                          />
+                          <p className="admin-label mt-2">Answer</p>
+                          <textarea
+                            className="admin-input h-24"
+                            value={f?.answer || ""}
+                            onChange={(e) => updateFaq(index, "answer", e.target.value)}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="text-xs text-[#A53030] shrink-0 mt-6"
+                          onClick={() => removeFaq(index)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             {/* Attributes */}
             {/* <div className="admin-div">

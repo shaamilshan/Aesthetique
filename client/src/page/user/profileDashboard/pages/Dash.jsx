@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { URL } from "../../../../Common/api";
 import { config } from "../../../../Common/configurations";
+import { getImageUrl } from "../../../../Common/functions";
 import ProfileImage from "../../../../components/ProfileImage";
 
 const Dash = () => {
@@ -211,7 +212,7 @@ const Dash = () => {
                                   <div key={itemIndex} className="w-8 h-8 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden">
                                     {product?.imageURL && (
                                       <img 
-                                        src={`${URL}/img/${product.imageURL}`} 
+                                        src={getImageUrl(product.imageURL, URL)} 
                                         alt={product.name}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {

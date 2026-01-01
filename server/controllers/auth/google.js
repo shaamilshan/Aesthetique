@@ -8,9 +8,12 @@ const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "1d" });
 };
 
+const isProd = process.env.NODE_ENV === "production";
 const cookieConfig = {
-  secure: true,
+  sameSite: isProd ? "none" : "lax",
+  secure: isProd,
   httpOnly: true,
+  path: "/",
   maxAge: 1000 * 60 * 60 * 24,
 };
 

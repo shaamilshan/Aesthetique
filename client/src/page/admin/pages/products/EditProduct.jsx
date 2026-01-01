@@ -47,7 +47,40 @@ const EditProduct = () => {
     markup: "",
     moreImageURL: [],
     offer: "",
+    faqs: [],
   });
+
+  const [faqQuestion, setFaqQuestion] = useState("");
+  const [faqAnswer, setFaqAnswer] = useState("");
+
+  const addFaq = (e) => {
+    e?.preventDefault?.();
+    const q = faqQuestion.trim();
+    const a = faqAnswer.trim();
+    if (!q || !a) return;
+    setFetchedData((prev) => ({
+      ...prev,
+      faqs: [...(Array.isArray(prev.faqs) ? prev.faqs : []), { question: q, answer: a }],
+    }));
+    setFaqQuestion("");
+    setFaqAnswer("");
+  };
+
+  const updateFaq = (index, field, value) => {
+    setFetchedData((prev) => {
+      const nextFaqs = Array.isArray(prev.faqs) ? [...prev.faqs] : [];
+      const current = nextFaqs[index] || { question: "", answer: "" };
+      nextFaqs[index] = { ...current, [field]: value };
+      return { ...prev, faqs: nextFaqs };
+    });
+  };
+
+  const removeFaq = (indexToRemove) => {
+    setFetchedData((prev) => ({
+      ...prev,
+      faqs: (Array.isArray(prev.faqs) ? prev.faqs : []).filter((_, i) => i !== indexToRemove),
+    }));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -173,6 +206,15 @@ const EditProduct = () => {
       computedOffer = Math.max(0, Math.round(((m - p) / m) * 100));
     }
     formData.append("offer", computedOffer);
+
+    // FAQs (always send; allows clearing to empty)
+    const cleanedFaqs = (Array.isArray(fetchedData.faqs) ? fetchedData.faqs : [])
+      .map((f) => ({
+        question: (f?.question || "").toString().trim(),
+        answer: (f?.answer || "").toString().trim(),
+      }))
+      .filter((f) => f.question && f.answer);
+    formData.append("faqs", JSON.stringify(cleanedFaqs));
 
     dispatch(updateProduct({ id: id, formData: formData }));
     navigate(-1);
@@ -397,6 +439,78 @@ const EditProduct = () => {
                 Upload additional product images
               </p>
               <CustomFileInput onChange={handleMultipleImageInput} />
+            </div>
+
+            {/* FAQs */}
+            <div className="admin-div">
+              <h1 className="font-bold mb-2">Product FAQs</h1>
+              <p className="text-xs text-gray-500 mb-4">
+                Leave this section blank if the product has no FAQs.
+              </p>
+
+              <form className="flex flex-col gap-3" onSubmit={addFaq}>
+                <div>
+                  <p className="admin-label">Question</p>
+                  <input
+                    type="text"
+                    placeholder="Type FAQ question"
+                    className="admin-input"
+                    value={faqQuestion}
+                    onChange={(e) => setFaqQuestion(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <p className="admin-label">Answer</p>
+                  <textarea
+                    placeholder="Type FAQ answer"
+                    className="admin-input h-24"
+                    value={faqAnswer}
+                    onChange={(e) => setFaqAnswer(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="admin-button-fl w-full lg:w-auto bg-black text-white"
+                >
+                  Add FAQ
+                </button>
+              </form>
+
+              {Array.isArray(fetchedData.faqs) && fetchedData.faqs.length > 0 && (
+                <div className="border mt-5 rounded-lg">
+                  {fetchedData.faqs.map((f, index) => (
+                    <div
+                      key={index}
+                      className={`px-3 py-3 ${index % 2 === 0 ? "bg-gray-100" : "bg-white"}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="admin-label">Question</p>
+                          <input
+                            type="text"
+                            className="admin-input"
+                            value={f?.question || ""}
+                            onChange={(e) => updateFaq(index, "question", e.target.value)}
+                          />
+                          <p className="admin-label mt-2">Answer</p>
+                          <textarea
+                            className="admin-input h-24"
+                            value={f?.answer || ""}
+                            onChange={(e) => updateFaq(index, "answer", e.target.value)}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="text-xs text-[#A53030] shrink-0 mt-6"
+                          onClick={() => removeFaq(index)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             {/* Attributes */}
             {/* <div className="admin-div">

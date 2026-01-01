@@ -3,6 +3,7 @@ import { BiTrashAlt } from "react-icons/bi";
 import { FaCartPlus } from "react-icons/fa";
 import axios from "axios";
 import { URL } from "../../../../../Common/api";
+import { getImageUrl } from "../../../../../Common/functions";
 import toast from "react-hot-toast";
 import { config } from "../../../../../Common/configurations";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +51,7 @@ const TableRow = ({ item }) => {
         <div className="w-10 h-10 overflow-clip flex justify-center items-center shrink-0">
           {item.product.imageURL ? (
             <img
-              src={`${URL}/img/${item.product.imageURL}`}
+              src={getImageUrl(item.product.imageURL, URL)}
               alt="img"
               className="object-contain w-full h-full"
             />

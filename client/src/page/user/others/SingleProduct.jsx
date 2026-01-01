@@ -21,6 +21,7 @@ import { config } from "@/Common/configurations";
 import ProductDetailsStarAndRating from "../components/ProductDetailsStarAndRating";
 import { addToBuyNowStore } from "@/redux/reducers/user/buyNowSlice";
 import { getUserProducts } from "@/redux/actions/user/userProductActions";
+import FAQAccordion from "@/components/FAQAccordion";
 
 import { FaShareAlt } from "react-icons/fa";
 import "./singleproduct.css";
@@ -66,6 +67,15 @@ const SingleProduct = () => {
   const isProductInWishlist = wishlist?.some((item) => item?.product?._id === id) || false;
   
   const isOutOfStock = product.stockQuantity === 0;
+
+  const productFaqs = Array.isArray(product?.faqs)
+    ? product.faqs
+        .map((f) => ({
+          q: (f?.question || "").toString().trim(),
+          a: (f?.answer || "").toString().trim(),
+        }))
+        .filter((f) => f.q && f.a)
+    : [];
 
   // Combine the base image and more images
   const imageArray = product.moreImageURL
@@ -236,41 +246,22 @@ const SingleProduct = () => {
   
     setCartLoading(true);
     try {
-      // Fetch cart items
-      const response = await axios.get(`${URL}/user/cart`, {
-        ...config,
-        withCredentials: true,
-      });
-  
-      const cartItems = response.data?.cart?.items || [];
-  
-      if (!Array.isArray(cartItems)) {
-        throw new Error("Invalid cart data structure");
-      }
-  
-      // Check if the product with the same attributes is already in the cart
-      const isProductInCart = cartItems.some((item) => 
-        item.product?._id === id && 
-        JSON.stringify(Object.entries(item.attributes || {}).sort()) === 
-        JSON.stringify(Object.entries(selectedAttributes).sort())
+      await axios.post(
+        `${URL}/user/cart`,
+        {
+          product: id,
+          quantity: count,
+          attributes: selectedAttributes,
+        },
+        { ...config, withCredentials: true }
       );
-  
-      if (isProductInCart) {
-        toast.error("This product is already in your cart");
-      } else {
-        await axios.post(
-          `${URL}/user/cart`,
-          {
-            product: id,
-            quantity: count,
-            attributes: selectedAttributes,
-          },
-          { ...config, withCredentials: true }
-        );
-        toast.success("Added to cart successfully");
-      }
+      toast.success("Added to cart successfully");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add to cart");
+      toast.error(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Failed to add to cart"
+      );
     } finally {
       setCartLoading(false);
     }
@@ -290,40 +281,22 @@ const SingleProduct = () => {
   
     setCartLoading(true);
     try {
-      // Fetch cart items
-      const response = await axios.get(`${URL}/user/cart`, {
-        ...config,
-        withCredentials: true,
-      });
-  
-      const cartItems = response.data?.cart?.items || [];
-  
-      if (!Array.isArray(cartItems)) {
-        throw new Error("Invalid cart data structure");
-      }
-  
-      // Check if the product with the same attributes is already in the cart
-      const isProductInCart = cartItems.some((item) => 
-        item.product?._id === id && 
-        JSON.stringify(Object.entries(item.attributes || {}).sort()) === 
-        JSON.stringify(Object.entries(selectedAttributes).sort())
+      await axios.post(
+        `${URL}/user/cart`,
+        {
+          product: id,
+          quantity: count,
+          attributes: selectedAttributes,
+        },
+        { ...config, withCredentials: true }
       );
-  
-      if (isProductInCart) {
-        
-      } else {
-        await axios.post(
-          `${URL}/user/cart`,
-          {
-            product: id,
-            quantity: count,
-            attributes: selectedAttributes,
-          },
-          { ...config, withCredentials: true }
-        );
-        
-      }
     } catch (error) {
+      // Don't block buy-now navigation if cart sync fails; just inform.
+      toast.error(
+        error.response?.data?.error ||
+          error.response?.data?.message ||
+          "Failed to add to cart"
+      );
     } finally {
       setCartLoading(false);
     }
@@ -757,9 +730,18 @@ const SingleProduct = () => {
             </div>
             <div className="mt-4">
               {toggleStates.div3 ? (
-                <div className="text-gray-700 text-base whitespace-pre-line min-h-[100px]">
-                  {/* Long description from admin panel */}
-                  {product.longDescription || 'No additional description available.'}
+                <div>
+                  <div className="text-gray-700 text-base whitespace-pre-line min-h-[100px]">
+                    {/* Long description from admin panel */}
+                    {product.longDescription || "No additional description available."}
+                  </div>
+
+                  {productFaqs.length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-3">FAQs</h3>
+                      <FAQAccordion faqs={productFaqs} initialOpen={0} />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <DescReview product={product} id={id} />
