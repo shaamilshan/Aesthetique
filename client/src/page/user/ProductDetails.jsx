@@ -205,8 +205,7 @@ const ProductDetails = () => {
                       })
                     : ""}
                 </span>
-                {product.markup && Number(product.markup) > Number(product.price) && (
-                <span className="text-blue-600">₹{Number(product.price).toLocaleString()}</span>
+
                 {Number(product.markup) > 0 && Number(product.markup) > Number(product.price) && (
                   <>
                     <span className="text-gray-500 line-through ml-3">
@@ -215,7 +214,6 @@ const ProductDetails = () => {
                         currency: "INR",
                         maximumFractionDigits: 2,
                       })}
-                      ₹{Number(product.markup).toLocaleString()}
                     </span>
                     <span className="bg-orange-500 px-3 py-1 ml-5 text-base rounded">
                       {Math.max(

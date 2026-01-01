@@ -191,7 +191,7 @@ input[type="range"].slider-black::-moz-range-track {
   }
   .btn-red-border {
     /* border variant using black as primary */
-    @apply border-2 text-black hover:text-gray-600 uppercase text-sm border-black px-5 font-semibold lg:px-12 py-3 rounded-lg hover:bg-black hover:text-white;
+    @apply border-2 text-black uppercase text-sm border-black px-5 font-semibold lg:px-12 py-3 rounded-lg hover:bg-black hover:text-white;
   }
   
   .xy-center {
