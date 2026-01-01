@@ -18,7 +18,6 @@ import {
 import { Megaphone } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../redux/actions/userActions";
-import { clearUserState } from "@/redux/reducers/userSlice";
 
 const SideNavbar = () => {
   const { user } = useSelector((state) => state.user);
@@ -26,9 +25,12 @@ const SideNavbar = () => {
   const dispatch = useDispatch();
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+    } finally {
+      navigate("/login", { replace: true });
+    }
   };
 
   const toggleSidebar = () => {

@@ -15,9 +15,12 @@ const DashSideNavbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+    } finally {
+      navigate("/login", { replace: true });
+    }
   };
 
   return (

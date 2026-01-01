@@ -19,9 +19,12 @@ const SideNavbar = () => {
   const dispatch = useDispatch();
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+    } finally {
+      navigate("/login", { replace: true });
+    }
   };
 
   const toggleSidebar = () => {
