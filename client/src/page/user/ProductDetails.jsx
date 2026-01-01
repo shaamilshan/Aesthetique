@@ -196,11 +196,23 @@ const ProductDetails = () => {
                 </p>
               </div>
               <p className="text-xl font-semibold my-2">
-                <span className="text-blue-600">{product.price}₹</span>
-                {product.markup && product.markup > product.price && (
+                <span className="text-blue-600">
+                  {product.price != null
+                    ? Number(product.price).toLocaleString("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                        maximumFractionDigits: 2,
+                      })
+                    : ""}
+                </span>
+                {product.markup && Number(product.markup) > Number(product.price) && (
                   <>
                     <span className="text-gray-500 line-through ml-3">
-                      {product.markup}₹
+                      {Number(product.markup).toLocaleString("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                        maximumFractionDigits: 2,
+                      })}
                     </span>
                     <span className="bg-orange-500 px-3 py-1 ml-5 text-base rounded">
                       {Math.max(
