@@ -26,23 +26,23 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const registerTestimonials = [
-    {
-      quote: "Join thousands of satisfied customers who trust BM AESTHETIQUE for quality and style. The registration process was seamless and secure.",
-      author: "Customer Review",
-      title: "Verified Buyer"
-    },
-    {
-      quote: "Creating an account opened up a world of premium beauty products. The user experience is exceptional from day one.",
-      author: "Emma Rodriguez",
-      title: "Beauty Enthusiast"
-    },
-    {
-      quote: "The sign-up was quick and easy. Now I have access to exclusive deals and personalized recommendations. Highly recommended!",
-      author: "David Kim",
-      title: "Loyal Customer"
-    }
-  ];
+  // const registerTestimonials = [
+  //   {
+  //     quote: "Join thousands of satisfied customers who trust BM AESTHETIQUE for quality and style. The registration process was seamless and secure.",
+  //     author: "Customer Review",
+  //     title: "Verified Buyer"
+  //   },
+  //   {
+  //     quote: "Creating an account opened up a world of premium beauty products. The user experience is exceptional from day one.",
+  //     author: "Emma Rodriguez",
+  //     title: "Beauty Enthusiast"
+  //   },
+  //   {
+  //     quote: "The sign-up was quick and easy. Now I have access to exclusive deals and personalized recommendations. Highly recommended!",
+  //     author: "David Kim",
+  //     title: "Loyal Customer"
+  //   }
+  // ];
 
   useEffect(() => {
     if (user) {
@@ -260,7 +260,7 @@ const Register = () => {
           <div className="hidden lg:block lg:w-1/2 relative bg-gray-100">
             <img src={SignUpBG} alt="auth" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/30"></div>
-            <TestimonialCarousel testimonials={registerTestimonials} />
+          
           </div>
         </div>
       </div>

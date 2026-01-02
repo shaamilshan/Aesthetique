@@ -22,20 +22,23 @@ const Login = () => {
 
   const loginTestimonials = [
     {
-      quote: "Untitled Labs were a breeze to work alongside, we can't recommend them enough. We launched 6 months earlier than expected and are growing 30% MoM.",
-      author: "Amélie Laurent",
-      title: "Founder, Sisyyphus"
+      // quote:
+      //   "Professional service and a smooth experience from start to finish. I felt well taken care of.",
+      // author: "Aisha",
+      // title: "Client",
     },
     {
-      quote: "The platform's intuitive design and seamless user experience have transformed how we connect with our customers. Highly recommended!",
-      author: "Marcus Chen",
-      title: "CEO, TechFlow"
+      // quote:
+      //   "Booking and managing my appointments is quick and easy. The whole platform feels very intuitive.",
+      // author: "Rahul",
+      // title: "Client",
     },
     {
-      quote: "Outstanding service and support. The login process is smooth and secure, giving our users complete peace of mind.",
-      author: "Sarah Johnson",
-      title: "Product Manager, InnovateCorp"
-    }
+      // quote:
+      //   "Great support and a secure login flow — I always feel confident accessing my account.",
+      // author: "Nadia",
+      // title: "Client",
+    },
   ];
 
   const initialValues = {
@@ -160,7 +163,7 @@ const Login = () => {
           <div className="hidden lg:block lg:w-1/2 relative bg-gray-100">
             <img src={LoginImg} alt="auth" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/30"></div>
-            <TestimonialCarousel testimonials={loginTestimonials} />
+           
           </div>
         </div>
       </div>
