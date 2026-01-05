@@ -2,6 +2,26 @@ import React from 'react';
 import logo from "../assets/others/bm-logo.png";
 
 function Footer() {
+  const handleScrollAbout = (e) => {
+    // Try to smooth-scroll to an in-page about section if present.
+    // If not found, fall back to full page navigation to /about-us.
+    try {
+      e.preventDefault();
+    } catch (err) {
+      /* ignore if called programmatically without an event */
+    }
+    const ids = ["about", "about-us"];
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+    }
+    // No in-page anchor found — navigate to the dedicated about page
+    window.location.href = "/about-us";
+  };
+
   return (
     <footer className="bg-white text-black py-8 border-t">
       <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-start gap-8">
@@ -28,7 +48,11 @@ function Footer() {
             <ul className="space-y-2">
               <li><a href="/" className="hover:text-gray-700">Home</a></li>
               <li><a href="/collections" className="hover:text-gray-700">Shop</a></li>
-              <li><a href="/about-us" className="hover:text-gray-700">About</a></li>
+              <li>
+                <a href="/about-us" onClick={handleScrollAbout} className="hover:text-gray-700">
+                  About
+                </a>
+              </li>
               <li><a href="#contact" className="hover:text-gray-700">Contact</a></li>
             </ul>
           </div>

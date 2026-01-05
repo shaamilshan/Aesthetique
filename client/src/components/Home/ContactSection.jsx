@@ -54,6 +54,8 @@ export default function ContactSection({ id }) {
 
   const [faqs, setFaqs] = useState(defaultFaqs);
   const [faqsLoading, setFaqsLoading] = useState(false);
+  // External directions/share link provided by user (used for the external open link)
+  const externalMapUrl = "https://www.google.com/maps/dir//2nd+Floor,+Room+No.+16,+Alex+Square,+Best+Med+Aesthetique+Pvt+Ltd,+opposite+to+Amritha+School,+Ettimadai,+Coimbatore,+Tamil+Nadu+641112/@11.3075357,75.8882503,15z/data=!3m1!4b1!4m8!4m7!1m0!1m5!1m1!1s0x3ba85b8f99aa4db7:0x5ef94650ef08df91!2m2!1d76.9241763!2d10.9590929?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoKLDEwMDc5MjA2OUgBUAM%3D";
 
   useEffect(() => {
     let mounted = true;
@@ -165,13 +167,24 @@ export default function ContactSection({ id }) {
             <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Find Us On The <span className="font-serif italic">Map</span></h3>
           </div>
           <div className="rounded-3xl overflow-hidden shadow-xl border border-gray-200">
+            {/* Optional external map link (opens in new tab) */}
+            <div className="p-4 text-right">
+              <a
+                href={externalMapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-sm text-blue-600 hover:underline"
+              >
+                Open in Google Maps
+              </a>
+            </div>
             <iframe
               title="Google Map"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3912.324232747081!2d76.9148583153347!3d10.90276349222159!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba85a7e2e2e2e2f%3A0x2e2e2e2e2e2e2e2e!2sBEST%20MED%20AESTHETIQUE%20PVT%20LTD!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.0566577919026!2d76.92160127510279!3d10.959092889201038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba85b8f99aa4db7%3A0x5ef94650ef08df91!2sBest%20Med%20Aesthetique%20Pvt%20Ltd.!5e0!3m2!1sen!2sin!4v1767626523992!5m2!1sen!2sin"
               width="100%"
               height="450"
               style={{ border: 0 }}
-              allowFullScreen=""
+              allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             ></iframe>

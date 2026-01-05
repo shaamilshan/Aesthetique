@@ -1,5 +1,5 @@
 import React from "react";
-import HeroVideo from "../../assets/others/herodesktop.mp4";
+import HeroVideo from "../../assets/banner/herovideo2.mp4";
 
 const videoSrc = HeroVideo;
 
