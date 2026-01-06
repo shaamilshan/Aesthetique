@@ -53,12 +53,17 @@ export default function Home2(props) {
 
       {/* Banner 1 - Between About Us and Products */}
       {!loading && banners.banner1?.image && (
-        <MotionSection className="px-4 md:px-8 lg:px-12">
-          <div className="relative h-[50vh] w-full rounded-3xl overflow-hidden shadow-xl">
+  // small horizontal padding on mobile so banners have a little breathing room
+  <MotionSection className="px-2 md:px-8 lg:px-12">
+          {/* Use responsive aspect-ratio + min-height so the hero keeps its composition on small screens
+              - lg: use the wide desktop ratio derived from current layout (152/45)
+              - md: use 16:9 for tablets
+              - default/mobile: 16:9 with a min height to avoid collapsing to a tiny/square area */}
+          <div className="relative w-full rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
             <img
               src={banners.banner1.image?.startsWith?.("http") ? banners.banner1.image : `${URL}/img/${banners.banner1.image}`}
               alt="Home Banner"
-              className="h-full w-full object-cover object-[50%_20%]"
+              className="w-full h-full object-cover object-[50%_20%]"
             />
           </div>
         </MotionSection>
@@ -66,12 +71,14 @@ export default function Home2(props) {
 
       {/* Banner 2 - Right below Banner 1, before Products */}
       {!loading && banners.banner2?.image && (
-        <MotionSection className="px-4 md:px-8 lg:px-12 mt-16" delay={0.06}>
-          <div className="relative h-[50vh] w-full rounded-3xl overflow-hidden shadow-xl">
+  // reduce vertical gap on mobile; keep larger spacing on md/lg
+  <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.06}>
+          {/* Match Banner1 behaviour on smaller screens to keep ratio consistent and avoid square crops */}
+          <div className="relative w-full rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
             <img
               src={banners.banner2.image?.startsWith?.("http") ? banners.banner2.image : `${URL}/img/${banners.banner2.image}`}
               alt="Home Banner 2"
-              className="h-full w-full object-cover object-[50%_20%]"
+              className="w-full h-full object-cover object-[50%_20%]"
             />
           </div>
         </MotionSection>
@@ -84,12 +91,14 @@ export default function Home2(props) {
 
       {/* Banner 3 - Between Products and Contact */}
       {!loading && banners.banner3?.image && (
-        <MotionSection className="px-4 md:px-8 lg:px-12 my-16" delay={0.08}>
-          <div className="relative h-[60vh] sm:h-[70vh] lg:h-[85vh] w-full rounded-3xl overflow-hidden shadow-xl">
+        // reduce vertical gap on mobile; keep larger spacing on md/lg (match Banner2)
+        <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.08}>
+          {/* Match Banner1/Banner2 behaviour so all banners share the same responsive ratio and spacing */}
+          <div className="relative w-full rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
             <img
               src={banners.banner3.image?.startsWith?.("http") ? banners.banner3.image : `${URL}/img/${banners.banner3.image}`}
               alt="Home Banner 3"
-              className="h-full w-full object-cover object-[50%_20%]"
+              className="w-full h-full object-cover object-[50%_20%]"
             />
           </div>
         </MotionSection>
