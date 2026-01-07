@@ -41,7 +41,7 @@ function Footer() {
         </div>
 
         {/* Grid Links */}
-        <div className="w-full md:flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+  <div className="w-full md:flex-1 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {/* Links */}
           <div>
             <h4 className="text-lg font-medium mb-4">Links</h4>
@@ -71,7 +71,7 @@ function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div className=''>
+          <div className='col-span-2 md:col-span-1 hidden'>
             <h4 className="text-lg font-medium mb-4">Newsletter</h4>
             <form className="flex sm:flex-col flex-row gap-2 sm:gap-1">
               <input
