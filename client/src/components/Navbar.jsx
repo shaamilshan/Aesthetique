@@ -195,7 +195,7 @@ const Navbar = ({ usercheck }) => {
     <header className={`w-full bg-white`}
       role="banner">
       {/* Increased vertical padding for taller navbar */}
-  <div className="container mx-auto px-4 lg:px-6 py-2 lg:py-3">
+  <div className="w-full px-4 md:px-8 lg:px-12 py-2 lg:py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center ml-0 lg:ml-0">
