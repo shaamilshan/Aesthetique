@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 
 import axios from "axios";
 import { URL } from "@common/api";
+import logo from "../../../assets/others/bm-logo.png";
 import { config } from "@common/configurations";
 import CheckoutCartRow from "../components/CheckoutCartRow";
 import AddressCheckoutSession from "../components/AddressCheckoutSession";
@@ -168,7 +169,7 @@ const BuyNow = () => {
       currency: "INR",
       name: "TrendKart",
       description: "Test Transaction",
-      image: `${URL}/off/logo.png`,
+      // No logo passed to Razorpay (intentionally left blank to avoid PNA/CORS issues)
       order_id: order.id,
       handler: function (response) {
         saveOrder(response);
@@ -230,12 +231,14 @@ const BuyNow = () => {
       return;
     }
 
-    if (
-      selectedPayment === "cashOnDelivery" ||
-      selectedPayment === "myWallet"
-    ) {
+    if (selectedPayment === "myWallet") {
+      // Save order using wallet balance
       saveOrderOnCashDeliveryOrMyWallet();
+      return;
     }
+
+    // If we reach here, payment method is invalid
+    toast.error("Invalid payment method selected.");
   };
 
   return (

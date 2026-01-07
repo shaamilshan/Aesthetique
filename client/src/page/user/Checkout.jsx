@@ -7,6 +7,7 @@ import { BsArrowRight } from "react-icons/bs";
 
 import axios from "axios";
 import { URL } from "../../Common/api";
+import logo from "../../assets/others/bm-logo.png";
 import { config } from "../../Common/configurations";
 import CheckoutCartRow from "./components/CheckoutCartRow";
 import AddressCheckoutSession from "./components/AddressCheckoutSession";
@@ -36,8 +37,6 @@ const Checkout = () => {
 
   const finalTotal = totalPrice + shipping + tax - offer;
 
-  // Wallet balance
-  const [walletBalance, setWalletBalance] = useState(0);
 
   // Address Selection
   const [selectedAddress, setSelectedAddress] = useState("");
@@ -56,55 +55,7 @@ const Checkout = () => {
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [orderData, setOrderData] = useState({});
 
-  // Cash on delivery or wallet balance
-  const saveOrderOnCashDeliveryOrMyWallet = async () => {
-    setOrderPlacedLoading(true);
-
-    try {
-      const response = await axios.post(
-        `${URL}/user/order`,
-        {
-          notes: additionalNotes,
-          address: selectedAddress,
-          paymentMode: selectedPayment,
-        },
-        config
-      );
-      
-      console.log("API Response:", response); // Debug logging
-      const order = response.data.order;
-      
-      // Format order data for the confirmation page
-      const formattedOrderData = {
-        orderId: order.orderId || order._id,
-        _id: order._id,
-        totalPrice: order.totalPrice.toFixed(2),
-        deliveryDate: order.deliveryDate,
-      };
-      
-      console.log("Formatted order data:", formattedOrderData); // Debug logging
-      
-      // Updating user side
-      toast.success("Order Placed");
-      dispatch(clearCartOnOrderPlaced());
-      
-      // Show confirmation UI
-      setOrderData(formattedOrderData);
-      setOrderConfirmed(true);
-      setOrderPlacedLoading(false);
-      
-      console.log("Order confirmed state set to:", true); // Debug logging
-      
-    } catch (error) {
-      // Error Handling
-      console.error("Order placement error:", error);
-      const errorMessage =
-        error.response?.data?.error ||
-        "Something went wrong. Please try again.";
-      toast.error(errorMessage);
-      setOrderPlacedLoading(false);
-    }
-  };
+  // Wallet removed: non-Razorpay payments are not supported here
 
   // Razor Pay payment
   // Saving the order to db
@@ -182,9 +133,9 @@ const Checkout = () => {
         key: key,
         amount: parseInt(finalTotal * 100),
         currency: "INR",
-        name: "TrendKart",
+        name: "BM AESTHETIQUE",
         description: "Test Transaction",
-        image: `${URL}/off/logo.png`,
+      // No logo passed to Razorpay (intentionally left blank to avoid PNA/CORS issues)
         order_id: order.id,
         handler: function (response) {
           saveOrder(response);
@@ -241,28 +192,15 @@ const Checkout = () => {
       return;
     }
 
-    if (selectedPayment === "myWallet") {
-      let entireTotal =
-        Number(totalPrice) + Number(shipping) + Number(tax) - Number(offer);
-      console.log("entireTotal", entireTotal);
-    
-      if (walletBalance < entireTotal) {
-        toast.error("Not enough balance in your wallet");
-        return;
-      }
-    }
+    // Wallet payment removed from checkout flow
 
     if (selectedPayment === "razorPay") {
       initiateRazorPayPayment();
       return;
     }
 
-    if (
-      selectedPayment === "cashOnDelivery" ||
-      selectedPayment === "myWallet"
-    ) {
-      saveOrderOnCashDeliveryOrMyWallet(); 
-    }
+    // Removed Cash on Delivery logic
+    toast.error("Invalid payment method selected.");
   };
 
   console.log("Current orderConfirmed state:", orderConfirmed); // Debug logging
@@ -332,8 +270,6 @@ const Checkout = () => {
                   <CheckoutPaymentOption
                     handleSelectedPayment={handleSelectedPayment}
                     selectedPayment={selectedPayment}
-                    walletBalance={walletBalance}
-                    setWalletBalance={setWalletBalance}
                   />
                 </div>
               </div>

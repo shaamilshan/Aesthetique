@@ -15,8 +15,8 @@ const createRazerPayOrder = async (req, res) => {
     // });
 
     const instance = new RazorPay({
-      key_id: "rzp_live_osZ7QN7ltUqSbI",
-      key_secret: "1sLIcL6xSMrVyo4cufaFjoaf",
+      key_id: process.env.KEY_ID,
+      key_secret: process.env.KEY_SECRET,
     });
 
     const options = {
@@ -52,8 +52,7 @@ const verifyPayment = async (req, res) => {
 
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSign = crypto
-      // .createHmac("sha256", process.env.KEY_SECRET)
-      .createHmac("sha256", "1sLIcL6xSMrVyo4cufaFjoaf")
+      .createHmac("sha256", process.env.KEY_SECRET)
       .update(sign.toString())
       .digest("hex");
 
@@ -78,8 +77,11 @@ const verifyPayment = async (req, res) => {
 };
 
 const getKey = (req, res) => {
-  return res.status(200).json({ key: "rzp_live_osZ7QN7ltUqSbI" });
-  // return res.status(200).json({ key: process.env.KEY_ID });
+  const key = process.env.KEY_ID;
+  if (!key) {
+    return res.status(500).json({ error: "Razorpay key not configured on server" });
+  }
+  return res.status(200).json({ key });
 };
 
 module.exports = {
