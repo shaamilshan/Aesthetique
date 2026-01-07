@@ -2,7 +2,8 @@ import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
+import { motion } from "framer-motion";
 
 // Redux
 import { getUserDataFirst } from "./redux/actions/userActions";
@@ -20,7 +21,6 @@ import Footer from "./components/Footer";
 // Auth
 import Login from "./page/auth/Login";
 import Register from "./page/auth/Register";
-// ...existing code...
 import ForgetPassword from "./page/auth/ForgetPassword";
 
 // User
@@ -77,6 +77,18 @@ import Contact from "./page/user/others/Contact";
 import SingleProduct from "./page/user/others/SingleProduct";
 import SingleProduct2 from "./page/user/others/SingleProduct2";
 
+const CustomToast = ({ t, message }) => (
+  <motion.div
+    initial={{ opacity: 0, y: -50 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: 50 }}
+    transition={{ duration: 0.5 }}
+    className="bg-blue-500 text-white p-4 rounded shadow-lg"
+  >
+    {message}
+  </motion.div>
+);
+
 function App() {
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -96,7 +108,17 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-center" />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          success: {
+            render: ({ t, message }) => <CustomToast t={t} message={message} />,
+          },
+          error: {
+            render: ({ t, message }) => <CustomToast t={t} message={message} />,
+          },
+        }}
+      />
 
       <BrowserRouter>
         {user ? user.role === "user" && <Navbar /> : <Navbar />}
@@ -131,7 +153,6 @@ function App() {
 
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
-// ...existing code...
           <Route path="forgot-password" element={<ForgetPassword />} />
 
           {/* General Pages */}
