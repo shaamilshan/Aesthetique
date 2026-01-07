@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { AiOutlinePlus, AiOutlineEdit } from "react-icons/ai";
+import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import {
+  deleteCategory,
+} from "../../../../redux/actions/admin/categoriesAction";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getCategories } from "../../../../redux/actions/admin/categoriesAction";
@@ -152,9 +155,33 @@ const Categories = () => {
                           <div className="flex items-center gap-2 text-lg">
                             <span
                               className="hover:text-gray-500"
-                              onClick={() => navigate(`edit/${category._id}`)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`edit/${category._id}`);
+                              }}
+                              title="Edit"
                             >
                               <AiOutlineEdit />
+                            </span>
+                            <span
+                              className="hover:text-red-500"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                const ok = window.confirm(
+                                  `Delete category "${category.name}"? This cannot be undone.`
+                                );
+                                if (!ok) return;
+                                try {
+                                  await dispatch(deleteCategory(category._id)).unwrap();
+                                  // Refresh list with current search params
+                                  dispatch(getCategories(searchParams));
+                                } catch (err) {
+                                  console.error("Failed to delete category", err);
+                                }
+                              }}
+                              title="Delete"
+                            >
+                              <AiOutlineDelete />
                             </span>
                           </div>
                         </td>
