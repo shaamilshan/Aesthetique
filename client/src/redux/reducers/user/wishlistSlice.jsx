@@ -65,13 +65,17 @@ const wishlistSlice = createSlice({
         state.loading = false;
         state.error = null;
 
-        const { productId } = payload;
+        if (payload && payload.productId) {
+          const { productId } = payload;
 
-        state.wishlist = state.wishlist.filter((item) => {
-          return item.product._id !== productId;
-        });
+          state.wishlist = state.wishlist.filter((item) => {
+            return item.product && item.product._id !== productId;
+          });
 
-        toast.success("Item Deleted");
+          toast.success("Removed from wishlist");
+        } else {
+          toast.error("Failed to remove item from wishlist.");
+        }
       })
       .addCase(deleteOneProductFromWishlist.rejected, (state, { payload }) => {
         state.loading = false;

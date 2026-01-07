@@ -74,10 +74,12 @@ const ProductCard2 = ({ product }) => {
     try {
       if (isInWishlist) {
         await dispatch(deleteOneProductFromWishlist(product._id)).unwrap();
-        setIsInWishlist(false);
+        // Fetch updated wishlist from Redux store
+        dispatch(getWishlist());
       } else {
         await dispatch(addToWishlist({ product: product._id })).unwrap();
-        setIsInWishlist(true);
+        // Fetch updated wishlist from Redux store
+        dispatch(getWishlist());
       }
     } catch (error) {
       console.error("Wishlist Error:", error);
