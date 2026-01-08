@@ -35,24 +35,17 @@ check indexcss tst file 🤣😢🎶😎
   display: none;
 }
 
-/* Hide scrollbar for Firefox */
-/* Hide scrollbar for Firefox */
-*{
-  scrollbar-width: none;
-  overflow: hidden;
+/* Hide scrollbar for Firefox on the root document (don't force overflow on all elements) */
+html, body {
+  scrollbar-width: none; /* Hides scrollbar in Firefox */
 }
-/* or 'thin' or 'auto' */
 
 /* For Webkit browsers */
 .my-container::-webkit-scrollbar {
   display: none;
 }
 
-* {
-  scrollbar-width: none; /* Hides scrollbar in Firefox */
-  overflow-x: auto; /* Allows horizontal scrolling */
-  overflow-y: scroll; /* Enables vertical scrolling but hides scrollbar */
-}
+/* Do not set overflow on every element globally - that caused inner sections to become independently scrollable. */
 
 *::-webkit-scrollbar {
   display: none; /* Hides scrollbar in Chrome, Edge, and Safari */
