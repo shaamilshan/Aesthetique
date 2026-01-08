@@ -101,7 +101,7 @@ const updateHomeBanner = async (req, res) => {
   try {
     const { bannerNumber } = req.params; // banner1, banner2, or banner3
     const { title, subtitle, isActive } = req.body;
-    const file = req?.file;
+    const files = req?.files || [];
 
     if (!['banner1', 'banner2', 'banner3'].includes(bannerNumber)) {
       return res.status(400).json({ error: "Invalid banner number. Use banner1, banner2, or banner3" });
@@ -112,18 +112,30 @@ const updateHomeBanner = async (req, res) => {
     if (!exists) {
       exists = await Banner.create({
         homeBanners: {
-          banner1: { image: '', title: '', subtitle: '', isActive: true },
-          banner2: { image: '', title: '', subtitle: '', isActive: false },
-          banner3: { image: '', title: '', subtitle: '', isActive: false }
+          banner1: { images: [], title: '', subtitle: '', isActive: true },
+          banner2: { images: [], title: '', subtitle: '', isActive: false },
+          banner3: { images: [], title: '', subtitle: '', isActive: false }
         }
       });
     }
 
+    // Build update object for title/subtitle/isActive
     const updateData = {};
     if (title !== undefined) updateData[`homeBanners.${bannerNumber}.title`] = title;
     if (subtitle !== undefined) updateData[`homeBanners.${bannerNumber}.subtitle`] = subtitle;
     if (isActive !== undefined) updateData[`homeBanners.${bannerNumber}.isActive`] = isActive;
-  if (file) updateData[`homeBanners.${bannerNumber}.image`] = file.path || file.filename;
+
+    // If files provided, push them into the banner's images array
+    if (files.length > 0) {
+      const filePaths = files.map(f => f.path || f.filename);
+      // Use $push with $each to append multiple images
+      const updated = await Banner.findByIdAndUpdate(
+        exists._id,
+        { $push: { [`homeBanners.${bannerNumber}.images`]: { $each: filePaths } }, $set: updateData },
+        { new: true }
+      );
+      return res.status(200).json({ banner: updated });
+    }
 
     const banner = await Banner.findByIdAndUpdate(
       exists._id,
@@ -145,9 +157,9 @@ const getHomeBanners = async (req, res) => {
     if (!banner) {
       banner = await Banner.create({
         homeBanners: {
-          banner1: { image: '', title: 'Banner 1', subtitle: 'Description for banner 1', isActive: true },
-          banner2: { image: '', title: 'Banner 2', subtitle: 'Description for banner 2', isActive: false },
-          banner3: { image: '', title: 'Banner 3', subtitle: 'Description for banner 3', isActive: false }
+          banner1: { images: [], title: 'Banner 1', subtitle: 'Description for banner 1', isActive: true },
+          banner2: { images: [], title: 'Banner 2', subtitle: 'Description for banner 2', isActive: false },
+          banner3: { images: [], title: 'Banner 3', subtitle: 'Description for banner 3', isActive: false }
         }
       });
     }
@@ -192,10 +204,11 @@ const setActiveHomeBanner = async (req, res) => {
   }
 };
 
-// Delete home banner image
+// Delete home banner image or a specific image from the banner's images array
 const deleteHomeBanner = async (req, res) => {
   try {
     const { bannerNumber } = req.params;
+    const { image } = req.query; // optional image path to remove
 
     if (!['banner1', 'banner2', 'banner3'].includes(bannerNumber)) {
       return res.status(400).json({ error: "Invalid banner number" });
@@ -207,18 +220,24 @@ const deleteHomeBanner = async (req, res) => {
       return res.status(404).json({ error: "No banners found" });
     }
 
-    // Clear the banner image
-    const banner = await Banner.findByIdAndUpdate(
-      exists._id,
-      {
-        $set: {
-          [`homeBanners.${bannerNumber}.image`]: ''
-        }
-      },
-      { new: true }
-    );
+    let banner;
+    if (image) {
+      // remove specific image from images array
+      banner = await Banner.findByIdAndUpdate(
+        exists._id,
+        { $pull: { [`homeBanners.${bannerNumber}.images`]: image } },
+        { new: true }
+      );
+    } else {
+      // clear all images for this banner
+      banner = await Banner.findByIdAndUpdate(
+        exists._id,
+        { $set: { [`homeBanners.${bannerNumber}.images`]: [] } },
+        { new: true }
+      );
+    }
 
-    return res.status(200).json({ message: "Banner deleted successfully", banner });
+    return res.status(200).json({ message: "Banner updated successfully", banner });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

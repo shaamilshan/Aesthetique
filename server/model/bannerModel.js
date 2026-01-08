@@ -6,19 +6,19 @@ const BannerSchema = new Schema({
   images: [String], // Keep for backward compatibility
   homeBanners: {
     banner1: {
-      image: String,
+      images: [String],
       title: String,
       subtitle: String,
       isActive: { type: Boolean, default: true }
     },
     banner2: {
-      image: String,
+      images: [String],
       title: String,
       subtitle: String,
       isActive: { type: Boolean, default: false }
     },
     banner3: {
-      image: String,
+      images: [String],
       title: String,
       subtitle: String,
       isActive: { type: Boolean, default: false }

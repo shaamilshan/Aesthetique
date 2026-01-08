@@ -166,7 +166,7 @@ router.delete("/banner/:id", deleteBanner);
 
 // Home Banner Controllers
 router.get("/home-banners", getHomeBanners);
-router.put("/home-banners/:bannerNumber", upload.single('image'), updateHomeBanner);
+router.put("/home-banners/:bannerNumber", upload.any(), updateHomeBanner);
 router.patch("/home-banners/:bannerNumber/activate", setActiveHomeBanner);
 router.delete("/home-banners/:bannerNumber", deleteHomeBanner);
 

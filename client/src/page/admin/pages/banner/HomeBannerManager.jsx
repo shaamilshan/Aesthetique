@@ -6,9 +6,9 @@ import toast from 'react-hot-toast';
 
 const HomeBannerManager = () => {
   const [banners, setBanners] = useState({
-    banner1: { image: '', title: '', subtitle: '', isActive: true },
-    banner2: { image: '', title: '', subtitle: '', isActive: false },
-    banner3: { image: '', title: '', subtitle: '', isActive: false }
+    banner1: { images: [], title: '', subtitle: '', isActive: true },
+    banner2: { images: [], title: '', subtitle: '', isActive: false },
+    banner3: { images: [], title: '', subtitle: '', isActive: false }
   });
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState({});
@@ -18,14 +18,23 @@ const HomeBannerManager = () => {
     fetchBanners();
   }, []);
 
+  // Global carousel removed from admin UI per request; only per-banner images are managed here.
+
   const fetchBanners = async () => {
     try {
       const response = await axios.get(`${URL}/admin/home-banners`, config);
       if (response.data.homeBanners) {
+        const hb = response.data.homeBanners;
+        const normalize = (b) => {
+          if (!b) return null;
+          if (Array.isArray(b.images)) return b;
+          if (b.image) return { ...b, images: [b.image] };
+          return { ...b, images: [] };
+        };
         setBanners(prev => ({
-          banner1: response.data.homeBanners.banner1 || prev.banner1,
-          banner2: response.data.homeBanners.banner2 || prev.banner2,
-          banner3: response.data.homeBanners.banner3 || prev.banner3
+          banner1: normalize(hb.banner1) || prev.banner1,
+          banner2: normalize(hb.banner2) || prev.banner2,
+          banner3: normalize(hb.banner3) || prev.banner3
         }));
       }
     } catch (error) {
@@ -41,7 +50,19 @@ const HomeBannerManager = () => {
     
     try {
       const formData = new FormData();
-      if (file) formData.append('image', file);
+      if (file) {
+        // file can be a FileList or a single File
+        if (file instanceof FileList || Array.isArray(file)) {
+          Array.from(file).forEach((f) => formData.append('images', f));
+        } else {
+          formData.append('images', file);
+        }
+      }
+
+      // include optional data fields (title/subtitle/isActive)
+      if (data) {
+        Object.keys(data).forEach((k) => formData.append(k, data[k]));
+      }
 
       const response = await axios.put(
         `${URL}/admin/home-banners/${bannerNumber}`,
@@ -49,8 +70,8 @@ const HomeBannerManager = () => {
         configMultiPart
       );
 
-      toast.success(`Banner updated successfully`);
-      fetchBanners(); // Refresh data
+  toast.success(`Banner updated successfully`);
+  fetchBanners(); // Refresh data
     } catch (error) {
       console.error('Error updating banner:', error);
       toast.error(`Failed to update banner`);
@@ -58,6 +79,8 @@ const HomeBannerManager = () => {
       setUploading(prev => ({ ...prev, [bannerNumber]: false }));
     }
   };
+
+  
 
   const deleteBanner = async (bannerNumber) => {
     try {
@@ -70,9 +93,20 @@ const HomeBannerManager = () => {
     }
   };
 
-  const handleFileChange = (bannerNumber, file) => {
-    if (file) {
-      updateBanner(bannerNumber, {}, file);
+  const handleFileChange = (bannerNumber, files) => {
+    if (files && files.length > 0) {
+      updateBanner(bannerNumber, {}, files);
+    }
+  };
+
+  const handleDeleteBannerImage = async (bannerNumber, img) => {
+    try {
+      await axios.delete(`${URL}/admin/home-banners/${bannerNumber}?image=${encodeURIComponent(img)}`, config);
+      toast.success('Image removed');
+      fetchBanners();
+    } catch (err) {
+      console.error('Failed to delete banner image', err);
+      toast.error('Failed to remove image');
     }
   };
 
@@ -116,16 +150,16 @@ const HomeBannerManager = () => {
 
             {/* Image Preview */}
             <div className="mb-4">
-              {banner.image ? (
-                <div className="relative">
-                  <img
-                    src={banner.image?.startsWith?.("http") ? banner.image : `${URL}/img/${banner.image}`}
-                    alt={banner.title || bannerKey}
-                    className="w-full h-32 object-cover rounded-md"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-md">
-                    <span className="text-white text-sm">Current Image</span>
-                  </div>
+              {banner.images && banner.images.length > 0 ? (
+                <div className="flex gap-2 flex-wrap">
+                  {banner.images.map((img, idx) => (
+                    <div key={idx} className="relative w-32 h-20 rounded-md overflow-hidden">
+                      <img src={img?.startsWith?.('http') ? img : `${URL}/img/${img}`} alt={`b-${idx}`} className="w-full h-full object-cover" />
+                      <div className="absolute top-1 right-1">
+                        <button onClick={() => handleDeleteBannerImage(bannerKey, img)} className="bg-black text-white text-xs px-2 py-1 rounded">x</button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="w-full h-32 bg-gray-100 flex items-center justify-center rounded-md">
@@ -137,12 +171,13 @@ const HomeBannerManager = () => {
             {/* File Upload */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Image
+                Upload Image(s)
               </label>
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => handleFileChange(bannerKey, e.target.files[0])}
+                multiple
+                onChange={(e) => handleFileChange(bannerKey, e.target.files)}
                 className="w-full text-sm border border-gray-300 rounded-md p-2"
                 disabled={uploading[bannerKey]}
               />
@@ -151,13 +186,13 @@ const HomeBannerManager = () => {
               )}
             </div>
 
-            {/* Delete Button */}
-            {banner.image && (
+            {/* Delete Button (clear all images) */}
+            {banner.images && banner.images.length > 0 && (
               <button
                 onClick={() => deleteBanner(bannerKey)}
                 className="w-full bg-black text-white py-2 px-4 rounded-md text-sm hover:bg-gray-900"
               >
-                Delete Banner
+                Clear Banner Images
               </button>
             )}
           </div>

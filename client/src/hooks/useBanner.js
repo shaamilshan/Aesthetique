@@ -15,12 +15,30 @@ export const useBanner = () => {
     const fetchBanners = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${URL}/public/home-banners`);
+
+        // Fetch only home banners (do not fall back to global banners)
+        const homeRes = await axios.get(`${URL}/public/home-banners`);
+        const home = homeRes.data.homeBanners || {};
+
+        // Helper to normalize a banner into an object with images[] and other fields
+        const normalize = (bannerObj) => {
+          if (!bannerObj) return null;
+          // If banner already provides images array, use it
+          if (Array.isArray(bannerObj.images) && bannerObj.images.length > 0) {
+            return bannerObj;
+          }
+          // If banner has a single image field, convert it to images array
+          const images = [];
+          if (bannerObj.image) images.push(bannerObj.image);
+          return { ...bannerObj, images };
+        };
+
         setBanners({
-          banner1: response.data.homeBanners?.banner1 || null,
-          banner2: response.data.homeBanners?.banner2 || null,
-          banner3: response.data.homeBanners?.banner3 || null
+          banner1: normalize(home.banner1) || null,
+          banner2: normalize(home.banner2) || null,
+          banner3: normalize(home.banner3) || null,
         });
+
         setError(null);
       } catch (err) {
         console.error('Error fetching home banners:', err);

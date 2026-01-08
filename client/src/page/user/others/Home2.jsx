@@ -15,6 +15,7 @@ import CounterStats from "@/components/Home/CounterStats";
 import TestimonialSection from "@/components/Home/testimonials";
 import ContactSection from "@/components/Home/ContactSection";
 import MotionSection from "@/components/MotionSection";
+import BannerCarousel from '@/components/Home/BannerCarousel';
 import { FaWhatsapp } from "react-icons/fa";
 import useBanner from "@/hooks/useBanner";
 import { URL } from "@/Common/api";
@@ -52,34 +53,48 @@ export default function Home2(props) {
       </div>
 
       {/* Banner 1 - Between About Us and Products */}
-      {!loading && banners.banner1?.image && (
+  {!loading && banners.banner1?.images && banners.banner1.images.length > 0 && (
   // small horizontal padding on mobile so banners have a little breathing room
   <MotionSection className="px-2 md:px-8 lg:px-12">
           {/* Use responsive aspect-ratio + min-height so the hero keeps its composition on small screens
               - lg: use the wide desktop ratio derived from current layout (152/45)
               - md: use 16:9 for tablets
               - default/mobile: 16:9 with a min height to avoid collapsing to a tiny/square area */}
-          <div className="relative w-full rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
-            <img
-              src={banners.banner1.image?.startsWith?.("http") ? banners.banner1.image : `${URL}/img/${banners.banner1.image}`}
-              alt="Home Banner"
-              className="w-full h-full object-cover object-[50%_20%]"
-            />
+          <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
+            {banners.banner1?.images && banners.banner1.images.length > 1 ? (
+              <BannerCarousel
+                images={banners.banner1.images.map(src => src.startsWith?.("http") ? src : `${URL}/img/${src}`)}
+                alt="Home Banner"
+              />
+            ) : (
+              <img
+                src={banners.banner1.images?.[0]?.startsWith?.("http") ? banners.banner1.images?.[0] : `${URL}/img/${banners.banner1.image}`}
+                alt="Home Banner"
+                className="w-full h-full object-cover object-[50%_20%]"
+              />
+            )}
           </div>
         </MotionSection>
       )}
 
       {/* Banner 2 - Right below Banner 1, before Products */}
-      {!loading && banners.banner2?.image && (
+  {!loading && banners.banner2?.images && banners.banner2.images.length > 0 && (
   // reduce vertical gap on mobile; keep larger spacing on md/lg
   <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.06}>
           {/* Match Banner1 behaviour on smaller screens to keep ratio consistent and avoid square crops */}
-          <div className="relative w-full rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
-            <img
-              src={banners.banner2.image?.startsWith?.("http") ? banners.banner2.image : `${URL}/img/${banners.banner2.image}`}
-              alt="Home Banner 2"
-              className="w-full h-full object-cover object-[50%_20%]"
-            />
+          <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
+            {banners.banner2?.images && banners.banner2.images.length > 1 ? (
+              <BannerCarousel
+                images={banners.banner2.images.map(src => src.startsWith?.("http") ? src : `${URL}/img/${src}`)}
+                alt="Home Banner 2"
+              />
+            ) : (
+              <img
+                src={banners.banner2.images?.[0]?.startsWith?.("http") ? banners.banner2.images?.[0] : `${URL}/img/${banners.banner2.image}`}
+                alt="Home Banner 2"
+                className="w-full h-full object-cover object-[50%_20%]"
+              />
+            )}
           </div>
         </MotionSection>
       )}
@@ -90,16 +105,23 @@ export default function Home2(props) {
       </MotionSection>
 
       {/* Banner 3 - Between Products and Contact */}
-      {!loading && banners.banner3?.image && (
+  {!loading && banners.banner3?.images && banners.banner3.images.length > 0 && (
         // reduce vertical gap on mobile; keep larger spacing on md/lg (match Banner2)
         <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.08}>
           {/* Match Banner1/Banner2 behaviour so all banners share the same responsive ratio and spacing */}
-          <div className="relative w-full rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
-            <img
-              src={banners.banner3.image?.startsWith?.("http") ? banners.banner3.image : `${URL}/img/${banners.banner3.image}`}
-              alt="Home Banner 3"
-              className="w-full h-full object-cover object-[50%_20%]"
-            />
+          <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
+            {banners.banner3?.images && banners.banner3.images.length > 1 ? (
+              <BannerCarousel
+                images={banners.banner3.images.map(src => src.startsWith?.("http") ? src : `${URL}/img/${src}`)}
+                alt="Home Banner 3"
+              />
+            ) : (
+              <img
+                src={banners.banner3.images?.[0]?.startsWith?.("http") ? banners.banner3.images?.[0] : `${URL}/img/${banners.banner3.image}`}
+                alt="Home Banner 3"
+                className="w-full h-full object-cover object-[50%_20%]"
+              />
+            )}
           </div>
         </MotionSection>
       )}
