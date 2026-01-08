@@ -25,11 +25,11 @@ function WhatsAppFloatingButton() {
       href="https://wa.me/918137011855"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-lg p-5 flex items-center justify-center hover:scale-105 transition"
-      style={{ boxShadow: "0 4px 32px rgba(39, 174, 96, 0.25)" }}
+      className="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-green-400 to-green-600 rounded-full shadow-lg p-4 flex items-center justify-center hover:scale-105 transition"
+      style={{ boxShadow: "0 4px 28px rgba(39, 174, 96, 0.24)" }}
       aria-label="WhatsApp"
     >
-      <FaWhatsapp className="text-white text-4xl" />
+      <FaWhatsapp className="text-white text-3xl" />
     </a>
   );
 }
