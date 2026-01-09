@@ -58,23 +58,13 @@ UserSchema.statics.signup = async function (
   const { email, password, passwordAgain, firstName, lastName } =
     userCredentials;
 
-  if (
-    !firstName ||
-    !lastName ||
-    !email ||
-    !password ||
-    !passwordAgain ||
-    !role
-  ) {
-    throw Error("All fields are required");
+  // Require only firstName, email and password for signup
+  if (!firstName || !email || !password || !role) {
+    throw Error("First name, email and password are required");
   }
 
-  if (firstName.trim() === "" || lastName.trim() === "") {
-    throw Error("All Fields are required");
-  }
-
-  if (password !== passwordAgain) {
-    throw Error("Password is not match");
+  if (String(firstName).trim() === "") {
+    throw Error("First name is required");
   }
 
   if (!validator.isEmail(email)) {
@@ -96,7 +86,14 @@ UserSchema.statics.signup = async function (
 
   userCredentials["password"] = hash;
 
-  delete userCredentials["passwordAgain"];
+  // remove passwordAgain if provided (guard in case userCredentials isn't a plain object)
+  if (
+    userCredentials &&
+    typeof userCredentials === "object" &&
+    Object.prototype.hasOwnProperty.call(userCredentials, "passwordAgain")
+  ) {
+    delete userCredentials["passwordAgain"];
+  }
 
   const user = await this.create({
     ...userCredentials,
@@ -125,7 +122,13 @@ UserSchema.statics.managersignup = async function (
 
   userCredentials["password"] = hash;
 
-  delete userCredentials["passwordAgain"];
+  if (
+    userCredentials &&
+    typeof userCredentials === "object" &&
+    Object.prototype.hasOwnProperty.call(userCredentials, "passwordAgain")
+  ) {
+    delete userCredentials["passwordAgain"];
+  }
 
   const user = await this.create({
     ...userCredentials,

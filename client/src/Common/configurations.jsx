@@ -12,12 +12,12 @@ export const appJson = {
 };
 
 export const multiForm = {
-  "Content-Type": "multipart/form-data",
+  // Do not set Content-Type manually for multipart/form-data here;
+  // let the browser/axios set it (including boundary) when using FormData.
 };
 export const configMultiPart = {
-  headers: {
-    "Content-Type": "multipart/form-data",
-  },
+  // Intentionally omit Content-Type header so axios can set it for FormData
+  headers: {},
   withCredentials: true,
 };
 

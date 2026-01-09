@@ -24,7 +24,7 @@ const Register = () => {
 
   const [loadingLocal, setLoadingLocal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
 
   // const registerTestimonials = [
   //   {
@@ -55,27 +55,17 @@ const Register = () => {
 
   const initialValues = {
     firstName: "",
-    lastName: "",
     email: "",
     password: "",
-    passwordAgain: "",
-    phoneNumber: "",
-    profileImgURL: null,
   };
 
   const validationSchema = Yup.object().shape({
     firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
     email: Yup.string().email().required("Email is required"),
     password: Yup.string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters long"),
-    passwordAgain: Yup.string()
-      .required("Password is required")
-      .oneOf([Yup.ref("password"), null], "Password must match"),
-    phoneNumber: Yup.number()
-      .typeError("Phone number should be digits")
-      .moreThan(999999999, "Not valid phone number"),
+    
   });
 
   // ...existing code...
@@ -85,14 +75,8 @@ const Register = () => {
     try {
       let formData = new FormData();
       formData.append("firstName", value.firstName);
-      formData.append("lastName", value.lastName);
       formData.append("email", value.email);
       formData.append("password", value.password);
-      formData.append("passwordAgain", value.passwordAgain);
-      formData.append("phoneNumber", value.phoneNumber);
-      if (value.profileImgURL) {
-        formData.append("profileImgURL", value.profileImgURL);
-      }
       dispatch(signUpUser(formData));
     } catch (err) {
       toast.error(err.message || "An error occurred while signing up");
@@ -120,7 +104,7 @@ const Register = () => {
             >
               {({ values, setFieldValue }) => (
                 <Form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                     {/* First Name Field */}
                     <div className="space-y-2">
                       <label htmlFor="firstName" className="text-sm font-medium leading-none">
@@ -134,36 +118,6 @@ const Register = () => {
                         className="h-12"
                       />
                       <ErrorMessage name="firstName" component="p" className="text-red-500 text-sm" />
-                    </div>
-
-                    {/* Last Name Field */}
-                    <div className="space-y-2">
-                      <label htmlFor="lastName" className="text-sm font-medium leading-none">
-                        Last Name
-                      </label>
-                      <Field
-                        as={Input}
-                        id="lastName"
-                        name="lastName"
-                        placeholder="Enter your last name"
-                        className="h-12"
-                      />
-                      <ErrorMessage name="lastName" component="p" className="text-red-500 text-sm" />
-                    </div>
-
-                    {/* Phone Number Field */}
-                    <div className="space-y-2">
-                      <label htmlFor="phoneNumber" className="text-sm font-medium leading-none">
-                        Phone Number
-                      </label>
-                      <Field
-                        as={Input}
-                        id="phoneNumber"
-                        name="phoneNumber"
-                        placeholder="Enter your phone number"
-                        className="h-12"
-                      />
-                      <ErrorMessage name="phoneNumber" component="p" className="text-red-500 text-sm" />
                     </div>
 
                     {/* Email Field */}
@@ -205,31 +159,6 @@ const Register = () => {
                         </button>
                       </div>
                       <ErrorMessage name="password" component="p" className="text-red-500 text-sm" />
-                    </div>
-
-                    {/* Confirm Password Field */}
-                    <div className="space-y-2">
-                      <label htmlFor="passwordAgain" className="text-sm font-medium leading-none">
-                        Confirm Password
-                      </label>
-                      <div className="relative">
-                        <Field
-                          as={Input}
-                          id="passwordAgain"
-                          name="passwordAgain"
-                          placeholder="Confirm your password"
-                          type={showConfirmPassword ? "text" : "password"}
-                          className="h-12 pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                        >
-                          {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-                      </div>
-                      <ErrorMessage name="passwordAgain" component="p" className="text-red-500 text-sm" />
                     </div>
                   </div>
 
