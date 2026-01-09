@@ -28,7 +28,8 @@ const ProductDetails = () => {
 
   // Adding a product to wishlist
   const dispatchAddWishlist = () => {
-    dispatch(addToWishlist({ product: id }));
+    // Pass full product object so guest wishlist can store useful info in localStorage
+    dispatch(addToWishlist({ product }));
   };
 
   // Product loading when the page loads
@@ -78,8 +79,24 @@ const ProductDetails = () => {
   const [cartLoading, setCartLoading] = useState(false);
   const addToCart = async () => {
     setCartLoading(true);
-    await axios
-      .post(
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        const raw = localStorage.getItem("guest_cart");
+        const arr = raw ? JSON.parse(raw) : [];
+        const idx = arr.findIndex((it) => (it.product?._id || it.product) === id);
+        if (idx >= 0) {
+          arr[idx].quantity = (arr[idx].quantity || 0) + count;
+        } else {
+          arr.push({ product, quantity: count, attributes: {} });
+        }
+        localStorage.setItem("guest_cart", JSON.stringify(arr));
+        toast.success("Added to cart");
+        setCartLoading(false);
+        return;
+      }
+
+      await axios.post(
         `${URL}/user/cart`,
         {
           product: id,
@@ -87,21 +104,23 @@ const ProductDetails = () => {
           attributes: {},
         },
         { ...config, withCredentials: true }
-      )
-      .then((data) => {
-        toast.success("Added to cart");
-        setCartLoading(false);
-      })
-      .catch((error) => {
-        const err = error.response.data.error;
-        toast.error(err);
-        setCartLoading(false);
-      });
+      );
+      toast.success("Added to cart");
+    } catch (error) {
+      const err = error.response?.data?.error || "Something went wrong";
+      toast.error(err);
+    } finally {
+      setCartLoading(false);
+    }
   };
 
   // Checking if this product exists in the wishlist
-  const { wishlist } = useSelector((state) => state.wishlist);
-  const isProductInWishlist = wishlist.some((item) => item.product._id === id);
+  const { wishlist } = useSelector((state) => state.wishlist || { wishlist: [] });
+  const listItems = Array.isArray(wishlist) ? wishlist : (wishlist?.items || []);
+  const isProductInWishlist = (listItems || []).some((item) => {
+    if (!item || !item.product) return false;
+    return item.product._id === id || item.product === id;
+  });
 
   const productFaqs = Array.isArray(product?.faqs)
     ? product.faqs

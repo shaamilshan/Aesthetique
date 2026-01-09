@@ -39,7 +39,8 @@ const ProductCard2 = ({ product }) => {
 
   // Initial fetch of wishlist when component mounts if user is logged in
   useEffect(() => {
-    if (user && user._id && wishlist?.length === 0) {
+    // Fetch wishlist if not loaded yet (supports guest wishlist via localStorage)
+    if (wishlist?.length === 0) {
       dispatch(getWishlist());
     }
   }, [user, dispatch, wishlist?.length]);
@@ -62,11 +63,7 @@ const ProductCard2 = ({ product }) => {
     : 0;
 
   const handleWishlistClick = async () => {
-    if (!user) {
-      toast.error("Please log in to use the wishlist.");
-      navigate("/login");
-      return;
-    }
+    // Support guest wishlist via localStorage; wishlistActions already handles guest case.
 
     setWishlistLoading(true);
     setError(null);
@@ -77,7 +74,8 @@ const ProductCard2 = ({ product }) => {
         // Fetch updated wishlist from Redux store
         dispatch(getWishlist());
       } else {
-        await dispatch(addToWishlist({ product: product._id })).unwrap();
+        // pass full product object so guest flow can store useful info in localStorage
+        await dispatch(addToWishlist({ product })).unwrap();
         // Fetch updated wishlist from Redux store
         dispatch(getWishlist());
       }
@@ -90,14 +88,33 @@ const ProductCard2 = ({ product }) => {
   };
 
   const addToCart = async () => {
-    if (!user) {
-      toast.error("Please log in to add items to your cart.");
-      navigate("/login");
-      return;
-    }
+    const token = localStorage.getItem("token");
 
     setCartLoading(true);
     setError(null);
+
+    if (!token) {
+      // Guest flow: keep a guest_cart in localStorage with items: [{ product, quantity, attributes }]
+      try {
+        const raw = localStorage.getItem("guest_cart");
+        const arr = raw ? JSON.parse(raw) : [];
+        const idx = arr.findIndex((it) => (it.product?._id || it.product) === product._id);
+        if (idx >= 0) {
+          arr[idx].quantity = (arr[idx].quantity || 0) + 1;
+        } else {
+          arr.push({ product, quantity: 1, attributes: {} });
+        }
+        localStorage.setItem("guest_cart", JSON.stringify(arr));
+        toast.success("Product added to cart!");
+      } catch (error) {
+        console.error("Guest cart error:", error);
+        toast.error("Failed to add product to cart.");
+      } finally {
+        setCartLoading(false);
+      }
+
+      return;
+    }
 
     try {
       const response = await axios.post(

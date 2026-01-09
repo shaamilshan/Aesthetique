@@ -18,6 +18,24 @@ const WishlistCard = ({ item }) => {
   const addToCart = async (id, redirectToCheckout = false) => {
     setCartLoading(true);
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        // Guest flow - add to guest_cart in localStorage
+        const raw = localStorage.getItem("guest_cart");
+        const arr = raw ? JSON.parse(raw) : [];
+        const idx = arr.findIndex((it) => (it.product?._id || it.product) === id);
+        if (idx >= 0) {
+          arr[idx].quantity = (arr[idx].quantity || 0) + 1;
+        } else {
+          // We only have the id here; store minimal object
+          arr.push({ product: { _id: id }, quantity: 1, attributes: {} });
+        }
+        localStorage.setItem("guest_cart", JSON.stringify(arr));
+        toast.success("Added to cart");
+        if (redirectToCheckout) navigate("/checkout");
+        return;
+      }
+
       await axios.post(
         `${URL}/user/cart`,
         {

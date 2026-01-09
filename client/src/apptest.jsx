@@ -163,19 +163,13 @@ function App() {
           <Route path="/product/:id" element={<SingleProduct />} />
           {/* <Route path="/product/:id" element={<ProductDetails/>} /> */}
 
-          <Route path="/cart" element={<ProtectedRoute element={<Cart />} />} />
-          <Route
-            path="/checkout"
-            element={<ProtectedRoute element={<Checkout />} />}
-          />
-          <Route
-            path="/order-confirmation"
-            element={<ProtectedRoute element={<OrderConfirmation />} />}
-          />
-          <Route
-            path="/buy-now"
-            element={<ProtectedRoute element={<BuyNow />} />}
-          />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<ProtectedRoute element={<Checkout />} />} />
+          <Route path="/order-confirmation" element={<ProtectedRoute element={<OrderConfirmation />} />} />
+          <Route path="/buy-now" element={<ProtectedRoute element={<BuyNow />} />} />
+
+          {/* Public wishlist for guests */}
+          <Route path="/wishlist" element={<WishList />} />
 
           <Route
             path="/dashboard"

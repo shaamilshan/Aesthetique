@@ -6,6 +6,17 @@ import { appJson } from "@common/configurations";
 export const getCart = createAsyncThunk(
   "cart/getCart",
   async (rc, { rejectWithValue }) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      try {
+        const raw = localStorage.getItem("guest_cart");
+        const items = raw ? JSON.parse(raw) : [];
+        return { cart: { items, _id: "", discount: 0, type: "", couponCode: "" } };
+      } catch (e) {
+        return { cart: { items: [] } };
+      }
+    }
+
     return commonReduxRequest(
       "get",
       `/user/cart`,
@@ -20,6 +31,16 @@ export const getCart = createAsyncThunk(
 export const deleteEntireCart = createAsyncThunk(
   "cart/deleteEntireCart",
   async (id, { rejectWithValue }) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      try {
+        localStorage.removeItem("guest_cart");
+        return { message: "Guest cart cleared" };
+      } catch (e) {
+        return rejectWithValue("Failed to clear guest cart");
+      }
+    }
+
     return commonReduxRequest(
       "delete",
       `/user/cart/${id}`,
@@ -34,6 +55,22 @@ export const deleteEntireCart = createAsyncThunk(
 export const deleteOneProduct = createAsyncThunk(
   "cart/deleteOneProduct",
   async ({ cartId, productId }, { rejectWithValue }) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      try {
+        const raw = localStorage.getItem("guest_cart");
+        const arr = raw ? JSON.parse(raw) : [];
+        const filtered = arr.filter((it) => {
+          const pid = it.product?._id || it.product;
+          return pid !== productId;
+        });
+        localStorage.setItem("guest_cart", JSON.stringify(filtered));
+        return { productId };
+      } catch (e) {
+        return rejectWithValue("Failed to modify guest cart");
+      }
+    }
+
     return commonReduxRequest(
       "delete",
       `/user/cart/${cartId}/item/${productId}`,
@@ -51,6 +88,23 @@ export const incrementCount = createAsyncThunk(
     { cartId, productId, attributes, productdata, quantity },
     { rejectWithValue }
   ) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      try {
+        const raw = localStorage.getItem("guest_cart");
+        const arr = raw ? JSON.parse(raw) : [];
+        const idx = arr.findIndex((it) => (it.product?._id || it.product) === productId);
+        if (idx >= 0) {
+          arr[idx].quantity = (arr[idx].quantity || 0) + 1;
+          localStorage.setItem("guest_cart", JSON.stringify(arr));
+          return { updatedItem: { product: productId } };
+        }
+        return rejectWithValue("Product not found in guest cart");
+      } catch (e) {
+        return rejectWithValue("Failed to update guest cart");
+      }
+    }
+
     return commonReduxRequest(
       "patch",
       `/user/cart-increment-quantity/${cartId}/item/${productId}`,
@@ -69,6 +123,25 @@ export const incrementCount = createAsyncThunk(
 export const decrementCount = createAsyncThunk(
   "cart/decrementCount",
   async ({ cartId, productId }, { rejectWithValue }) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      try {
+        const raw = localStorage.getItem("guest_cart");
+        const arr = raw ? JSON.parse(raw) : [];
+        const idx = arr.findIndex((it) => (it.product?._id || it.product) === productId);
+        if (idx >= 0) {
+          arr[idx].quantity = Math.max(0, (arr[idx].quantity || 0) - 1);
+          // remove if quantity becomes zero
+          const filtered = arr.filter((it) => (it.quantity || 0) > 0);
+          localStorage.setItem("guest_cart", JSON.stringify(filtered));
+          return { updatedItem: { product: productId } };
+        }
+        return rejectWithValue("Product not found in guest cart");
+      } catch (e) {
+        return rejectWithValue("Failed to update guest cart");
+      }
+    }
+
     return commonReduxRequest(
       "patch",
       `/user/cart-decrement-quantity/${cartId}/item/${productId}`,

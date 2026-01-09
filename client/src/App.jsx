@@ -99,7 +99,9 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!user) {
+    // Only attempt to fetch user data if we have a token stored
+    const token = localStorage.getItem("token");
+    if (!user && token) {
       dispatch(getUserDataFirst());
     }
   }, [dispatch, user]);
@@ -203,6 +205,9 @@ function App() {
             {/* <Route path="find-coupons" element={<FindCoupons />} /> */}
             {/* <Route path="settings" element={<SettingsPage />} /> */}
           </Route>
+
+          {/* Public wishlist route for guests */}
+          <Route path="/wishlist" element={<WishList />} />
 
           {/* Admin Routes
           {(user && user.role === "admin") ||

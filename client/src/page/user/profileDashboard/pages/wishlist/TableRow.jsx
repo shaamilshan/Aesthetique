@@ -17,8 +17,24 @@ const TableRow = ({ item }) => {
   const [cartLoading, setCartLoading] = useState(false);
   const addToCart = async (id) => {
     setCartLoading(true);
-    await axios
-      .post(
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        const raw = localStorage.getItem("guest_cart");
+        const arr = raw ? JSON.parse(raw) : [];
+        const idx = arr.findIndex((it) => (it.product?._id || it.product) === id);
+        if (idx >= 0) {
+          arr[idx].quantity = (arr[idx].quantity || 0) + 1;
+        } else {
+          arr.push({ product: { _id: id }, quantity: 1, attributes: {} });
+        }
+        localStorage.setItem("guest_cart", JSON.stringify(arr));
+        toast.success("Added to cart");
+        setCartLoading(false);
+        return;
+      }
+
+      await axios.post(
         `${URL}/user/cart`,
         {
           product: id,
@@ -26,16 +42,14 @@ const TableRow = ({ item }) => {
           attributes: {},
         },
         config
-      )
-      .then((data) => {
-        toast.success("Added to cart");
-        setCartLoading(false);
-      })
-      .catch((error) => {
-        const err = error.response.data.error;
-        toast.error(err);
-        setCartLoading(false);
-      });
+      );
+      toast.success("Added to cart");
+    } catch (error) {
+      const err = error.response?.data?.error || "Something went wrong";
+      toast.error(err);
+    } finally {
+      setCartLoading(false);
+    }
   };
 
   // Function for deleting one product from the wishlist

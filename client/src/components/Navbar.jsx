@@ -234,7 +234,7 @@ const Navbar = ({ usercheck }) => {
             <div className="flex items-center gap-0 lg:hidden">
               <button
                 aria-label="Wishlist"
-                onClick={() => { setMenuOpen(false); navigate('/dashboard/wishlist'); }}
+                onClick={() => { setMenuOpen(false); navigate('/wishlist'); }}
                 className="p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
               >
                 <Heart className="h-5 w-5" />
@@ -260,7 +260,7 @@ const Navbar = ({ usercheck }) => {
             {/* Desktop search removed in favor of in-pill expanding search */}
 
             {/* Icon pill group - match height with search pill */}
-            <div className={`hidden lg:flex items-center justify-center gap-3 rounded-full bg-black text-white px-4 h-10 ${searchExpanded ? 'ring-1 ring-white/40' : ''}`} ref={searchContainerRef}>
+              <div className={`hidden lg:flex items-center justify-center gap-3 rounded-full bg-black text-white px-4 h-10 ${searchExpanded ? 'ring-1 ring-white/40' : ''}`} ref={searchContainerRef}>
               {/* Search (left-most inside icon pill) */}
               <button
                 onClick={(e) => {
@@ -295,7 +295,7 @@ const Navbar = ({ usercheck }) => {
                 )}
               </AnimatePresence>
               {/* Wishlist */}
-              <Link to="/dashboard/wishlist" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
+              <Link to="/wishlist" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
                 <Heart className="h-5 w-5" />
               </Link>
               {/* Profile */}
@@ -359,7 +359,7 @@ const Navbar = ({ usercheck }) => {
           </nav>
 
           <div className="border-t border-gray-200 mt-3 pt-3 flex flex-col gap-2">
-            <a onClick={() => { setMenuOpen(false); navigate('/dashboard/wishlist'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
+                <a onClick={() => { setMenuOpen(false); navigate('/wishlist'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
               <Heart className="h-5 w-5" /> Wishlist
             </a>
             <a onClick={() => { setMenuOpen(false); navigate('/dashboard/profile'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">

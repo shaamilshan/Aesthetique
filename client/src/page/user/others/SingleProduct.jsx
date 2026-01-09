@@ -182,15 +182,13 @@ const SingleProduct = () => {
   };
 
   const dispatchAddWishlist = () => {
+    // Support guest wishlist: pass full product so guest wishlist stores useful info
     if (!user) {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-      navigate("/login");
+      dispatch(addToWishlist({ product }));
+      toast.success("Added to wishlist");
       return;
     }
-    dispatch(addToWishlist({ product: id }));
+    dispatch(addToWishlist({ product }));
   };
 
   const onHomeClick = () => {
@@ -234,8 +232,21 @@ const SingleProduct = () => {
 
   const addToCart = async () => {
     if (!user) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      navigate("/login");
+      // Guest: add to localStorage guest_cart
+      if (!validateAttributesSelection()) {
+        toast.error("Please select all required options");
+        return;
+      }
+      const raw = localStorage.getItem("guest_cart");
+      const arr = raw ? JSON.parse(raw) : [];
+      const idx = arr.findIndex((it) => (it.product?._id || it.product) === id);
+      if (idx >= 0) {
+        arr[idx].quantity = (arr[idx].quantity || 0) + count;
+      } else {
+        arr.push({ product: { ...product }, quantity: count, attributes: selectedAttributes });
+      }
+      localStorage.setItem("guest_cart", JSON.stringify(arr));
+      toast.success("Added to cart successfully");
       return;
     }
   
@@ -269,8 +280,22 @@ const SingleProduct = () => {
   
   const buyNow = async () => {
     if (!user) {
+      // Guest: add to guest_cart and navigate to cart
+      if (!validateAttributesSelection()) {
+        toast.error("Please select all required options");
+        return;
+      }
+      const raw = localStorage.getItem("guest_cart");
+      const arr = raw ? JSON.parse(raw) : [];
+      const idx = arr.findIndex((it) => (it.product?._id || it.product) === id);
+      if (idx >= 0) {
+        arr[idx].quantity = (arr[idx].quantity || 0) + count;
+      } else {
+        arr.push({ product: { ...product }, quantity: count, attributes: selectedAttributes });
+      }
+      localStorage.setItem("guest_cart", JSON.stringify(arr));
       window.scrollTo({ top: 0, behavior: "smooth" });
-      navigate("/login");
+      navigate("/cart");
       return;
     }
   
