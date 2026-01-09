@@ -34,6 +34,17 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
 
   return (
     <div className="py-6 first:pt-0 last:pb-0">
+      {!item || !item.product ? (
+        <div className="bg-white p-4 rounded-lg border border-gray-200 opacity-60">
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 bg-gray-200 rounded-lg" />
+            <div>
+              <div className="font-semibold text-gray-700">Product unavailable</div>
+              <div className="text-xs text-gray-500">This product was removed from the store.</div>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="flex gap-4 sm:gap-6">
         {/* Product Image */}
         <div 
@@ -120,7 +131,7 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
             <AiOutlineDelete className="text-lg sm:text-xl" />
           </button>
         </div>
-      </div>
+      )}
     </div>
   );
 };
