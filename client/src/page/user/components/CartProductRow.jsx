@@ -32,9 +32,9 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
     dispatch(decrementCount({ cartId, productId: item.product._id }));
   };
 
-  return (
-    <div className="py-6 first:pt-0 last:pb-0">
-      {!item || !item.product ? (
+  if (!item || !item.product) {
+    return (
+      <div className="py-6 first:pt-0 last:pb-0">
         <div className="bg-white p-4 rounded-lg border border-gray-200 opacity-60">
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 bg-gray-200 rounded-lg" />
@@ -44,7 +44,18 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
             </div>
           </div>
         </div>
-      ) : (
+      </div>
+    );
+  }
+
+  // Safe derived values
+  const priceNum = Number(item?.product?.price) || 0;
+  const strikeRaw = item?.product?.originalPrice ?? item?.product?.markup ?? null;
+  const strikeNum = strikeRaw === "" || strikeRaw === null || strikeRaw === undefined ? null : Number(strikeRaw);
+  const hasStrike = strikeNum !== null && !Number.isNaN(strikeNum) && strikeNum > 0 && strikeNum > priceNum;
+
+  return (
+    <div className="py-6 first:pt-0 last:pb-0">
       <div className="flex gap-4 sm:gap-6">
         {/* Product Image */}
         <div 
@@ -104,25 +115,17 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
         </div>
         {/* Right column: Price, Total and Delete - always visible to align actions to row end */}
         <div className="flex flex-col items-end justify-between min-w-[72px]">
-          {(() => {
-            const priceNum = Number(item.product.price) || 0;
-            const strikeRaw = item.product.originalPrice ?? item.product.markup ?? null;
-            const strikeNum = strikeRaw === "" || strikeRaw === null || strikeRaw === undefined ? null : Number(strikeRaw);
-            const hasStrike = strikeNum !== null && !Number.isNaN(strikeNum) && strikeNum > 0 && strikeNum > priceNum;
-            return (
-              <div className="text-right">
-                <div className="font-medium">
-                  ₹{priceNum.toLocaleString()}
-                  {hasStrike ? (
-                    <span className="text-xs text-gray-500 line-through ml-2">₹{strikeNum.toLocaleString()}</span>
-                  ) : null}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Total: <span className="font-medium text-black">₹{Number(priceNum * item.quantity).toLocaleString()}</span>
-                </div>
-              </div>
-            );
-          })()}
+          <div className="text-right">
+            <div className="font-medium">
+              ₹{priceNum.toLocaleString()}
+              {hasStrike ? (
+                <span className="text-xs text-gray-500 line-through ml-2">₹{strikeNum.toLocaleString()}</span>
+              ) : null}
+            </div>
+            <div className="text-sm text-gray-500">
+              Total: <span className="font-medium text-black">₹{Number(priceNum * item.quantity).toLocaleString()}</span>
+            </div>
+          </div>
 
           <button
             onClick={() => toggleProductConfirm(item.product._id)}
@@ -131,7 +134,7 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
             <AiOutlineDelete className="text-lg sm:text-xl" />
           </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };
