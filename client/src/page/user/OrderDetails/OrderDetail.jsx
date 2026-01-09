@@ -180,15 +180,60 @@ const OrderDetail = () => {
                   <StatusComponent status={orderData.status} />
                 </div>
                 <button onClick={handleGenerateInvoice} className="px-3 py-2 bg-black text-white rounded text-sm">Invoice</button>
+                {/* Show return button when delivered and within 7 days */}
+                {(() => {
+                  // find delivered date from statusHistory
+                  let deliveredAt = null;
+                  if (orderData.statusHistory && Array.isArray(orderData.statusHistory)) {
+                    for (let i = orderData.statusHistory.length - 1; i >= 0; i--) {
+                      const h = orderData.statusHistory[i];
+                      if (h.status === 'delivered') {
+                        deliveredAt = h.date;
+                        break;
+                      }
+                    }
+                  }
+
+                  // fallback to deliveryDate
+                  if (!deliveredAt && orderData.deliveryDate) {
+                    deliveredAt = orderData.deliveryDate;
+                  }
+
+                  if (deliveredAt) {
+                    const now = new Date();
+                    const msDiff = now - new Date(deliveredAt);
+                    const daysElapsed = msDiff / (1000 * 60 * 60 * 24);
+
+                    if (orderData.status === 'delivered' && daysElapsed <= 7) {
+                      return (
+                        <button onClick={toggleReturnModal} className="px-3 py-2 bg-red-600 text-white rounded text-sm">Request Return</button>
+                      );
+                    }
+
+                    if (orderData.status === 'delivered' && daysElapsed > 7) {
+                      return (
+                        <div className="px-3 py-2 text-sm text-gray-500">Return window expired</div>
+                      );
+                    }
+                  }
+
+                  return null;
+                })()}
               </div>
             </div>
-
-            {/* Status history */}
+              {/* Status history */}
             {orderData.statusHistory && (
               <div className="bg-white rounded-lg shadow p-4 mb-4">
                 <StatusHistoryLoadingBar statusHistory={orderData.statusHistory} />
               </div>
             )}
+
+              {/* Return modal */}
+              {returnModal && (
+                <Modal onClose={toggleReturnModal}>
+                  <ReturnProduct closeToggle={toggleReturnModal} id={id} loadData={loadData} />
+                </Modal>
+              )}
 
             {/* Products list */}
             <div className="bg-white rounded-lg shadow p-4 mb-4">

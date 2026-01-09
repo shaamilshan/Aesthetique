@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from "react-redux";
 import date from "date-and-time";
 import Modal from "../../../../components/Modal";
 
-import { getReturnOrders } from "../../../../redux/actions/admin/ordersAction";
+import { getReturnOrders, updateReturnOrderStatus } from "../../../../redux/actions/admin/ordersAction";
 import { BsFilterRight } from "react-icons/bs";
 import StatusComponent from "../../../../components/StatusComponent";
 import FilterArray from "../../Components/FilterArray";
@@ -49,9 +49,53 @@ const ReturnRequests = () => {
 
   const [selectedOrderToUpdate, setSelectedOrderToUpdate] = useState({});
   const [updateModal, setUpdateModal] = useState(false);
+  const [processingIds, setProcessingIds] = useState([]);
   const toggleUpdateModal = (data) => {
     setUpdateModal(!updateModal);
     setSelectedOrderToUpdate(data);
+  };
+
+  const handleAccept = async (e, item) => {
+    e.stopPropagation();
+    // only allow when still a pending return request
+    if (String(item.status).toLowerCase() !== "return request") return;
+    const formData = {
+      status: "return approved",
+      date: new Date().toISOString(),
+      description: "Return approved by admin",
+    };
+    try {
+      setProcessingIds((s) => [...s, item._id]);
+      await dispatch(updateReturnOrderStatus({ id: item._id, formData }));
+      // refresh list
+      await dispatch(getReturnOrders(searchParams));
+    } catch (err) {
+      console.error("Accept return error", err);
+    } finally {
+      setProcessingIds((s) => s.filter((id) => id !== item._id));
+    }
+  };
+
+  const handleReject = async (e, item) => {
+    e.stopPropagation();
+    // only allow when still a pending return request
+    if (String(item.status).toLowerCase() !== "return request") return;
+    const reason = window.prompt("Reason for rejection (optional):", "");
+    const formData = {
+      status: "return rejected",
+      date: new Date().toISOString(),
+      reason: reason || "",
+      description: reason ? `Rejected: ${reason}` : "Return rejected by admin",
+    };
+    try {
+      setProcessingIds((s) => [...s, item._id]);
+      await dispatch(updateReturnOrderStatus({ id: item._id, formData }));
+      await dispatch(getReturnOrders(searchParams));
+    } catch (err) {
+      console.error("Reject return error", err);
+    } finally {
+      setProcessingIds((s) => s.filter((id) => id !== item._id));
+    }
   };
 
   return (
@@ -129,19 +173,21 @@ const ReturnRequests = () => {
                       <td className="admin-table-row">{index + 1}</td>
                       <td className="admin-table-row flex items-center gap-2">
                         <div className="w-10 h-10 overflow-clip flex justify-center items-center">
-                          {item.products[0].productId.imageURL ? (
+                          {item.products?.[0]?.productId?.imageURL ? (
                             <img
                               src={getImageUrl(item.products[0].productId.imageURL, URL)}
-                              alt="img"
+                              alt={item.products[0].productId?.name || "product"}
                               className="object-contain w-full h-full"
                             />
                           ) : (
-                            <div className="w-10 h-10 bg-slate-300 rounded-md"></div>
+                            <div className="w-10 h-10 bg-slate-300 rounded-md flex items-center justify-center text-xs text-gray-600">
+                              N/A
+                            </div>
                           )}
                         </div>
                         <div>
                           <p className="line-clamp-1 mb-1 font-semibold w-40">
-                            {item.products[0].productId.name}
+                            {item.products?.[0]?.productId?.name || "Product unavailable"}
                           </p>
                           <p className="font-semibold text-gray-500">
                             {item.totalQuantity === 1
@@ -162,8 +208,29 @@ const ReturnRequests = () => {
                       </td>
                       <td className="admin-table-row">
                         <div className="flex items-center gap-2 text-lg">
+                          {/* show actions only when request is pending */}
+                          {String(item.status).toLowerCase() === "return request" ? (
+                            <>
+                              <button
+                                className={`px-2 py-1 rounded text-xs text-white ${processingIds.includes(item._id) ? 'bg-gray-400 opacity-60 cursor-not-allowed' : 'bg-green-600'}`}
+                                onClick={(e) => handleAccept(e, item)}
+                                disabled={processingIds.includes(item._id)}
+                              >
+                                {processingIds.includes(item._id) ? 'Processing' : 'Accept'}
+                              </button>
+                              <button
+                                className={`ml-2 px-2 py-1 rounded text-xs text-white ${processingIds.includes(item._id) ? 'bg-gray-400 opacity-60 cursor-not-allowed' : 'bg-red-600'}`}
+                                onClick={(e) => handleReject(e, item)}
+                                disabled={processingIds.includes(item._id)}
+                              >
+                                {processingIds.includes(item._id) ? 'Processing' : 'Reject'}
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-sm text-gray-500">{item.status}</span>
+                          )}
                           <span
-                            className="hover:text-gray-500"
+                            className="ml-2 hover:text-gray-500"
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleUpdateModal({
@@ -174,12 +241,6 @@ const ReturnRequests = () => {
                             }}
                           >
                             <AiOutlineEdit />
-                          </span>
-                          <span
-                            className="hover:text-gray-500"
-                            onClick={() => {}}
-                          >
-                            <AiOutlineDelete />
                           </span>
                         </div>
                       </td>

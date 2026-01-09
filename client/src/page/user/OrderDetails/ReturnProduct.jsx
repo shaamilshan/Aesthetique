@@ -28,7 +28,10 @@ const ReturnProduct = ({ closeToggle, id, loadData }) => {
   };
 
   return (
-    <div className="bg-gray-100 w-5/6 lg:w-2/6 shadow-2xl overflow-y-auto rounded-lg">
+    // Make the return form occupy the modal's content area instead of a narrow column.
+    // Modal already provides the outer white card; keep this component as inner content
+    // with a sensible max-width so it looks centered and not cramped to the left.
+    <div className="w-full max-w-md overflow-y-auto">
       <div className="bg-white pt-5 pb-3 px-5 flex items-center justify-between">
         <h1 className="font-bold text-lg ">Confirm Return</h1>
         <AiOutlineClose
