@@ -27,10 +27,11 @@ const cartSlice = createSlice({
   },
   reducers: {
     calculateTotalPrice: (state) => {
-      let sum = state.cart.reduce(
-        (total, item) => total + item.product.price * item.quantity,
-        0
-      );
+      let sum = state.cart.reduce((total, item) => {
+        const price = item && item.product && typeof item.product.price !== "undefined" ? Number(item.product.price) : 0;
+        const qty = item && typeof item.quantity === "number" ? item.quantity : Number(item.quantity) || 0;
+        return total + price * qty;
+      }, 0);
       // console.log("sum");
       // console.log(sum);
       
@@ -95,6 +96,8 @@ const cartSlice = createSlice({
         const { productId } = payload;
 
         state.cart = state.cart.filter((item) => {
+          // Keep items where product exists and id doesn't match; also keep items with missing product to avoid accidental deletion here
+          if (!item || !item.product || !item.product._id) return item;
           return item.product._id !== productId;
         });
 
@@ -115,7 +118,7 @@ const cartSlice = createSlice({
         state.countLoading = false;
         state.error = null;
         const updatedCart = state.cart.map((cartItem) => {
-          if (cartItem.product._id === payload.updatedItem.product) {
+          if (cartItem && cartItem.product && cartItem.product._id === payload.updatedItem.product) {
             return {
               ...cartItem,
               quantity: cartItem.quantity + 1,
@@ -137,7 +140,7 @@ const cartSlice = createSlice({
         state.countLoading = false;
         state.error = null;
         const updatedCart = state.cart.map((cartItem) => {
-          if (cartItem.product._id === payload.updatedItem.product) {
+          if (cartItem && cartItem.product && cartItem.product._id === payload.updatedItem.product) {
             return {
               ...cartItem,
               quantity: cartItem.quantity - 1,
