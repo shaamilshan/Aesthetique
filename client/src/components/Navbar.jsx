@@ -20,7 +20,7 @@ const Navbar = ({ usercheck }) => {
       if (Array.isArray(state.cart?.items)) return state.cart.items;
       if (Array.isArray(state.userCart?.cart?.items)) return state.userCart.cart.items;
       if (Array.isArray(state.cart)) return state.cart;
-    } catch (_) {}
+    } catch (_) { }
     return [];
   });
   const cartCount = cartItems?.length || 0;
@@ -50,7 +50,7 @@ const Navbar = ({ usercheck }) => {
   const onHomeClick = () => {
     navigate("/");
   };
-  
+
   const handleClick = (param, value) => {
     const params = new URLSearchParams(window.location.search);
     if (value === "" || (param === "page" && value === 1)) {
@@ -70,7 +70,7 @@ const Navbar = ({ usercheck }) => {
     if (isHomePage && location.hash) {
       // Remove the # character
       const targetId = location.hash.slice(1);
-      
+
       // Add a small delay to ensure the page has fully loaded
       setTimeout(() => {
         const targetElement = document.getElementById(targetId);
@@ -86,7 +86,7 @@ const Navbar = ({ usercheck }) => {
   // Handle navigation - direct to new page
   const handleNavigation = (targetId) => {
     setMenuOpen(false); // Close mobile menu
-    
+
     if (isHomePage) {
       // If on home page, use smooth scrolling
       const targetElement = document.getElementById(targetId);
@@ -162,124 +162,122 @@ const Navbar = ({ usercheck }) => {
     setAnnouncementIndex(0);
     const interval = setInterval(() => {
       setAnnouncementIndex((i) => (i + 1) % announcement.length);
-    }, 3500);
+    }, 30000); // 30 seconds to match the marquee animation duration
     return () => clearInterval(interval);
   }, [announcement]);
 
   return (
     <>
-    {/* Marquee banner above navbar (reduced height, vertically centered) - hidden when no announcement text */}
-    {(() => {
-      const hasAnnouncement = Array.isArray(announcement) ? announcement.some((x) => !!String(x).trim()) : (announcement && String(announcement).trim() !== "");
-      const displayText = Array.isArray(announcement) ? (announcement[announcementIndex] || "") : (announcement || "");
-      return hasAnnouncement ? (
-      <div className="w-full bg-black text-white h-8">
-        <div
-          aria-hidden={false}
-          role="region"
-          aria-label="Announcement"
-          className="h-full flex items-center justify-center px-4"
-        >
-          <span
-            key={announcementIndex}
-            className="text-sm text-center"
-            style={{ animation: "fadeUp 420ms ease-out" }}
-          >
-            {displayText}
-          </span>
-        </div>
-      <style>{`@keyframes fadeUp { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }`}</style>
-      </div>
-      ) : null;
-    })()}
-    <header className={`w-full bg-white`}
-      role="banner">
-      {/* Increased vertical padding for taller navbar */}
-  <div className="w-full px-4 md:px-8 lg:px-12 py-2 lg:py-3">
-        <div className="flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link to="/" className="flex-shrink-0 flex items-center ml-0 lg:ml-0">
-            {/* Make logo small and crisp: adjust heights for mobile and desktop */}
-            <img
-              src={logo}
-              alt="logo"
-              className="h-7 w-auto sm:h-9 md:h-10 lg:h-12 object-contain"
-              style={{ display: "block" }}
-            />
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex gap-8">
-            {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => {
-              const targetId = item.toLowerCase().replace(/\s/g, "");
-              return (
-                <a
-                  key={index}
-                  href={`#${targetId}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigation(targetId);
-                  }}
-                  className="text-gray-700 hover:text-black text-sm font-medium transition-colors cursor-pointer"
-                >
-                  {item}
-                </a>
-              );
-            })}
-          </nav>
-
-          {/* Icons & Search Bar (Right Side) */}
-          <div className="flex items-center gap-4 lg:gap-6">
-            {/* Mobile quick icons: wishlist, profile, cart near hamburger (tighter spacing) */}
-            <div className="flex items-center gap-0 lg:hidden">
-              <button
-                aria-label="Wishlist"
-                onClick={() => { setMenuOpen(false); navigate('/wishlist'); }}
-                className="p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
-              >
-                <Heart className="h-5 w-5" />
-              </button>
-              <button
-                aria-label="Profile"
-                onClick={() => { setMenuOpen(false); navigate('/dashboard/profile'); }}
-                className="p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
-              >
-                <User className="h-5 w-5" />
-              </button>
-              <button
-                aria-label="Cart"
-                onClick={() => { setMenuOpen(false); navigate('/cart'); }}
-                className="relative p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">{cartCount}</span>
-                )}
-              </button>
+      {/* Marquee banner above navbar (reduced height, vertically centered) - hidden when no announcement text */}
+      {(() => {
+        const hasAnnouncement = Array.isArray(announcement) ? announcement.some((x) => !!String(x).trim()) : (announcement && String(announcement).trim() !== "");
+        // Display one announcement at a time
+        const displayText = Array.isArray(announcement) ? (announcement[announcementIndex] || "") : (announcement || "");
+        return hasAnnouncement ? (
+          <div className="w-full bg-black text-white h-8 overflow-hidden">
+            <div
+              aria-hidden={false}
+              role="region"
+              aria-label="Announcement"
+              className="h-full flex items-center"
+            >
+              <div key={announcementIndex} className="marquee whitespace-nowrap">
+                <span className="text-sm inline-block px-4">
+                  {displayText}
+                </span>
+              </div>
             </div>
-            {/* Desktop search removed in favor of in-pill expanding search */}
+          </div>
+        ) : null;
+      })()}
+      <header className={`w-full bg-white`}
+        role="banner">
+        {/* Increased vertical padding for taller navbar */}
+        <div className="w-full px-4 md:px-8 lg:px-12 py-2 lg:py-3">
+          <div className="flex items-center justify-between gap-4">
+            {/* Logo */}
+            <Link to="/" className="flex-shrink-0 flex items-center ml-0 lg:ml-0">
+              {/* Make logo small and crisp: adjust heights for mobile and desktop */}
+              <img
+                src={logo}
+                alt="logo"
+                className="h-7 w-auto sm:h-9 md:h-10 lg:h-12 object-contain"
+                style={{ display: "block" }}
+              />
+            </Link>
 
-            {/* Icon pill group - match height with search pill */}
+            {/* Desktop Navigation Links */}
+            <nav className="hidden lg:flex gap-8">
+              {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => {
+                const targetId = item.toLowerCase().replace(/\s/g, "");
+                return (
+                  <a
+                    key={index}
+                    href={`#${targetId}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNavigation(targetId);
+                    }}
+                    className="text-gray-700 hover:text-black text-sm font-medium transition-colors cursor-pointer"
+                  >
+                    {item}
+                  </a>
+                );
+              })}
+            </nav>
+
+            {/* Icons & Search Bar (Right Side) */}
+            <div className="flex items-center gap-4 lg:gap-6">
+              {/* Mobile quick icons: wishlist, profile, cart near hamburger (tighter spacing) */}
+              <div className="flex items-center gap-0 lg:hidden">
+                <button
+                  aria-label="Wishlist"
+                  onClick={() => { setMenuOpen(false); navigate('/wishlist'); }}
+                  className="p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
+                >
+                  <Heart className="h-5 w-5" />
+                </button>
+                <button
+                  aria-label="Profile"
+                  onClick={() => { setMenuOpen(false); navigate('/dashboard/profile'); }}
+                  className="p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
+                >
+                  <User className="h-5 w-5" />
+                </button>
+                <button
+                  aria-label="Cart"
+                  onClick={() => { setMenuOpen(false); navigate('/cart'); }}
+                  className="relative p-0.5 rounded-md text-gray-700 hover:bg-gray-100"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">{cartCount}</span>
+                  )}
+                </button>
+              </div>
+              {/* Desktop search removed in favor of in-pill expanding search */}
+
+              {/* Icon pill group - match height with search pill */}
               <div className={`hidden lg:flex items-center justify-center gap-3 rounded-full bg-black text-white px-4 h-10 ${searchExpanded ? 'ring-1 ring-white/40' : ''}`} ref={searchContainerRef}>
-              {/* Search (left-most inside icon pill) */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSearchExpanded((s) => !s);
-                }}
-                aria-label={searchExpanded ? "Close search" : "Open search"}
-                className="flex items-center justify-center text-white/90 hover:text-white transition-colors"
-              >
-                {!searchExpanded ? (
-                  <SearchIcon className="h-5 w-5" />
-                ) : (
-                  <X className="h-5 w-5" />
-                )}
-              </button>
-              {/* Animated search reveal (desktop only) - appears to the left of icons and pushes them */}
-              <AnimatePresence>
-                {searchExpanded && (
-                  <motion.div
+                {/* Search (left-most inside icon pill) */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSearchExpanded((s) => !s);
+                  }}
+                  aria-label={searchExpanded ? "Close search" : "Open search"}
+                  className="flex items-center justify-center text-white/90 hover:text-white transition-colors"
+                >
+                  {!searchExpanded ? (
+                    <SearchIcon className="h-5 w-5" />
+                  ) : (
+                    <X className="h-5 w-5" />
+                  )}
+                </button>
+                {/* Animated search reveal (desktop only) - appears to the left of icons and pushes them */}
+                <AnimatePresence>
+                  {searchExpanded && (
+                    <motion.div
                       initial={{ width: 0, opacity: 0 }}
                       animate={{ width: 320, opacity: 1 }}
                       exit={{ width: 0, opacity: 0 }}
@@ -292,99 +290,98 @@ const Navbar = ({ usercheck }) => {
                         <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} autoFocus={true} dark={true} showIcon={false} inPill={true} />
                       </div>
                     </motion.div>
-                )}
-              </AnimatePresence>
-              {/* Wishlist */}
-              <Link to="/wishlist" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
-                <Heart className="h-5 w-5" />
-              </Link>
-              {/* Profile */}
-              <Link to="/dashboard/profile" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
-                <User className="h-5 w-5" />
-              </Link>
-              {/* Cart */}
-              <Link to="/cart" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                  <line x1="3" y1="6" x2="21" y2="6"/>
-                  <path d="M16 10a4 4 0 0 1-8 0"/>
-                </svg>
-              </Link>
+                  )}
+                </AnimatePresence>
+                {/* Wishlist */}
+                <Link to="/wishlist" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
+                  <Heart className="h-5 w-5" />
+                </Link>
+                {/* Profile */}
+                <Link to="/dashboard/profile" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
+                  <User className="h-5 w-5" />
+                </Link>
+                {/* Cart */}
+                <Link to="/cart" className="flex items-center justify-center text-white/90 hover:text-white transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                  </svg>
+                </Link>
+              </div>
+
+              {/* Hamburger Menu for Mobile */}
+              <button onClick={toggleMenu} className="lg:hidden ml-1 mr-1">
+                {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile search moved into hamburger menu; removed standalone mobile search bar */}
+        </div>
+
+        {/* Mobile Navigation Menu (Slide-in effect) */}
+        <div
+          className={`fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-50 transform ${menuOpen ? "translate-x-0" : "-translate-x-full"
+            } transition-transform duration-300 ease-in-out lg:hidden`}
+        >
+          <div className="p-5 flex flex-col gap-4">
+            {/* Close Button */}
+            <button onClick={toggleMenu} className="self-end">
+              <X className="h-6 w-6" />
+            </button>
+            {/* Mobile Search */}
+            <div className="mt-1">
+              <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} compact={true} placeholder="Search products" />
             </div>
 
-            {/* Hamburger Menu for Mobile */}
-            <button onClick={toggleMenu} className="lg:hidden ml-1 mr-1">
-              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            {/* Mobile Navigation Links */}
+            <nav className="flex flex-col pt-2 gap-2">
+              {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => {
+                const targetId = item.toLowerCase().replace(/\s/g, "");
+                return (
+                  <a
+                    key={index}
+                    href={`#${targetId}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNavigation(targetId);
+                    }}
+                    className="text-gray-700 hover:text-black text-lg font-medium cursor-pointer"
+                  >
+                    {item}
+                  </a>
+                );
+              })}
+            </nav>
+
+            <div className="border-t border-gray-200 mt-3 pt-3 flex flex-col gap-2">
+              <a onClick={() => { setMenuOpen(false); navigate('/wishlist'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
+                <Heart className="h-5 w-5" /> Wishlist
+              </a>
+              <a onClick={() => { setMenuOpen(false); navigate('/dashboard/profile'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
+                <User className="h-5 w-5" /> Profile
+              </a>
+              <a onClick={() => { setMenuOpen(false); navigate('/cart'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
+                <ShoppingCart className="h-5 w-5" /> Cart ({cartCount})
+              </a>
+            </div>
+
+            {/* Announcement removed from mobile menu per request */}
+
+            {/* Logout Button (If Logged In) */}
+            {user && (
+              <button
+                onClick={handleLogout}
+                className="text-red-500 hover:text-red-700 text-lg font-medium mt-3 text-left"
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
+      </header>
 
-        {/* Mobile search moved into hamburger menu; removed standalone mobile search bar */}
-      </div>
-
-      {/* Mobile Navigation Menu (Slide-in effect) */}
-      <div
-        className={`fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-50 transform ${
-          menuOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out lg:hidden`}
-      >
-        <div className="p-5 flex flex-col gap-4">
-          {/* Close Button */}
-          <button onClick={toggleMenu} className="self-end">
-            <X className="h-6 w-6" />
-          </button>
-          {/* Mobile Search */}
-          <div className="mt-1">
-            <SearchBar handleClick={handleClick} search={search} setSearch={setSearch} compact={true} placeholder="Search products" />
-          </div>
-
-          {/* Mobile Navigation Links */}
-          <nav className="flex flex-col pt-2 gap-2">
-            {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => {
-              const targetId = item.toLowerCase().replace(/\s/g, "");
-              return (
-                <a
-                  key={index}
-                  href={`#${targetId}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNavigation(targetId);
-                  }}
-                  className="text-gray-700 hover:text-black text-lg font-medium cursor-pointer"
-                >
-                  {item}
-                </a>
-              );
-            })}
-          </nav>
-
-          <div className="border-t border-gray-200 mt-3 pt-3 flex flex-col gap-2">
-                <a onClick={() => { setMenuOpen(false); navigate('/wishlist'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
-              <Heart className="h-5 w-5" /> Wishlist
-            </a>
-            <a onClick={() => { setMenuOpen(false); navigate('/dashboard/profile'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
-              <User className="h-5 w-5" /> Profile
-            </a>
-            <a onClick={() => { setMenuOpen(false); navigate('/cart'); }} className="flex items-center gap-3 text-gray-700 hover:text-black cursor-pointer">
-              <ShoppingCart className="h-5 w-5" /> Cart ({cartCount})
-            </a>
-          </div>
-
-          {/* Announcement removed from mobile menu per request */}
-
-          {/* Logout Button (If Logged In) */}
-          {user && (
-            <button
-              onClick={handleLogout}
-              className="text-red-500 hover:text-red-700 text-lg font-medium mt-3 text-left"
-            >
-              Logout
-            </button>
-          )}
-        </div>
-      </div>
-    </header>
-    
     </>
   );
 };

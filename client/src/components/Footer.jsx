@@ -91,8 +91,8 @@ function Footer() {
       </div>
 
       {/* Copyright */}
-      <div className="mt-8 text-center text-sm text-gray-600 px-4">
-        <p>&copy; 2025 BM Aesthetique. All rights reserved.</p>
+      <div className="mt-8 text-center text-sm text-gray-600 px-4 border-t pt-8">
+        <p>&copy; {new Date().getFullYear()} BM Aesthetique. All rights reserved.</p>
       </div>
     </footer>
   );

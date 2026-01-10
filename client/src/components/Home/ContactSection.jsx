@@ -1,12 +1,25 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaClock, FaInstagram, FaFacebookF, FaTwitter, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
 import { commonRequest } from '../../Common/api';
 import FAQAccordion from '../../components/FAQAccordion';
+import emailjs from '@emailjs/browser';
 
 
 export default function ContactSection({ id }) {
   const [openIndex, setOpenIndex] = useState(null);
+  const formRef = useRef();
+
+  // Form state
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
+  const [errors, setErrors] = useState({});
 
   const defaultFaqs = [
     {
@@ -54,6 +67,106 @@ export default function ContactSection({ id }) {
 
   const [faqs, setFaqs] = useState(defaultFaqs);
   const [faqsLoading, setFaqsLoading] = useState(false);
+
+  // Form validation
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.full_name.trim()) {
+      newErrors.full_name = 'Full name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.subject.trim()) {
+      newErrors.subject = 'Subject is required';
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Clear previous messages
+    setSubmitMessage({ type: '', text: '' });
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Prepare template parameters with submitted_at timestamp
+      const templateParams = {
+        full_name: formData.full_name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        submitted_at: new Date().toLocaleString()
+      };
+
+      // Send email using EmailJS
+      await emailjs.send(
+        'service_4fs8no7',      // Service ID
+        'template_jtlajch',     // Template ID
+        templateParams,
+        '157EmcNlKJNcCyE25'     // Public Key
+      );
+
+      // Success
+      setSubmitMessage({
+        type: 'success',
+        text: 'Thank you! Your message has been sent successfully. We\'ll get back to you soon.'
+      });
+
+      // Clear form
+      setFormData({
+        full_name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      setSubmitMessage({
+        type: 'error',
+        text: 'Oops! Something went wrong. Please try again or contact us directly at help.bmaesthetique@gmail.com'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // External directions/share link provided by user (used for the external open link)
   const externalMapUrl = "https://www.google.com/maps/dir//2nd+Floor,+Room+No.+16,+Alex+Square,+Best+Med+Aesthetique+Pvt+Ltd,+opposite+to+Amritha+School,+Ettimadai,+Coimbatore,+Tamil+Nadu+641112/@11.3075357,75.8882503,15z/data=!3m1!4b1!4m8!4m7!1m0!1m5!1m1!1s0x3ba85b8f99aa4db7:0x5ef94650ef08df91!2m2!1d76.9241763!2d10.9590929?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoKLDEwMDc5MjA2OUgBUAM%3D";
 
@@ -98,13 +211,14 @@ export default function ContactSection({ id }) {
 
               <div className="grid grid-cols-2 gap-6 text-sm text-gray-700">
                 <div>
-                  <h4 className="font-semibold mb-2">Call Center</h4>
-                  <div>81370 11855</div>
+                  <h4 className="font-semibold mb-2">Our Location</h4>
+                  <div>2nd floor, No-16, Alex Square,<br></br> opposite to Amirtha School, Ettimadai,<br></br> Coimbatore, Tamil Nadu <br></br>PIN CODE - 641112</div>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Our Location</h4>
-                  <div>Coimbatore, Tamil Nadu<br />Opposite Amirtha School</div>
+                  <h4 className="font-semibold mb-2">Call Center</h4>
+                  <div className="mt-1"><a href="tel:8137011855" className="text-blue-600 hover:underline"> +91 837011855</a></div>
                 </div>
+
 
                 <div>
                   <h4 className="font-semibold mb-2">Email</h4>
@@ -128,24 +242,88 @@ export default function ContactSection({ id }) {
                 <h3 className="text-2xl font-semibold mb-4">Get in Touch</h3>
                 <p className="text-sm text-gray-500 mb-6">Define your goals and identify areas where our products can add value to your skincare routine.</p>
 
-                <form className="space-y-4">
+                {/* Success/Error Message */}
+                {submitMessage.text && (
+                  <div className={`mb-4 p-4 rounded-lg ${submitMessage.type === 'success'
+                      ? 'bg-green-50 text-green-800 border border-green-200'
+                      : 'bg-red-50 text-red-800 border border-red-200'
+                    }`}>
+                    <p className="text-sm">{submitMessage.text}</p>
+                  </div>
+                )}
+
+                <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <input placeholder="Full name" className="w-full bg-transparent border-b border-gray-200 py-3 focus:outline-none" />
+                    <input
+                      type="text"
+                      name="full_name"
+                      value={formData.full_name}
+                      onChange={handleInputChange}
+                      placeholder="Full name"
+                      className={`w-full bg-transparent border-b py-3 focus:outline-none ${errors.full_name ? 'border-red-500' : 'border-gray-200'
+                        }`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.full_name && (
+                      <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>
+                    )}
                   </div>
                   <div>
-                    <input placeholder="Email" className="w-full bg-transparent border-b border-gray-200 py-3 focus:outline-none" />
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Email"
+                      className={`w-full bg-transparent border-b py-3 focus:outline-none ${errors.email ? 'border-red-500' : 'border-gray-200'
+                        }`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                    )}
                   </div>
                   <div>
-                    <input placeholder="Subject" className="w-full bg-transparent border-b border-gray-200 py-3 focus:outline-none" />
+                    <input
+                      type="text"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      placeholder="Subject"
+                      className={`w-full bg-transparent border-b py-3 focus:outline-none ${errors.subject ? 'border-red-500' : 'border-gray-200'
+                        }`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.subject && (
+                      <p className="text-red-500 text-xs mt-1">{errors.subject}</p>
+                    )}
                   </div>
                   <div>
-                    <textarea placeholder="Message" className="w-full bg-transparent border-b border-gray-200 py-3 focus:outline-none h-28 resize-none" />
+                    <textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      placeholder="Message"
+                      className={`w-full bg-transparent border-b py-3 focus:outline-none h-28 resize-none ${errors.message ? 'border-red-500' : 'border-gray-200'
+                        }`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.message && (
+                      <p className="text-red-500 text-xs mt-1">{errors.message}</p>
+                    )}
                   </div>
 
                   <div className="pt-4">
-                    <button type="submit" className="inline-flex items-center gap-3 bg-black text-white px-5 py-3 rounded-full">
-                      <span>Send a message</span>
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                    <button
+                      type="submit"
+                      className={`inline-flex items-center gap-3 bg-black text-white px-5 py-3 rounded-full transition-opacity ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-800'
+                        }`}
+                      disabled={isSubmitting}
+                    >
+                      <span>{isSubmitting ? 'Sending...' : 'Send a message'}</span>
+                      {!isSubmitting && (
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                      )}
                     </button>
                   </div>
                 </form>
