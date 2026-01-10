@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-// import ForgotBG from "../../assets/forggotpassb.jpg";
-import ForgotBG from "../../assets/forgotpassbg.jpg";
+// use same background image as Login page for visual consistency
+import LoginImg from "../../assets/others/about.jpg";
 import Logo from "../../assets/TrendKart.png";
 import { Link } from "react-router-dom";
 
@@ -19,13 +19,10 @@ const ForgetPassword = () => {
 
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-gray-50">
-      {/* Left Side - Image */}
-      <div className="hidden lg:block lg:w-1/2 h-screen">
-        <img
-          src={ForgotBG}
-          alt="Forgot Background"
-          className="w-full h-full object-cover"
-        />
+      {/* Left Side - Image (same as login) */}
+      <div className="hidden lg:block lg:w-1/2 h-screen relative">
+        <img src={LoginImg} alt="Auth Background" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
       {/* Right Side - Form */}
