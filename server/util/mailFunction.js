@@ -1,6 +1,20 @@
 const mailSender = require("./mailSender");
 const axios = require("axios");
 
+// small helpers to escape user-provided values when interpolating into HTML
+const escapeHtml = (str = "") => {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
+
+const escapeAttr = (str = "") => {
+  return escapeHtml(str).replace(/\n/g, "");
+};
+
 const sendEnquiryMail = async (email, enquiryData) => {
   const {
     name,
@@ -264,107 +278,47 @@ curl -i -X POST `
 };
 
 const sendOTPMail = async (email, otp) => {
+  const subject = "BM Aesthetique — Email Verification";
   const mailResponse = await mailSender(
     email,
-    "Email Verification",
+    subject,
     `<!DOCTYPE html>
     <html lang="en">
-    
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Email Verification</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f4f4;
-                margin: 0;
-                padding: 0;
-            }
-
-            h2 {
-              font-weight:500;
-              color: #6b7280;
-            }
-    
-            .container {
-                max-width: 600px;
-                margin: 0 auto;
-                background-color: #ffffff;
-                padding: 40px;
-                border-radius: 10px;
-                box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
-            }
-    
-            .logo {
-                display: block;
-                margin: 0 auto 20px;
-            }
-    
-            .header {
-                background-color: #4caf50;
-                color: #ffffff;
-                padding: 10px 20px;
-                border-radius: 5px;
-                text-align: left;
-            }
-    
-            .otp-content {
-                margin-top: 30px;
-                font-size: 18px;
-                color: #333;
-                text-align: left;
-                background-color: #f9f9f9;
-                border: 1px solid #ddd;
-                box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
-                padding: 20px;
-                border-radius: 5px;
-            }
-
-            .otp-nb {
-              font-size: 14px;
-            }
-    
-            .otp-code {
-                font-size: 24px;
-                font-weight: bold;
-                color: #4caf50;
-            }
-    
-            .footer {
-                margin-top: 30px;
-                font-size: 14px;
-                color: #555;
-                text-align: left;
-            }
-        </style>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>${subject}</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: #f7f7fa; margin:0; padding:0 }
+        .wrap { max-width:600px; margin:28px auto; background:#fff; border-radius:8px; padding:28px; box-shadow:0 6px 18px rgba(0,0,0,0.06) }
+        .brand { text-align:center; color:#0f172a; font-weight:700; font-size:20px; margin-bottom:12px }
+        .lead { color:#111827; font-size:16px; line-height:1.5 }
+        .otp-box { margin:20px 0; background:#f3f4f6; border:1px dashed #e5e7eb; padding:18px; border-radius:6px; text-align:center }
+        .otp-code { font-size:28px; letter-spacing:4px; font-weight:700; color:#0ea5a3 }
+        .muted { color:#6b7280; font-size:13px }
+        .footer { margin-top:20px; color:#6b7280; font-size:13px }
+        .support { color:#0f172a; font-weight:600 }
+      </style>
     </head>
-    
     <body>
-        <div className="container">
-            <h2>TrendKart.</h2>
-            <div className="header">
-                <h1>Email Verification</h1>
-            </div>
-            <div className="otp-content">
-                <p>Dear User,</p>
-                <p>We have received a request to verify your email address. Please use the following OTP code to complete the verification:</p>
-                <p><span className="otp-code">${otp}</span></p>
-                <p className="otp-nb">If you didn't request this OTP, please ignore this email.</p>
-            </div>
-            <div className="footer">
-                <p>Best regards,</p>
-                <p>TrendKart</p>
-                <p>&copy; 2023 TrendKart. All rights reserved.</p>
-            </div>
+      <div class="wrap">
+        <div class="brand">BM Aesthetique</div>
+        <div class="lead">Hello,</div>
+        <p class="lead">We received a request to verify this email address. Enter the code below to continue. This code will expire in 5 minutes.</p>
+        <div class="otp-box">
+          <div class="otp-code">${otp}</div>
         </div>
+        <p class="muted">If you did not request this code, you can safely ignore this email — no changes were made to your account.</p>
+        <div class="footer">
+          <p>Need help? Contact our support team at <span class="support">support@bmaesthetique.com</span> and we'll be happy to assist.</p>
+          <p style="margin-top:6px">Warm regards,<br/>BM Aesthetique</p>
+          <p style="font-size:12px; color:#9ca3af; margin-top:8px">&copy; ${new Date().getFullYear()} BM Aesthetique. All rights reserved.</p>
+        </div>
+      </div>
     </body>
-    
-    </html>
-    
-    `
+    </html>`
   );
-  console.log("Email sent successfully: ", mailResponse);
+  console.log("OTP email sent successfully: ", mailResponse);
 };
 
 const sendManagerNoti = async (email) => {
@@ -558,10 +512,117 @@ const passwordChangedMail = async (email) => {
   console.log("Email sent successfully: ", mailResponse);
 };
 
+/**
+ * Send order dispatched/shipped notification to customer
+ * data: { customerName, address, trackingLink, productName, orderId }
+ */
+const sendOrderShippedMail = async (email, data = {}) => {
+  const { customerName = 'Customer', address = '', trackingLink = '', productName = '', orderId = '' } = data;
+  const subject = 'BM Aesthetique — Your order has been dispatched';
+  const mailResponse = await mailSender(
+    email,
+    subject,
+    `<!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <title>${subject}</title>
+      <style>
+        body{font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial; background:#f7f7fa; margin:0; padding:0}
+        .card{max-width:680px;margin:28px auto;background:#fff;border-radius:8px;padding:28px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+        .brand{font-weight:700;color:#0f172a;text-align:center;font-size:20px;margin-bottom:8px}
+        .lead{color:#111827;font-size:15px;line-height:1.5}
+        .meta{margin:18px 0;padding:16px;background:#f9fafb;border-radius:6px;border:1px solid #eef2f7}
+        .muted{color:#6b7280;font-size:13px}
+        .cta{display:inline-block;margin-top:12px;background:#0ea5a3;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none}
+        .footer{margin-top:18px;color:#6b7280;font-size:13px}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="brand">BM Aesthetique</div>
+        <div class="lead">Hi ${escapeHtml(customerName)},</div>
+        <p class="lead">Good news — your order${orderId ? ` <strong>#${escapeHtml(orderId)}</strong>` : ''} has been dispatched and is on its way to the delivery address below.</p>
+        <div class="meta">
+          <p><strong>Shipping address</strong></p>
+          <p class="muted">${escapeHtml(address) || 'Address not available'}</p>
+          <p style="margin-top:8px"><strong>Product</strong>: ${escapeHtml(productName) || 'Item'}</p>
+        </div>
+        ${trackingLink ? `<p>Track your shipment: <a href="${escapeAttr(trackingLink)}" target="_blank" rel="noopener" class="cta">View tracking</a></p>` : '<p class="muted">No tracking link available.</p>'}
+        <p class="muted">If you have any questions, reply to this email or contact our support at <strong>support@bmaesthetique.com</strong>.</p>
+        <div class="footer">Warm regards,<br/>BM Aesthetique</div>
+      </div>
+    </body>
+    </html>`
+  );
+  console.log('Order-shipped email sent:', mailResponse);
+};
+
+/**
+ * Send order delivered notification
+ * data: { customerName, orderNumber, productName, address, deliveryDate, contactDetails }
+ */
+const sendOrderDeliveredMail = async (email, data = {}) => {
+  const {
+    customerName = 'Customer',
+    orderNumber = '',
+    productName = '',
+    address = '',
+    deliveryDate = '',
+    contactDetails = 'support@bmaesthetique.com',
+  } = data;
+
+  const subject = 'BM Aesthetique — Your Order Has Been Delivered';
+  const mailResponse = await mailSender(
+    email,
+    subject,
+    `<!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <title>${subject}</title>
+      <style>
+        body{font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial; background:#f7f7fa; margin:0; padding:0}
+        .card{max-width:680px;margin:28px auto;background:#fff;border-radius:8px;padding:28px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+        .brand{font-weight:700;color:#0f172a;text-align:center;font-size:20px;margin-bottom:8px}
+        .lead{color:#111827;font-size:15px;line-height:1.5}
+        .list{margin:18px 0;padding:16px;background:#f9fafb;border-radius:6px;border:1px solid #eef2f7}
+        .muted{color:#6b7280;font-size:13px}
+        .footer{margin-top:18px;color:#6b7280;font-size:13px}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="brand">BM Aesthetique</div>
+        <div class="lead">Hello ${escapeHtml(customerName)},</div>
+        <p class="lead">We trust you are doing well. We're pleased to confirm that your order has been successfully delivered to the address provided at the time of purchase.</p>
+        <div class="list">
+          <p><strong>Order Number:</strong> ${escapeHtml(orderNumber) || 'N/A'}</p>
+          <p><strong>Product:</strong> ${escapeHtml(productName) || 'N/A'}</p>
+          <p><strong>Delivery Address:</strong> ${escapeHtml(address) || 'N/A'}</p>
+          <p><strong>Delivery Date:</strong> ${escapeHtml(deliveryDate) || 'N/A'}</p>
+        </div>
+        <p class="muted">Thank you for choosing BM Aesthetique. We value your trust and look forward to serving you again.</p>
+        <div class="footer">
+          <p>Sincerely,</p>
+          <p><strong>BM Aesthetique Team</strong></p>
+          <p class="muted">Contact: ${escapeHtml(contactDetails)}</p>
+        </div>
+      </div>
+    </body>
+    </html>`
+  );
+  console.log('Order-delivered email sent:', mailResponse);
+};
+
 module.exports = {
   sendOTPMail,
   passwordChangedMail,
   sendManagerNoti,
   sendEnquiryMail,
   sendEnquiryWhtspMsg,
+  sendOrderShippedMail,
+  sendOrderDeliveredMail,
 };
