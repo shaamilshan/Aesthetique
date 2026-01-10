@@ -229,8 +229,8 @@ export default function ContactSection({ id }) {
                   <div className="flex items-center gap-3 mt-1">
                     <a href="#" className="text-gray-500 hover:text-gray-800"><FaInstagram /></a>
                     <a href="#" className="text-gray-500 hover:text-gray-800"><FaFacebookF /></a>
-                    <a href="#" className="text-gray-500 hover:text-gray-800"><FaLinkedinIn /></a>
-                    <a href="#" className="text-gray-500 hover:text-gray-800"><FaWhatsapp /></a>
+                    {/* <a href="#" className="text-gray-500 hover:text-gray-800"><FaLinkedinIn /></a> */}
+                    <a href="https://wa.me/918137011855" className="text-gray-500 hover:text-gray-800"><FaWhatsapp /></a>
                   </div>
                 </div>
               </div>
