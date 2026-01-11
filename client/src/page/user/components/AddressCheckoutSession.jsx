@@ -14,11 +14,15 @@ const AddressCheckoutSession = ({ selectedAddress, setSelectedAddress }) => {
   const dispatch = useDispatch();
 
   const { addresses, loading, error } = useSelector((state) => state.address);
+  const { user } = useSelector((state) => state.user);
 
   // Fetching address when the page is loading
   useEffect(() => {
-    dispatch(getAddresses());
-  }, []);
+    // only fetch saved addresses for authenticated users
+    if (user) {
+      dispatch(getAddresses());
+    }
+  }, [user]);
 
   // Selecting the first address as default when the address are loaded
   useEffect(() => {
@@ -57,7 +61,11 @@ const AddressCheckoutSession = ({ selectedAddress, setSelectedAddress }) => {
 
   return (
     <>
-      {createAddress && <Modal tab={<Address closeToggle={toggleAddress} />} />}
+      {createAddress && (
+        <Modal
+          tab={<Address closeToggle={toggleAddress} onSave={(addr) => setSelectedAddress(addr)} />}
+        />
+      )}
       {editAddressModal && (
         <Modal
           tab={

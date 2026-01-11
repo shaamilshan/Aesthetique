@@ -174,10 +174,7 @@ function App() {
           {/* <Route path="/cart" element={<ProtectedRoute element={<Cart />} />} /> */}
           <Route path="/cart" element={<Cart />} />
 
-          <Route
-            path="/checkout"
-            element={<ProtectedRoute element={<Checkout />} />}
-          />
+          <Route path="/checkout" element={<Checkout />} />
 
           <Route
             path="/order-confirmation"
@@ -185,10 +182,7 @@ function App() {
           } />}
           />
 
-          <Route
-            path="/buy-now"
-            element={<ProtectedRoute element={<BuyNow />} />}
-          />
+          <Route path="/buy-now" element={<BuyNow />} />
 
           <Route
             path="/dashboard"

@@ -3,13 +3,14 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import InputType from "../components/InputType";
 import { AiOutlineClose } from "react-icons/ai";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createAddress } from "../../../redux/actions/user/addressActions";
 // import { Country, State, City } from "country-state-city";
 import SearchInput from "./SearchInput";
 
-const Address = ({ closeToggle }) => {
+const Address = ({ closeToggle, onSave }) => {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
   // const countries = Country.getAllCountries();
   let [states, setStates] = useState([]);
   let [cities, setCities] = useState([]);
@@ -45,8 +46,19 @@ const Address = ({ closeToggle }) => {
   });
 
   const handleSubmit = (value) => {
-    // console.log(value);
-    dispatch(createAddress(value));
+    // if user is authenticated, create address via API
+    if (user) {
+      dispatch(createAddress(value));
+      // close modal; the redux flow will refresh addresses and parent will pick default
+      if (closeToggle) closeToggle();
+      return;
+    }
+
+    // Guest flow: pass the address object back to parent via onSave callback
+    if (onSave && typeof onSave === "function") {
+      onSave(value);
+    }
+    if (closeToggle) closeToggle();
   };
 
   // const handleCountrySelect = (country) => {
