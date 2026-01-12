@@ -24,6 +24,26 @@ import Register from "./page/auth/Register";
 // ...existing code...
 import ForgetPassword from "./page/auth/ForgetPassword";
 
+import ComingSoon from "./page/public/ComingSoon";
+
+// feature flag: set VITE_COMING_SOON=true (or REACT_APP_COMING_SOON=true) in env to enable the landing
+const COMING_SOON = (
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_COMING_SOON === 'true') ||
+  (typeof process !== 'undefined' && process.env && process.env.REACT_APP_COMING_SOON === 'true')
+);
+
+// Debug: print effective values when running locally so you can confirm which env is used.
+// Remove or comment out when finished debugging.
+try {
+  // eslint-disable-next-line no-console
+  console.log('VITE_COMING_SOON (import.meta.env) =', typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_COMING_SOON);
+  // eslint-disable-next-line no-console
+  console.log('REACT_APP_COMING_SOON (process.env) =', typeof process !== 'undefined' && process.env && process.env.REACT_APP_COMING_SOON);
+  // eslint-disable-next-line no-console
+  console.log('Computed COMING_SOON =', COMING_SOON);
+} catch (e) {
+  // ignore in non-browser environments
+}
 // User
 import Dashboard from "./page/Dashboard";
 import ProductDetails from "./page/user/ProductDetails";
@@ -117,28 +137,26 @@ function App() {
       <Toaster position="top-center" />
 
       <BrowserRouter>
-        {user ? user.role === "user" && <Navbar usercheck={true} /> : <Navbar usercheck={false} />}
+  {!COMING_SOON && (user ? user.role === "user" && <Navbar usercheck={true} /> : <Navbar usercheck={false} />)}
         {/* {user ? user.role === "user" && <CategorySection /> : <CategorySection />} */}
 
         <Routes>
           <Route
             path="/"
             element={
-              user ? (
-                user.role === "admin" ? (
-                  <Navigate to="/admin/" />
-                ) : user.role === "superAdmin" ? (
-                  <Navigate to="/manager/" />
-                ) : (
-                  // <Home />
-                  <Home2 />
-                  // <Dashboard />
-                )
-              ) : (
-                // <Home />
-                <Home2 />
-                // <Home />
-              )
+              COMING_SOON
+                ? <ComingSoon />
+                : user ? (
+                    user.role === "admin" ? (
+                      <Navigate to="/admin/" />
+                    ) : user.role === "superAdmin" ? (
+                      <Navigate to="/manager/" />
+                    ) : (
+                      <Home2 />
+                    )
+                  ) : (
+                    <Home2 />
+                  )
             }
           />
 
@@ -218,7 +236,7 @@ function App() {
 
           {/* <Route path="*" element={<Error404 />} /> */}
         </Routes>
-        {user ? user.role === "user" && <Footer /> : <Footer />}
+  {!COMING_SOON && (user ? user.role === "user" && <Footer /> : <Footer />)}
       </BrowserRouter>
     </>
   );
