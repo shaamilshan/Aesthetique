@@ -59,7 +59,9 @@ const UpdateOrder = ({ toggleModal, data }) => {
   };
 
   return (
-    <div className="max-w-xl w-full bg-white rounded-lg shadow p-6">
+    // Use the Modal's outer white container for chrome; make this content
+    // stretch to fill the available modal width/height.
+    <div className="w-full h-full px-0 py-0">
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -156,9 +158,17 @@ const UpdateOrder = ({ toggleModal, data }) => {
               <ErrorMessage name="description" component="div" className="text-red-600 text-xs mt-1" />
             </div>
 
-            <div className="mt-4 flex gap-3">
-              <button type="button" className="flex-1 px-4 py-2 border rounded" onClick={() => toggleModal({})}>Cancel</button>
-              <button type="submit" className="flex-1 px-4 py-2 bg-black text-white rounded">Update Order</button>
+            <div className="mt-4 flex gap-3 flex-col sm:flex-row">
+              <button
+                type="button"
+                className="w-full sm:flex-1 px-4 py-2 border rounded"
+                onClick={() => toggleModal({})}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="w-full sm:flex-1 px-4 py-2 bg-black text-white rounded">
+                Update Order
+              </button>
             </div>
           </Form>
         )}

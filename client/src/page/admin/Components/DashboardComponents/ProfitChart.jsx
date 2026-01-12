@@ -7,7 +7,7 @@ import { URL } from "@common/api";
 import { config } from "@common/configurations";
 
 const ProfitChart = ({ numberOfDates }) => {
-  const [totalSales, setTotalSales] = useState("");
+  const [totalSales, setTotalSales] = useState(0);
   const [data, setData] = useState([]);
   const [labels, setLabels] = useState([]);
 
@@ -21,8 +21,9 @@ const ProfitChart = ({ numberOfDates }) => {
       );
 
       if (data) {
-        setTotalSales(data.totalProfit.totalMarkupSum);
-        const arr = data.profitByDay.map((item) => item.dailyMarkupSum);
+  // Use numeric totals as-is (allow negative values to represent losses)
+  setTotalSales(Number(data.totalProfit.totalMarkupSum) || 0);
+  const arr = data.profitByDay.map((item) => Number(item.dailyMarkupSum) || 0);
         const labelArray = data.profitByDay.map((item) => item._id);
         setData(arr);
         setLabels(labelArray);
@@ -35,10 +36,11 @@ const ProfitChart = ({ numberOfDates }) => {
     <div className="bg-white p-5 rounded-md w-full flex justify-between">
       <div>
         <h3 className="font-semibold text-gray-700 text-sm">Profit</h3>
-        <h1 className="text-2xl font-semibold">₹{totalSales || 0}</h1>
-        <p className="font-semibold text-sm text-gray-500">
-          Profits made so for
-        </p>
+        {/* Format total and show negative sign/color for losses */}
+        <h1 className={`text-2xl font-semibold ${totalSales < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+          {totalSales < 0 ? '-' : ''}₹{new Intl.NumberFormat('en-IN').format(Math.abs(totalSales))}
+        </h1>
+        <p className="font-semibold text-sm text-gray-500">Profits made so far</p>
       </div>
       <div className="w-36">
         <Line

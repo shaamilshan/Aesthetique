@@ -7,8 +7,8 @@ const Modal = ({ tab, children, onClose }) => {
 
   return (
     <div
-      className="w-full h-screen fixed top-0 left-0 z-50 bg-black/30 flex items-center justify-center supports-[backdrop-filter]:backdrop-blur-sm"
-      style={{ backdropFilter: 'blur(6px)' }}
+      className="fixed inset-0 z-50 bg-black/30 flex items-center justify-center supports-[backdrop-filter]:backdrop-blur-sm p-4"
+      style={{ backdropFilter: "blur(6px)" }}
       onClick={(e) => {
         // Close when backdrop is clicked
         if (e.target === e.currentTarget && typeof onClose === "function") {
@@ -16,7 +16,8 @@ const Modal = ({ tab, children, onClose }) => {
         }
       }}
     >
-  <div className="relative max-w-6xl w-full mx-4 h-screen my-6">
+      {/* Dialog: constrain width and height so content is centered and scrollable on small screens */}
+      <div className="relative w-full max-w-3xl max-h-[90vh] mx-auto">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full h-full">
           {typeof onClose === "function" && (
             <button
@@ -28,7 +29,8 @@ const Modal = ({ tab, children, onClose }) => {
               ✕
             </button>
           )}
-          <div className="p-4 h-full overflow-auto">{content}</div>
+          {/* Make inner area scrollable when content exceeds max height */}
+          <div className="p-4 overflow-auto max-h-[90vh]">{content}</div>
         </div>
       </div>
     </div>
