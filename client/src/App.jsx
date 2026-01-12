@@ -142,6 +142,7 @@ function App() {
             }
           />
 
+
           <Route path="/manager-signup" element={<ManagerSignup />} />
           <Route path="/design-demo" element={<ProductPageDesign />} />
           <Route path="/login-demo" element={<LoginDemo />} />
