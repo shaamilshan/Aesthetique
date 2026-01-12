@@ -278,42 +278,39 @@ curl -i -X POST `
 };
 
 const sendOTPMail = async (email, otp) => {
-  const subject = "BM Aesthetique — Email Verification";
+  const subject = "Password Reset Code";
+
+  // Build HTML matching the provided template style
   const mailResponse = await mailSender(
     email,
     subject,
-    `<!DOCTYPE html>
+    `<!doctype html>
     <html lang="en">
     <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
       <title>${subject}</title>
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: #f7f7fa; margin:0; padding:0 }
-        .wrap { max-width:600px; margin:28px auto; background:#fff; border-radius:8px; padding:28px; box-shadow:0 6px 18px rgba(0,0,0,0.06) }
-        .brand { text-align:center; color:#0f172a; font-weight:700; font-size:20px; margin-bottom:12px }
-        .lead { color:#111827; font-size:16px; line-height:1.5 }
-        .otp-box { margin:20px 0; background:#f3f4f6; border:1px dashed #e5e7eb; padding:18px; border-radius:6px; text-align:center }
-        .otp-code { font-size:28px; letter-spacing:4px; font-weight:700; color:#0ea5a3 }
-        .muted { color:#6b7280; font-size:13px }
-        .footer { margin-top:20px; color:#6b7280; font-size:13px }
-        .support { color:#0f172a; font-weight:600 }
+        body{font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial; background:#f7f7f9; margin:0; padding:0}
+        .card{max-width:680px;margin:28px auto;background:#fff;border-radius:8px;padding:24px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+        .brand{font-weight:700;color:#0f172a;text-align:left;font-size:18px;margin-bottom:6px}
+        .lead{color:#111827;font-size:15px;line-height:1.5}
+        .muted{color:#6b7280;font-size:13px}
+        .code{display:block;margin:18px 0;padding:18px;background:#f3f4f6;border-radius:6px;border:1px dashed #e5e7eb;text-align:center;font-size:22px;font-weight:700;letter-spacing:2px}
+        a.support{color:#0f172a;font-weight:600;text-decoration:none}
       </style>
     </head>
     <body>
-      <div class="wrap">
-        <div class="brand">BM Aesthetique</div>
+      <div class="card">
+        <div class="brand">BM AESTHETIQUE</div>
         <div class="lead">Hello,</div>
-        <p class="lead">We received a request to verify this email address. Enter the code below to continue. This code will expire in 5 minutes.</p>
-        <div class="otp-box">
-          <div class="otp-code">${otp}</div>
-        </div>
-        <p class="muted">If you did not request this code, you can safely ignore this email — no changes were made to your account.</p>
-        <div class="footer">
-          <p>Need help? Contact our support team at <span class="support">support@bmaesthetique.com</span> and we'll be happy to assist.</p>
-          <p style="margin-top:6px">Warm regards,<br/>BM Aesthetique</p>
-          <p style="font-size:12px; color:#9ca3af; margin-top:8px">&copy; ${new Date().getFullYear()} BM Aesthetique. All rights reserved.</p>
-        </div>
+        <p class="muted">We received a request to reset the password for your <strong>BM Aesthetique</strong> account.</p>
+        <p class="muted">Please use the verification code below to proceed with resetting your password. This code is valid for <strong>5 minutes</strong>.</p>
+        <div class="code">${escapeHtml(String(otp))}</div>
+        <p class="muted">If you did not request a password reset, please ignore this email. Your account remains secure and no changes have been made.</p>
+        <p class="muted">If you need assistance, contact our support team at <a class="support" href="mailto:help.bmaesthetique@gmail.com">help.bmaesthetique@gmail.com</a> — we’re happy to help.</p>
+        <p style="margin-top:12px">Warm regards,<br/><strong>BM Aesthetique</strong></p>
+        <p style="font-size:12px;color:#9ca3af;margin-top:12px">&copy; ${new Date().getFullYear()} BM Aesthetique. All rights reserved.</p>
       </div>
     </body>
     </html>`
@@ -516,9 +513,14 @@ const passwordChangedMail = async (email) => {
  * Send order dispatched/shipped notification to customer
  * data: { customerName, address, trackingLink, productName, orderId }
  */
-const sendOrderShippedMail = async (email, data = {}) => {
+const sendOrderShippedMail = async (email, data = {}, attachments = []) => {
   const { customerName = 'Customer', address = '', trackingLink = '', productName = '', orderId = '' } = data;
   const subject = 'BM Aesthetique — Your order has been dispatched';
+  // Build a small items table if provided
+  const itemsRowsHtml = (data.products || [])
+    .map((p) => `<tr><td>${escapeHtml(p.name || '')}</td><td>${escapeHtml(String(p.quantity || ''))}</td><td>₹${escapeHtml(String(p.price || ''))}</td></tr>`)
+    .join("");
+
   const mailResponse = await mailSender(
     email,
     subject,
@@ -550,11 +552,13 @@ const sendOrderShippedMail = async (email, data = {}) => {
           <p style="margin-top:8px"><strong>Product</strong>: ${escapeHtml(productName) || 'Item'}</p>
         </div>
         ${trackingLink ? `<p>Track your shipment: <a href="${escapeAttr(trackingLink)}" target="_blank" rel="noopener" class="cta">View tracking</a></p>` : '<p class="muted">No tracking link available.</p>'}
-        <p class="muted">If you have any questions, reply to this email or contact our support at <strong>support@bmaesthetique.com</strong>.</p>
+        <p class="muted">If you have any questions, reply to this email or contact our support at <strong>help.bmaesthetique@gmail.com</strong>.</p>
         <div class="footer">Warm regards,<br/>BM Aesthetique</div>
       </div>
     </body>
     </html>`
+    ,
+    attachments && attachments.length ? { attachments } : undefined
   );
   console.log('Order-shipped email sent:', mailResponse);
 };
@@ -563,17 +567,21 @@ const sendOrderShippedMail = async (email, data = {}) => {
  * Send order delivered notification
  * data: { customerName, orderNumber, productName, address, deliveryDate, contactDetails }
  */
-const sendOrderDeliveredMail = async (email, data = {}) => {
+const sendOrderDeliveredMail = async (email, data = {}, attachments = []) => {
   const {
     customerName = 'Customer',
     orderNumber = '',
     productName = '',
     address = '',
     deliveryDate = '',
-    contactDetails = 'support@bmaesthetique.com',
+    contactDetails = 'help.bmaesthetique@gmail.com',
   } = data;
 
   const subject = 'BM Aesthetique — Your Order Has Been Delivered';
+  const itemsRowsHtml = (data.products || [])
+    .map((p) => `<tr><td>${escapeHtml(p.name || '')}</td><td>${escapeHtml(String(p.quantity || ''))}</td><td>₹${escapeHtml(String(p.price || ''))}</td></tr>`)
+    .join("");
+
   const mailResponse = await mailSender(
     email,
     subject,
@@ -613,8 +621,61 @@ const sendOrderDeliveredMail = async (email, data = {}) => {
       </div>
     </body>
     </html>`
+    ,
+    attachments && attachments.length ? { attachments } : undefined
   );
   console.log('Order-delivered email sent:', mailResponse);
+};
+
+/**
+ * Send order placed notification
+ * data: { customerName, orderNumber, productName, totalPrice }
+ */
+const sendOrderPlacedMail = async (email, data = {}, attachments = []) => {
+  const { customerName = 'Customer', orderNumber = '', productName = '', totalPrice = '' } = data;
+  const subject = 'BM Aesthetique — Order Confirmed';
+  const itemsRowsHtml = (data.products || [])
+    .map((p) => `<tr><td>${escapeHtml(p.name || '')}</td><td>${escapeHtml(String(p.quantity || ''))}</td><td>₹${escapeHtml(String(p.price || ''))}</td></tr>`)
+    .join("");
+
+  const mailResponse = await mailSender(
+    email,
+    subject,
+    `<!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <title>${subject}</title>
+      <style>
+        body{font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial; background:#f7f7fa; margin:0; padding:0}
+        .card{max-width:680px;margin:28px auto;background:#fff;border-radius:8px;padding:28px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+        .brand{font-weight:700;color:#0f172a;text-align:center;font-size:20px;margin-bottom:8px}
+        .lead{color:#111827;font-size:15px;line-height:1.5}
+        .meta{margin:18px 0;padding:16px;background:#f9fafb;border-radius:6px;border:1px solid #eef2f7}
+        .muted{color:#6b7280;font-size:13px}
+        .footer{margin-top:18px;color:#6b7280;font-size:13px}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="brand">BM Aesthetique</div>
+        <div class="lead">Hi ${escapeHtml(customerName)},</div>
+        <p class="lead">Thanks for your order${orderNumber ? ` <strong>#${escapeHtml(orderNumber)}</strong>` : ''}. We are processing it and will notify you when it ships.</p>
+        <div class="meta">
+          <p><strong>Summary</strong></p>
+          <p class="muted">Product: ${escapeHtml(productName) || 'Multiple items'}</p>
+          <p class="muted">Total: ₹${escapeHtml(String(totalPrice)) || 'N/A'}</p>
+        </div>
+        <p class="muted">If you have any questions, reply to this email or contact our support at <strong>help.bmaesthetique@gmail.com</strong>.</p>
+        <div class="footer">Warm regards,<br/>BM Aesthetique</div>
+      </div>
+    </body>
+    </html>`
+    ,
+    attachments && attachments.length ? { attachments } : undefined
+  );
+  console.log('Order-placed email sent:', mailResponse);
 };
 
 module.exports = {
@@ -625,4 +686,7 @@ module.exports = {
   sendEnquiryWhtspMsg,
   sendOrderShippedMail,
   sendOrderDeliveredMail,
+  sendOrderPlacedMail,
 };
+
+// NOTE: add sendOrderPlacedMail for order creation notifications

@@ -9,12 +9,23 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    const token = localStorage.getItem("token");
+
+    // If there's a token but `user` is not yet populated, we're still loading
+    // — do not redirect away. Only redirect when there's definitely no
+    // authenticated user (no token) or when a non-authorized user lands here.
+    if (!token && !user) {
       navigate("/");
+      return;
     }
-    // Debug: log mounting and user role
-    // This helps diagnose why /manager may appear blank
-    // (check browser console for these messages)
+
+    if (user && user.role && user.role !== "superAdmin") {
+      // Authenticated but not a superAdmin — send them away
+      navigate("/");
+      return;
+    }
+
+    // Debug: log mounting and user role to help diagnose blank /manager
     // eslint-disable-next-line no-console
     console.log("[ManagerDash] mounted, user:", user);
   }, [user]);

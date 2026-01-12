@@ -11,6 +11,7 @@ const Coupon = require("../../model/couponModel");
 const { generateInvoicePDF } = require("../Common/invoicePDFGenFunctions");
 const Counter = require("../../model/counterModel");
 const managerOrderModel = require("../../model/managerOrderModel");
+const { sendOrderPlacedMail } = require("../../util/mailFunction");
 
 // // Just the function increment or decrement product count
 // const updateProductList = async (id, count) => {
@@ -236,6 +237,43 @@ const createOrder = async (req, res) => {
 
     if (order) {
       await Cart.findByIdAndDelete(cart._id);
+    }
+
+    // Try to send confirmation email to user (non-blocking) and attach invoice
+    try {
+      const populated = await Order.findById(order._id).populate("user", { firstName: 1, lastName: 1, email: 1 }).populate("products.productId", { name: 1, price: 1 });
+      const userEmail = populated?.user?.email;
+      const customerName = `${populated?.user?.firstName || ''} ${populated?.user?.lastName || ''}`.trim();
+      if (userEmail) {
+        try {
+          // generate invoice PDF and attach
+          const pdfBuffer = await generateInvoicePDF(populated);
+          // Prepare products array for the email table
+          const productsForMail = (populated.products || []).map((p) => ({ name: p.productId?.name || '', quantity: p.quantity, price: p.price }));
+          sendOrderPlacedMail(
+            userEmail,
+            {
+              customerName: customerName || 'Customer',
+              orderNumber: populated.orderId || populated._id,
+              totalPrice: populated.totalPrice || '',
+              products: productsForMail,
+            },
+            [{ filename: `invoice_${populated.orderId || populated._id}.pdf`, content: pdfBuffer }]
+          ).catch((err) => console.error('Failed to send order-placed email', err));
+        } catch (err) {
+          console.error('Failed to generate invoice or send order-placed email:', err);
+          // Still attempt to send without attachment
+          const productsForMail = (populated.products || []).map((p) => ({ name: p.productId?.name || '', quantity: p.quantity, price: p.price }));
+          sendOrderPlacedMail(userEmail, {
+            customerName: customerName || 'Customer',
+            orderNumber: populated.orderId || populated._id,
+            totalPrice: populated.totalPrice || '',
+            products: productsForMail,
+          }).catch((err) => console.error('Failed to send order-placed email (no attach)', err));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to trigger order-placed email:', err);
     }
 
     // When payment is done using wallet reducing the wallet and creating payment

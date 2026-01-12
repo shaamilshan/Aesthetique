@@ -4,6 +4,7 @@ const Payment = require("../../model/paymentModel");
 const uuid = require("uuid");
 const { generateInvoicePDF } = require("../Common/invoicePDFGenFunctions");
 const managerOrderModel = require("../../model/managerOrderModel");
+const { sendOrderShippedMail, sendOrderDeliveredMail } = require("../../util/mailFunction");
 
 // Function checking if the passed status is valid or not. Ensuring redundant searches are avoided
 function isValidStatus(status) {
@@ -252,8 +253,63 @@ const updateOrderStatus = async (req, res) => {
       address: 0,
       products: { $slice: 1 },
     })
-      .populate("user", { firstName: 1, lastName: 1 })
+      .populate("user", { firstName: 1, lastName: 1, email: 1 })
       .populate("products.productId", { imageURL: 1, name: 1 });
+
+    // Send notification emails based on status change (non-blocking)
+    try {
+      const recipient = order?.user?.email;
+      const customerName = `${order?.user?.firstName || ''} ${order?.user?.lastName || ''}`.trim();
+      const productsForMail = (order?.products || []).map((p) => ({ name: p.productId?.name || '', quantity: p.quantity, price: p.price }));
+      if (recipient && status === 'shipped') {
+        sendOrderShippedMail(
+          recipient,
+          {
+            customerName,
+            address: order?.address || '',
+            trackingLink: order?.trackingId || '',
+            productName: order?.products && order.products[0] ? order.products[0].productId?.name : '',
+            orderId: order?.orderId || order?._id,
+            products: productsForMail,
+          }
+        ).catch((err) => console.error('Failed to send shipped email', err));
+      }
+
+      if (recipient && status === 'delivered') {
+        // Attempt to generate invoice and attach on delivery notification
+        try {
+          const populatedForInvoice = await Order.findById(order._id).populate('products.productId');
+          const pdfBuffer = await generateInvoicePDF(populatedForInvoice);
+          sendOrderDeliveredMail(
+            recipient,
+            {
+              customerName,
+              orderNumber: order?.orderId || order?._id,
+              productName: order?.products && order.products[0] ? order.products[0].productId?.name : '',
+              address: order?.address || '',
+              deliveryDate: new Date().toISOString(),
+              products: productsForMail,
+            },
+            [{ filename: `invoice_${order?.orderId || order?._id}.pdf`, content: pdfBuffer }]
+          ).catch((err) => console.error('Failed to send delivered email', err));
+        } catch (err) {
+          console.error('Failed to generate invoice or send delivered email with attachment', err);
+          sendOrderDeliveredMail(
+            recipient,
+            {
+              customerName,
+              orderNumber: order?.orderId || order?._id,
+              productName: order?.products && order.products[0] ? order.products[0].productId?.name : '',
+              address: order?.address || '',
+              deliveryDate: new Date().toISOString(),
+              products: productsForMail,
+            }
+          ).catch((err) => console.error('Failed to send delivered email (no attach)', err));
+        }
+      }
+    } catch (err) {
+      console.error('Error while attempting to send order notification emails', err);
+    }
 
     res.status(200).json({ order });
   } catch (error) {
