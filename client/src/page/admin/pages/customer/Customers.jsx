@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getCustomers } from "../../../../redux/actions/admin/customerAction";
 import TableRow from "./TableRow";
 import BlockOrUnBlock from "./BlockOrUnBlock";
+import CreateCustomerForm from "./CreateCustomerForm";
 import Modal from "../../../../components/Modal";
 import FilterArray from "../../Components/FilterArray";
 import SearchBar from "../../../../components/SearchBar";
@@ -32,6 +33,10 @@ const Customers = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [createModal, setCreateModal] = useState(false);
+
+  const openCreateModal = () => setCreateModal(true);
+  const closeCreateModal = () => setCreateModal(false);
 
   const handleFilter = (type, value) => {
     const params = new URLSearchParams(window.location.search);
@@ -94,13 +99,13 @@ const Customers = () => {
         />
         <div className="flex justify-between items-center font-semibold">
           <div>
-            <h1 className="font-bold text-2xl">Customers</h1>
+            <h1 className="font-bold text-2xl">Users</h1>
             <div className="flex items-center gap-2 mt-2 mb-4 text-gray-500">
               <p className="text-blue-500 font-semibold">Dashboard</p>
               <span>
                 <BsCaretRightFill />
               </span>
-              <p className="font-semibold">Customer List</p>
+              <p className="font-semibold">Users List</p>
             </div>
           </div>
         </div>
@@ -109,7 +114,7 @@ const Customers = () => {
             list={["all", "active", "blocked"]}
             handleClick={handleFilter}
           />
-          <div className="flex my-2 gap-3">
+          <div className="flex my-2 gap-3 items-center">
             <RangeDatePicker
               handleFilter={handleFilter}
               startingDate={startingDate}
@@ -118,6 +123,12 @@ const Customers = () => {
               setEndingDate={setEndingDate}
             />
             <ClearFilterButton handleClick={removeFilters} />
+            <button
+              onClick={openCreateModal}
+              className="ml-4 btn-blue text-white px-4 py-2 rounded-lg text-sm"
+            >
+              Create New User
+            </button>
           </div>
         </div>
         <div className="overflow-x-scroll  bg-white rounded-lg">
@@ -128,6 +139,7 @@ const Customers = () => {
                   <th className="admin-table-head w-52">Name</th>
                   <th className="admin-table-head">Email</th>
                   <th className="admin-table-head">Phone No</th>
+                  <th className="admin-table-head">Role</th>
                   <th className="admin-table-head">Status</th>
                   <th className="admin-table-head">Joined</th>
                   <th className="admin-table-head">Action</th>
@@ -159,8 +171,22 @@ const Customers = () => {
           />
         </div>
       </div>
+      {createModal && (
+        <Modal
+          tab={
+            <CreateCustomerForm
+              onClose={() => {
+                closeCreateModal();
+              }}
+            />
+          }
+          onClose={closeCreateModal}
+        />
+      )}
     </>
   );
 };
 
 export default Customers;
+
+// CreateCustomerForm has been moved to its own file for clarity

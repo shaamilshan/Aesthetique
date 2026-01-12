@@ -50,7 +50,8 @@ const signupManager = async (req, res) => {
       userCredentials = { ...userCredentials, profileImgURL: profileImgURL };
     }
 
-    const user = await User.managersignup(userCredentials, "manager", true);
+  // create a super-admin (previously called 'manager')
+  const user = await User.managersignup(userCredentials, "superAdmin", true);
 
     const token = createToken(user._id);
     console.log(token);

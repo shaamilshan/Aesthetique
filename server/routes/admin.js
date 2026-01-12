@@ -2,6 +2,7 @@ const express = require("express");
 const upload = require("../middleware/upload");
 
 const router = express.Router();
+const requirePermission = require("../middleware/requirePermission");
 
 const {
   getProducts,
@@ -91,26 +92,27 @@ const {
 // Products controller functions mounting them to corresponding route
 router.get("/products", getProducts);
 router.get("/product/:id", getProduct);
-router.delete("/product/:id", deleteProduct);
-router.patch("/product/:id", upload.any(), updateProduct);
-router.patch("/product/manager/:id", upload.any(), updateProductManager);
-router.post("/product", upload.any(), addProduct);
+// Protect product modification routes with granular permissions
+router.delete("/product/:id", requirePermission("products:delete"), deleteProduct);
+router.patch("/product/:id", requirePermission("products:edit"), upload.any(), updateProduct);
+router.patch("/product/manager/:id", requirePermission("products:edit"), upload.any(), updateProductManager);
+router.post("/product", requirePermission("products:add"), upload.any(), addProduct);
 
 // Customer controller functions mounting them to corresponding route
 router.get("/customers", getCustomers);
 router.get("/managers", getManagers);
 router.get("/customer/:id", getCustomer);
-router.delete("/customer/:id", deleteCustomer);
-router.patch("/customer/:id", updateCustomer);
-router.post("/customer", upload.any(), addCustomer);
-router.patch("/customer-block-unblock/:id", blockOrUnBlockCustomer);
+router.delete("/customer/:id", requirePermission("users:delete"), deleteCustomer);
+router.patch("/customer/:id", requirePermission("users:edit"), updateCustomer);
+router.post("/customer", requirePermission("users:add"), upload.any(), addCustomer);
+router.patch("/customer-block-unblock/:id", requirePermission("users:edit"), blockOrUnBlockCustomer);
 
 // Category controller functions mounting them to corresponding route
 router.get("/categories", getCategories);
 router.get("/category/:id", getCategory);
-router.delete("/category/:id", deleteCategory);
-router.patch("/category/:id", upload.single("imgURL"), updateCategory);
-router.post("/category", (req, res, next) => {
+router.delete("/category/:id", requirePermission("categories:delete"), deleteCategory);
+router.patch("/category/:id", requirePermission("categories:edit"), upload.single("imgURL"), updateCategory);
+router.post("/category", requirePermission("categories:add"), (req, res, next) => {
   upload.single("imgURL")(req, res, (err) => {
     if (err) return next(err);
     next();
@@ -144,9 +146,9 @@ router.get("/clear-wallet", clearWallet);
 // Coupon Controller functions mounting
 router.get("/coupons", getCoupons);
 router.get("/coupon/:id", getCoupon);
-router.delete("/coupon/:id", deleteCoupon);
-router.patch("/coupon/:id", editCoupon);
-router.post("/coupon", addCoupon);
+router.delete("/coupon/:id", requirePermission("coupons:delete"), deleteCoupon);
+router.patch("/coupon/:id", requirePermission("coupons:edit"), editCoupon);
+router.post("/coupon", requirePermission("coupons:add"), addCoupon);
 
 // Generate Orders Excel
 router.get("/generateReport", generateExcel);
@@ -159,10 +161,10 @@ router.get("/user-count", readUserCount);
 router.get("/most-sold-product", readMostSoldProducts);
 
 // Banner Controllers
-router.post("/banners", upload.any(), addBanners);
-router.get("/banners", readBanners);
-router.patch("/banners/", updateBannerOrder);
-router.delete("/banner/:id", deleteBanner);
+router.post("/banners", requirePermission("banners:edit"), upload.any(), addBanners);
+router.get("/banners", requirePermission("banners:view"), readBanners);
+router.patch("/banners/", requirePermission("banners:edit"), updateBannerOrder);
+router.delete("/banner/:id", requirePermission("banners:delete"), deleteBanner);
 
 // Home Banner Controllers
 router.get("/home-banners", getHomeBanners);

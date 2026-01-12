@@ -12,7 +12,9 @@ const getCustomers = async (req, res) => {
       endingDate,
     } = req.query;
 
-    let filter = {};
+  let filter = {};
+  // allow client to request specific roles or all roles via ?role=<role>|all
+  const { role } = req.query;
 
     if (status) {
       if (status === "active") {
@@ -46,13 +48,17 @@ const getCustomers = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // Getting all users
+    // Build final query filter. If role is provided and not 'all', filter by that role.
+    // If role === 'all' then do not include role filter (return all roles).
+    const roleFilter = role && role !== "all" ? { role } : {};
+
+    // Getting all users (include role in response so UI can display it)
     const customers = await User.find(
-      { role: "user", ...filter },
+      { ...roleFilter, ...filter },
       {
         password: 0,
         dateOfBirth: 0,
-        role: 0,
+        // include role intentionally
         walletBalance: 0,
         isEmailVerified: 0,
       }
@@ -62,7 +68,7 @@ const getCustomers = async (req, res) => {
       .sort({ createdAt: -1 });
 
     const totalAvailableUsers = await User.countDocuments({
-      role: "user",
+      ...roleFilter,
       ...filter,
     });
 
@@ -118,13 +124,13 @@ const getManagers = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // Getting all users
+    // Getting all managers (now mapped to superAdmin role so UI can display it if needed)
     const customers = await User.find(
-      { role: "manager", ...filter },
+      { role: "superAdmin", ...filter },
       {
         password: 0,
         dateOfBirth: 0,
-        role: 0,
+        // include role intentionally
         walletBalance: 0,
         isEmailVerified: 0,
       }
@@ -134,7 +140,7 @@ const getManagers = async (req, res) => {
       .sort({ createdAt: -1 });
 
     const totalAvailableUsers = await User.countDocuments({
-      role: "manager",
+      role: "superAdmin",
       ...filter,
     });
 
@@ -172,21 +178,40 @@ const addCustomer = async (req, res) => {
       });
     }
 
-    const customer = await User.create(formData);
+  // Use model's signup helper so password hashing and validation are applied
+  const roleToUse = formData.role || "user";
+  const customer = await User.signup(formData, roleToUse, true);
 
-    res.status(200).json({ customer });
+  res.status(200).json({ customer });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
-// Not completed
-const updateCustomer = (req, res) => {
-  const { id } = req.params;
+// Update customer fields such as role or isActive
+const updateCustomer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role, isActive } = req.body;
 
-  console.log(id);
+    const update = {};
+    if (typeof isActive !== "undefined") update.isActive = !!isActive;
+    if (role) update.role = role;
 
-  res.status(200).json({ msg: `Customer Number ${id} - updated` });
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ error: "No updatable fields provided" });
+    }
+
+    const customer = await User.findByIdAndUpdate(id, { $set: update }, { new: true });
+
+    if (!customer) {
+      throw Error("No Such Customer");
+    }
+
+    res.status(200).json({ customer });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 // Delete a user

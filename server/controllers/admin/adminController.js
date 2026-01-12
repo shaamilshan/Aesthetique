@@ -47,7 +47,7 @@ const getAdmins = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const admins = await User.find(
-      { role: "manager", ...filter },
+      { role: "admin", ...filter },
       {
         password: 0,
         dateOfBirth: 0,
@@ -62,7 +62,7 @@ const getAdmins = async (req, res) => {
     if (admins.length === 0) {
       throw Error(`No ${isActive ? "active" : "blocked"} admin`);
     }
-    const totalAvailableAdmins = await User.countDocuments(filter);
+  const totalAvailableAdmins = await User.countDocuments({ role: "admin", ...filter });
 
     res.status(200).json({ admins, totalAvailableAdmins });
   } catch (error) {
@@ -79,11 +79,12 @@ const getAdmin = (req, res) => {
 };
 
 // Creating new Admin if needed for Super Admin
-const addAdmin = async (req, res) => {
+  const addAdmin = async (req, res) => {
   try {
     const userCredentials = req.body;
 
-    const user = await User.signup(userCredentials, "manager", true);
+    // create a user with 'admin' role (super-admin endpoint)
+    const user = await User.signup(userCredentials, "admin", true);
 
     res.status(200).json(user);
   } catch (error) {

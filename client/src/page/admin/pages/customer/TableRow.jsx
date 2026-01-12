@@ -17,6 +17,7 @@ const TableRow = ({ isLast, customer, toggleBlockUnBlockModal }) => {
       </td>
       <td className="admin-table-row">{customer.email}</td>
       <td className="admin-table-row">{customer.phoneNumber}</td>
+      <td className="admin-table-row">{customer.role ? customer.role : 'user'}</td>
       <td className="admin-table-row">
         <StatusComponent status={customer.isActive ? "Active" : "Blocked"} />
       </td>
@@ -34,6 +35,7 @@ const TableRow = ({ isLast, customer, toggleBlockUnBlockModal }) => {
               toggleBlockUnBlockModal({
                 id: customer._id,
                 status: customer.isActive,
+                role: customer.role,
               });
             }}
           >

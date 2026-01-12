@@ -16,8 +16,8 @@ const Modal = ({ tab, children, onClose }) => {
         }
       }}
     >
-      <div className="relative max-w-xl w-full mx-4">
-        <div className="bg-white rounded-lg shadow-lg overflow-auto w-full">
+  <div className="relative max-w-6xl w-full mx-4 h-screen my-6">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden w-full h-full">
           {typeof onClose === "function" && (
             <button
               onClick={onClose}
@@ -28,7 +28,7 @@ const Modal = ({ tab, children, onClose }) => {
               ✕
             </button>
           )}
-          <div className="p-4">{content}</div>
+          <div className="p-4 h-full overflow-auto">{content}</div>
         </div>
       </div>
     </div>

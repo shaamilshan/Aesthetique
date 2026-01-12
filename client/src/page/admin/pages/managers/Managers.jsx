@@ -94,13 +94,13 @@ const Managers = () => {
         />
         <div className="flex justify-between items-center font-semibold">
           <div>
-            <h1 className="font-bold text-2xl">Managers</h1>
+            <h1 className="font-bold text-2xl">Super Admins</h1>
             <div className="flex items-center gap-2 mt-2 mb-4 text-gray-500">
               <p className="text-blue-500 font-semibold">Dashboard</p>
               <span>
                 <BsCaretRightFill />
               </span>
-              <p className="font-semibold">Manager List</p>
+              <p className="font-semibold">Super Admin List</p>
             </div>
           </div>
         </div>

@@ -37,6 +37,17 @@ const SideNavbar = () => {
     setIsExpanded(!isExpanded);
   };
 
+  // Determine if a sidebar item should be visible for the current user
+  const isVisible = (key) => {
+    if (!user) return false;
+    if (user.role === "superAdmin") return true;
+    if (key === "dashboard") return true;
+    if (!user.permissions || !Array.isArray(user.permissions)) return false;
+    // allow section-level permission (e.g., 'products') or action-level ('products:add')
+    if (user.permissions.includes(key)) return true;
+    return user.permissions.some((p) => p.startsWith(key + ":"));
+  };
+
   return (
   <div className={`bg-white h-full shrink-0 shadow-md transition-all duration-300 ${isExpanded ? 'w-56' : 'w-14'} flex flex-col`}>
   <div className="p-3 flex-1 flex flex-col">
@@ -104,6 +115,7 @@ const SideNavbar = () => {
             )}
           </NavLink>
 
+          {isVisible("products") && (
           <NavLink
             to="/admin/products"
             className={({ isActive }) =>
@@ -127,7 +139,9 @@ const SideNavbar = () => {
               </div>
             )}
           </NavLink>
+          )}
 
+          {isVisible("categories") && (
           <NavLink
             to="/admin/categories"
             className={({ isActive }) =>
@@ -151,7 +165,9 @@ const SideNavbar = () => {
               </div>
             )}
           </NavLink>
+          )}
 
+          {isVisible("orders") && (
           <NavLink
             to="/admin/orders"
             className={({ isActive }) =>
@@ -175,7 +191,9 @@ const SideNavbar = () => {
               </div>
             )}
           </NavLink>
+          )}
 
+          {isVisible("payments") && (
           <NavLink
             to="/admin/payments"
             className={({ isActive }) =>
@@ -199,7 +217,9 @@ const SideNavbar = () => {
               </div>
             )}
           </NavLink>
+          )}
 
+          {isVisible("coupons") && (
           <NavLink
             to="/admin/coupon"
             className={({ isActive }) =>
@@ -223,7 +243,9 @@ const SideNavbar = () => {
               </div>
             )}
           </NavLink>
+          )}
 
+          {isVisible("users") && (
           <NavLink
             to="/admin/customers"
             className={({ isActive }) =>
@@ -237,17 +259,19 @@ const SideNavbar = () => {
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`
             }
-            title={!isExpanded ? "Customers" : ""}
+            title={!isExpanded ? "Users" : ""}
           >
             <Users size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Customers</span>}
+            {isExpanded && <span>Users</span>}
             {!isExpanded && (
               <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Customers
+                Users
               </div>
             )}
           </NavLink>
+          )}
 
+          {isVisible("banners") && (
           <NavLink
             to="/admin/banner"
             className={({ isActive }) =>
@@ -271,7 +295,9 @@ const SideNavbar = () => {
               </div>
             )}
           </NavLink>
+          )}
 
+          {isVisible("announcements") && (
           <NavLink
             to="/admin/announcement"
             className={({ isActive }) =>
@@ -295,7 +321,9 @@ const SideNavbar = () => {
               </div>
             )}
           </NavLink>
+          )}
 
+          {isVisible("faqs") && (
           <NavLink
             to="/admin/faqs"
             className={({ isActive }) =>
@@ -319,6 +347,7 @@ const SideNavbar = () => {
               </div>
             )}
           </NavLink>
+          )}
         </nav>
 
         {/* Bottom section with logout */}

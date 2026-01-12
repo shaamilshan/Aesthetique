@@ -4,6 +4,19 @@ const validator = require("validator");
 
 const { Schema } = mongoose;
 
+const ALL_FEATURES = [
+  "dashboard",
+  "products",
+  "categories",
+  "orders",
+  "payments",
+  "coupons",
+  "users",
+  "banners",
+  "announcements",
+  "faqs",
+];
+
 const UserSchema = new Schema(
   {
     firstName: {
@@ -30,7 +43,7 @@ const UserSchema = new Schema(
     role: {
       type: String,
       required: true,
-      enum: ["user", "admin", "superAdmin","manager"],
+      enum: ["user", "admin", "superAdmin"],
     },
     isActive: {
       type: Boolean,
@@ -45,6 +58,10 @@ const UserSchema = new Schema(
     isEmailVerified: {
       type: Boolean,
       required: true,
+    },
+    permissions: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true }
@@ -95,11 +112,31 @@ UserSchema.statics.signup = async function (
     delete userCredentials["passwordAgain"];
   }
 
+  // Normalize permissions field from incoming data (could be array, stringified JSON or single string)
+  let permissionsNormalized = [];
+  if (role === "superAdmin") {
+    // superAdmin gets full access
+    permissionsNormalized = ALL_FEATURES;
+  } else if (userCredentials.permissions) {
+    if (Array.isArray(userCredentials.permissions)) {
+      permissionsNormalized = userCredentials.permissions;
+    } else if (typeof userCredentials.permissions === "string") {
+      try {
+        const parsed = JSON.parse(userCredentials.permissions);
+        if (Array.isArray(parsed)) permissionsNormalized = parsed;
+        else permissionsNormalized = [userCredentials.permissions];
+      } catch (e) {
+        permissionsNormalized = [userCredentials.permissions];
+      }
+    }
+  }
+
   const user = await this.create({
     ...userCredentials,
     isActive: true,
     role,
     isEmailVerified,
+    permissions: permissionsNormalized,
   });
 
   user.password = "";
@@ -130,11 +167,29 @@ UserSchema.statics.managersignup = async function (
     delete userCredentials["passwordAgain"];
   }
 
+  // Normalize permissions for managers/superAdmin creation
+  let permissionsNormalized = [];
+  if (role === "superAdmin") {
+    permissionsNormalized = ALL_FEATURES;
+  } else if (userCredentials.permissions) {
+    if (Array.isArray(userCredentials.permissions)) {
+      permissionsNormalized = userCredentials.permissions;
+    } else if (typeof userCredentials.permissions === "string") {
+      try {
+        const parsed = JSON.parse(userCredentials.permissions);
+        if (Array.isArray(parsed)) permissionsNormalized = parsed;
+      } catch (e) {
+        permissionsNormalized = [userCredentials.permissions];
+      }
+    }
+  }
+
   const user = await this.create({
     ...userCredentials,
     isActive: true,
     role,
     isEmailVerified,
+    permissions: permissionsNormalized,
   });
 
   user.password = "";

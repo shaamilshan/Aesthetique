@@ -273,7 +273,7 @@ const addEnquiry = async (req, res) => {
 
 
     const customers = await User.find(
-      { role: "manager" },
+      { role: "superAdmin" },
       {
         password: 0,
         dateOfBirth: 0,

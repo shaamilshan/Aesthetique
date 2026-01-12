@@ -37,7 +37,12 @@ const customerSlice = createSlice({
       .addCase(createNewCustomer.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.error = null;
-        state.customers = [...state.customers, payload];
+              // Only append if the created entity is a regular user
+              // This prevents admins/managers (created by super-admin) from appearing
+              // in the customers list which is intended for role: 'user'
+              if (!payload || payload.role === "user") {
+                state.customers = [...state.customers, payload];
+              }
       })
       .addCase(createNewCustomer.rejected, (state, { payload }) => {
         state.loading = false;

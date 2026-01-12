@@ -127,7 +127,7 @@ function App() {
               user ? (
                 user.role === "admin" ? (
                   <Navigate to="/admin/" />
-                ) : user.role === "manager" ? (
+                ) : user.role === "superAdmin" ? (
                   <Navigate to="/manager/" />
                 ) : (
                   // <Home />
@@ -203,19 +203,11 @@ function App() {
           {/* Public wishlist route for guests */}
           <Route path="/wishlist" element={<WishList />} />
 
-          {/* Admin Routes
-          {(user && user.role === "admin") ||
-          (user && user.role === "superAdmin") ? (
-            <Route path="/admin/*" element={<AdminRoutes />} />
-          ) : (
-            -(<Route path="/admin" element={<Navigate to="/" />} />)
-          )} */}
-
           {/* Admin Routes */}
           {user ? (
             user.role === "admin" || user.role === "superAdmin" ? (
               <Route path="/admin/*" element={<AdminRoutes />} />
-            ) : user.role === "manager" ? (
+            ) : user.role === "superAdmin" ? (
               <Route path="/manager/*" element={<ManagerRoutes />} />
             ) : (
               <Route path="/admin" element={<Navigate to="/" />} />

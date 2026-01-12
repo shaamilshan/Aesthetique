@@ -19,9 +19,26 @@ export const createNewCustomer = createAsyncThunk(
 export const getCustomers = createAsyncThunk(
   "customers/getCustomers",
   async (queries, { rejectWithValue }) => {
+    // normalize queries to a string without leading '?'
+    let q = "";
+    if (!queries) {
+      q = "role=all";
+    } else {
+      const raw = typeof queries === "string" ? queries : String(queries);
+      const cleaned = raw.startsWith("?") ? raw.slice(1) : raw;
+      // if the client already included a role filter, keep it; otherwise default to role=all
+      if (cleaned.includes("role=")) {
+        q = cleaned;
+      } else if (cleaned === "") {
+        q = "role=all";
+      } else {
+        q = `role=all&${cleaned}`;
+      }
+    }
+
     return commonReduxRequest(
       "get",
-  `/admin/customers${queries ? `?${queries}` : ``}`,
+      `/admin/customers?${q}`,
       null,
       appJson,
       rejectWithValue
