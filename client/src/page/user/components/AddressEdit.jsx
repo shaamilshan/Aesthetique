@@ -42,7 +42,7 @@ const AddressEdit = ({ closeToggle, address }) => {
   };
 
   return (
-    <div className="bg-gray-100 w-5/6 shadow-2xl overflow-y-auto h-screen lg:h-auto rounded-lg">
+    <div className="bg-gray-100 w-full max-w-full shadow-2xl overflow-y-auto max-h-[80vh] lg:max-h-none rounded-lg">
       <div className="bg-white pt-5 pb-3 px-5 flex items-center justify-between">
         <h1 className="font-bold text-lg ">Edit Address</h1>
         <AiOutlineClose
