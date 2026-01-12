@@ -12,6 +12,11 @@ const Dashboard = () => {
     if (!user) {
       navigate("/");
     }
+    // Debug: log mounting and user role
+    // This helps diagnose why /manager may appear blank
+    // (check browser console for these messages)
+    // eslint-disable-next-line no-console
+    console.log("[ManagerDash] mounted, user:", user);
   }, [user]);
 
   return (

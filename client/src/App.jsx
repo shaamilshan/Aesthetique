@@ -128,7 +128,8 @@ function App() {
                 user.role === "admin" ? (
                   <Navigate to="/admin/" />
                 ) : user.role === "superAdmin" ? (
-                  <Navigate to="/manager/" />
+                    // Super-admins should land on the admin panel (full access)
+                    <Navigate to="/admin/" />
                 ) : (
                   // <Home />
                   <Home2 />
@@ -204,18 +205,19 @@ function App() {
           {/* Public wishlist route for guests */}
           <Route path="/wishlist" element={<WishList />} />
 
-          {/* Admin Routes */}
-          {user ? (
-            user.role === "admin" || user.role === "superAdmin" ? (
-              <Route path="/admin/*" element={<AdminRoutes />} />
-            ) : user.role === "superAdmin" ? (
-              <Route path="/manager/*" element={<ManagerRoutes />} />
-            ) : (
-              <Route path="/admin" element={<Navigate to="/" />} />
-            )
-          ) : (
-            <Route path="/admin" element={<Navigate to="/" />} />
-          )}
+          {/* Admin & Manager Routes */}
+          {/*
+            Register admin and manager routes explicitly.
+            - Admin routes are available to users with role 'admin' or 'superAdmin'.
+            - Manager routes are available to users with role 'superAdmin'.
+            This ensures a superAdmin can be redirected to /manager/ and the
+            ManagerRoutes are mounted (previous ternary prevented that).
+          */}
+          {/* Mount admin and manager routes unconditionally so they're present
+              while user data is loading. Individual dashboard components
+              still perform their own auth checks and redirect when needed. */}
+          <Route path="/admin/*" element={<AdminRoutes />} />
+          <Route path="/manager/*" element={<ManagerRoutes />} />
 
           {/* <Route path="*" element={<Error404 />} /> */}
         </Routes>

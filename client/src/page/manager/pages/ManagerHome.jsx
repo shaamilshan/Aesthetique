@@ -4,6 +4,10 @@ import { useSelector } from "react-redux";
 const ManagerHome = () => {
   const { user } = useSelector((state) => state.user);
 
+  // Debug: confirm ManagerHome renders
+  // eslint-disable-next-line no-console
+  console.log("[ManagerHome] render, user:", user);
+
   return (
     <>
       <div className="p-5 w-full overflow-auto">
