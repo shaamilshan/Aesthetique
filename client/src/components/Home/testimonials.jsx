@@ -40,21 +40,15 @@ export default function TestimonialSection({ id }) {
 
   // positions for the stacked cards (left/top/rotation)
   const positions = [
-    // raised top positions slightly to avoid clipping at the section top
-    { left: "6%", top: "24%", rotate: -6, z: 10 },
-    { left: "24%", top: "12%", rotate: -2, z: 20 },
-    { left: "44%", top: "8%", rotate: 2, z: 30 },
-    { left: "61%", top: "18%", rotate: 6, z: 20 },
-    { left: "78%", top: "32%", rotate: 2, z: 10 },
+    // nudged right so the left-most stacked card doesn't peek outside the section
+    { left: "10%", top: "24%", rotate: -6, z: 10 },
+    { left: "28%", top: "12%", rotate: -2, z: 20 },
+    { left: "48%", top: "8%", rotate: 2, z: 30 },
+    { left: "68%", top: "18%", rotate: 6, z: 20 },
+    { left: "86%", top: "32%", rotate: 2, z: 10 },
   ];
 
-  useEffect(() => {
-    if (paused) return;
-    timerRef.current = setInterval(() => {
-      setActiveIndex((i) => (i + 1) % len);
-    }, 4500);
-    return () => clearInterval(timerRef.current);
-  }, [paused, len]);
+  // (removed old interval-based activeIndex autoplay — replaced by JS-driven step marquee)
 
   // DRAG / SWIPE logic
   const [isDragging, setIsDragging] = useState(false);
@@ -151,9 +145,82 @@ export default function TestimonialSection({ id }) {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // JS-controlled step marquee (move one card per interval)
+  const trackRef = useRef(null);
+  const [stepIndex, setStepIndex] = useState(0);
+  const stepIndexRef = useRef(0);
+  const isResettingRef = useRef(false);
+  const intervalRef = useRef(null);
+  const stepInterval = 5000; // ms between steps
+  const stepDuration = 600; // ms duration of the slide transition
+  const cardWidth = 320;
+  const gap = 36;
+  const stepDistance = cardWidth + gap;
+
+  // keep ref in sync
+  useEffect(() => {
+    stepIndexRef.current = stepIndex;
+  }, [stepIndex]);
+
+  // apply transform when stepIndex changes
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const px = -stepIndex * stepDistance;
+    // if we're in the middle of a forced reset, skip transition
+    if (isResettingRef.current) {
+      track.style.transition = 'none';
+      track.style.transform = `translateX(${px}px)`;
+      // re-enable transition next frame
+      requestAnimationFrame(() => {
+        track.style.transition = `transform ${stepDuration}ms ease`;
+      });
+      return;
+    }
+    track.style.transition = `transform ${stepDuration}ms ease`;
+    track.style.transform = `translateX(${px}px)`;
+  }, [stepIndex]);
+
+  // step interval (advance one slot every stepInterval ms)
+  useEffect(() => {
+    // don't run while paused or dragging
+    if (paused || isDragging) return;
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setStepIndex((s) => s + 1);
+    }, stepInterval);
+    return () => clearInterval(intervalRef.current);
+  }, [paused, isDragging]);
+
+  // handle seamless loop reset when we reach the duplicated half
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    function onTransitionEnd(e) {
+      if (e.propertyName !== 'transform') return;
+      // when we've moved exactly `len` steps, we're at the duplicate start — reset to 0
+      if (stepIndexRef.current >= len) {
+        isResettingRef.current = true;
+        // snap back without transition to step 0
+        track.style.transition = 'none';
+        track.style.transform = `translateX(0px)`;
+        // update state to zero (this will also set ref via useEffect)
+        setStepIndex(0);
+        // restore transition on next frame and clear resetting flag
+        requestAnimationFrame(() => {
+          track.style.transition = `transform ${stepDuration}ms ease`;
+          isResettingRef.current = false;
+        });
+      }
+    }
+    track.addEventListener('transitionend', onTransitionEnd);
+    return () => track.removeEventListener('transitionend', onTransitionEnd);
+  }, [len]);
+
   return (
-    // keep overflow visible but add bottom padding to leave a gap before next section
-    <section id={id} className="py-16 w-full overflow-visible pb-24">
+  // allow vertical overflow so card tops/bottoms aren't clipped;
+  // increase vertical padding so tall cards have room; left gradient removed per request
+  <section id={id} className="pt-32 w-full overflow-visible" style={{ paddingBottom: 25 }}>
       {/* Title container centered */}
       <div className="max-w-6xl mx-auto px-4 text-center">
         <button
@@ -180,7 +247,7 @@ export default function TestimonialSection({ id }) {
               const idx = ((activeIndex % len) + len) % len;
               const t = testimonials[idx];
               return (
-                <div className={`rounded-2xl p-6 shadow-xl ${t.bg}`}>
+                <div className={`rounded-2xl p-6 shadow-md ${t.bg}`}>
                   <div className="flex">
                     <div className="flex">
                       {Array.from({ length: t.rating }).map((_, s) => (
@@ -201,55 +268,44 @@ export default function TestimonialSection({ id }) {
         </div>
       ) : (
         <div
-          className="relative min-h-[480px] md:h-[520px] touch-none select-none overflow-visible"
+          className="relative min-h-[420px] md:h-[520px] touch-none select-none overflow-visible"
           style={{ width: '100vw', marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
-          onPointerDown={handlePointerDown}
         >
-          {testimonials.map((t, idx) => {
-            const pos = positions[idx % positions.length];
-            // compute shortest circular offset between idx and activeIndex
-            let raw = idx - activeIndex;
-            if (raw > len / 2) raw -= len;
-            if (raw < -len / 2) raw += len;
-            const offsetIndex = raw;
-            const baseX = offsetIndex * (cardSpacing * 0.6); // overlap space
-            const dragX = translate; // from drag
-            const isActive = idx === activeIndex;
-            return (
-              <div
-                key={`${idx}-${t.author}`}
-                className={`absolute rounded-2xl p-6 md:p-8 shadow-2xl transform transition-all duration-500 ${t.bg}`}
-                style={{
-                  left: pos.left,
-                  top: pos.top,
-                  transform: `translateX(${baseX + dragX}px) rotate(${pos.rotate}deg) ${isActive ? 'scale(1.06) translateY(-12px)' : 'scale(0.96)'} `,
-                  zIndex: isActive ? 50 : pos.z,
-                  width: "320px",
-                  overflow: 'visible',
-                }}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="flex">
-                      {Array.from({ length: t.rating }).map((_, s) => (
-                        <svg key={s} className={`w-4 h-4 ${t.bg.includes('bg-black') ? 'text-yellow-300' : 'text-yellow-400'}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118L10 13.347l-3.37 2.448c-.785.57-1.84-.197-1.54-1.118l1.287-3.95a1 1 0 00-.364-1.118L2.643 9.377c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.95z" />
-                        </svg>
-                      ))}
+          {/* JS-driven step marquee: moves one card per interval (5s) with a smooth transition */}
+          <div className="w-full overflow-hidden">
+            <div
+              ref={trackRef}
+              className="testimonial-track"
+              style={{ display: 'flex', gap: 36, alignItems: 'center', width: 'max-content', paddingTop: 20, transform: `translateX(${ -stepIndex * (cardWidth + gap) }px)` }}
+            >
+              {[...testimonials, ...testimonials].map((t, i) => {
+                const pos = positions[i % positions.length];
+                return (
+                  <div key={`${i}-${t.author}`} className={`rounded-2xl p-6 md:p-8 shadow-lg ${t.bg}`} style={{ width: 320, transform: `rotate(${pos.rotate}deg)`, flex: '0 0 auto' }}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="flex">
+                          {Array.from({ length: t.rating }).map((_, s) => (
+                            <svg key={s} className={`w-4 h-4 ${t.bg.includes('bg-black') ? 'text-yellow-300' : 'text-yellow-400'}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118L10 13.347l-3.37 2.448c-.785.57-1.84-.197-1.54-1.118l1.287-3.95a1 1 0 00-.364-1.118L2.643 9.377c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.95z" />
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
                     </div>
+
+                    <p className={`mt-4 text-sm leading-relaxed ${t.bg.includes('bg-black') ? 'text-gray-100' : ''}`}>
+                      {t.quote}
+                    </p>
+
+                    <p className={`mt-6 font-semibold ${t.bg.includes('bg-black') ? 'text-white' : 'text-gray-900'}`}>{t.author}</p>
                   </div>
-                </div>
-
-                <p className={`mt-4 text-sm leading-relaxed ${t.bg.includes('bg-black') ? 'text-gray-100' : ''}`}>
-                  {t.quote}
-                </p>
-
-                <p className={`mt-6 font-semibold ${t.bg.includes('bg-black') ? 'text-white' : 'text-gray-900'}`}>{t.author}</p>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </section>
