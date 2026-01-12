@@ -3,43 +3,37 @@ import { useState, useEffect, useRef } from "react";
 const testimonials = [
   {
     quote:
-      "I've been using the AquaShield sunscreen daily — lightweight, non-greasy and doesn't pill under makeup. My skin feels protected and comfortable even after long sun exposure.",
-    author: "Maya P.",
+      "I’ve tried countless serums, but nothing has made my skin look and feel as refreshed as the Hyaluronic Boost Serum. Within the first week, my skin felt noticeably plumper and so much more hydrated. The dry patches I struggled with for years have practically disappeared. It absorbs quickly, never feels sticky, and gives my skin this healthy, dewy glow that I thought only professionals could achieve. I genuinely look forward to using it every day—it’s become a non-negotiable part of my routine. Highly recommend for anyone who wants real, visible results!",
+    author: "S. Patel",
     rating: 5,
-    bg: "bg-indigo-500 text-white",
+    bg: "bg-indigo-600 text-white",
   },
   {
     quote:
-      "The RadiantBoost serum improved my skin texture within two weeks. It absorbs quickly and gives a nice glow without causing breakouts.",
-    author: "Arjun S.",
+      "Hydraluxé Serum has completely changed the way my skin behaves. I’ve always struggled with uneven tone and a bit of redness, but after adding this niacinamide-rich formula to my routine, my complexion looks so much more balanced and calm. I love how lightweight it feels—never greasy—and how quickly it absorbs. Within a short time, my skin started looking smoother, brighter, and just overall healthier.",
+    author: "A. Verma",
     rating: 5,
     bg: "bg-white text-gray-900",
   },
   {
     quote:
-      "Best sunscreen I've tried — broad spectrum protection that feels like a moisturizer. My tanning has reduced and my skin looks healthier.",
-    author: "Leena K.",
+      "This sunscreen has become my absolute favorite daily essential. My dry skin usually hates sunscreen, but this one changed everything. The creamy texture feels so nourishing, almost like a moisturizer and sunscreen in one. It gives my skin a soft, healthy-looking glow without any greasiness or white cast. I love knowing I’m getting reliable sun protection while my skin stays hydrated and comfortable all day. It truly lives up to its name!",
+    author: "R. Kumar",
     rating: 5,
     bg: "bg-lime-300 text-black",
   },
   {
     quote:
-      "RadiantBoost serum layered well under sunscreen and makeup. My fine lines appear softened and my skin stays hydrated all day.",
-    author: "Ibrahim T.",
-    rating: 5,
-    bg: "bg-black text-white",
-  },
-  {
-    quote:
-      "AquaShield is non-comedogenic and doesn't leave that white cast. Perfect for daily wear — lightweight and protective.",
-    author: "Nina R.",
+      "My skin has been really tricky! I’ve always struggled to find a sunscreen that works for my oily, sensitive skin. Golden Glow CL Sunscreen feels incredibly lightweight, absorbs instantly, and leaves a soft matte finish that keeps my shine under control all day. The best part is that it never clogs my pores or causes irritation, which has been a constant problem with other sunscreens. It gives me the protection I need without the heaviness I hate. My skin looks fresh, balanced, and comfortable every time I use it.",
+    author: "N. Roy",
     rating: 5,
     bg: "bg-gray-100 text-gray-900",
   },
 ];
 
 export default function TestimonialSection({ id }) {
-  const [activeIndex, setActiveIndex] = useState(1); // center card active by default
+  const len = testimonials.length;
+  const [activeIndex, setActiveIndex] = useState(0); // active testimonial index
   const [paused, setPaused] = useState(false);
   const timerRef = useRef(null);
   const resumeTimerRef = useRef(null);
@@ -57,16 +51,18 @@ export default function TestimonialSection({ id }) {
   useEffect(() => {
     if (paused) return;
     timerRef.current = setInterval(() => {
-      setActiveIndex((i) => (i + 1) % testimonials.length);
+      setActiveIndex((i) => (i + 1) % len);
     }, 4500);
     return () => clearInterval(timerRef.current);
-  }, [paused]);
+  }, [paused, len]);
 
   // DRAG / SWIPE logic
   const [isDragging, setIsDragging] = useState(false);
   const dragStartX = useRef(0);
   const dragDelta = useRef(0);
   const cardSpacing = 260; // px approximate width per card slot
+  // make threshold proportional to card spacing for a more natural swipe feel
+  const swipeThreshold = Math.round(cardSpacing / 2);
 
   const handlePointerDown = (e) => {
     setPaused(true);
@@ -108,13 +104,17 @@ export default function TestimonialSection({ id }) {
     document.removeEventListener("pointercancel", handlePointerUp);
     document.removeEventListener("touchend", handlePointerUp);
     document.removeEventListener("touchcancel", handlePointerUp);
-    const dx = dragDelta.current;
-    const deltaIndex = Math.round(-dx / cardSpacing);
-    let next = activeIndex + deltaIndex;
-    if (next < 0) next = 0;
-    if (next >= testimonials.length) next = testimonials.length - 1;
-    setTranslate(0);
-    setActiveIndex(next);
+  const dx = dragDelta.current;
+  // Move only one item per swipe: detect direction and threshold
+  let deltaIndex = 0;
+  // move one item if drag passes half-card width; otherwise snap back
+  if (dx <= -swipeThreshold) deltaIndex = 1; // swipe left -> next
+  else if (dx >= swipeThreshold) deltaIndex = -1; // swipe right -> prev
+  let next = activeIndex + deltaIndex;
+  // wrap next within [0, len)
+  next = ((next % len) + len) % len;
+  setTranslate(0);
+  setActiveIndex(next);
     // clear resume safety timer
     clearTimeout(resumeTimerRef.current);
   };
@@ -122,12 +122,12 @@ export default function TestimonialSection({ id }) {
   // keyboard support for accessibility
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "ArrowLeft") setActiveIndex((i) => Math.max(0, i - 1));
-      if (e.key === "ArrowRight") setActiveIndex((i) => Math.min(testimonials.length - 1, i + 1));
+      if (e.key === "ArrowLeft") setActiveIndex((i) => ((i - 1) % len + len) % len);
+      if (e.key === "ArrowRight") setActiveIndex((i) => (i + 1) % len);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [len]);
 
   // ensure timers are cleared on unmount
   useEffect(() => {
@@ -152,7 +152,8 @@ export default function TestimonialSection({ id }) {
   }, []);
 
   return (
-    <section id={id} className="py-16 w-full overflow-visible">
+    // keep overflow visible but add bottom padding to leave a gap before next section
+    <section id={id} className="py-16 w-full overflow-visible pb-24">
       {/* Title container centered */}
       <div className="max-w-6xl mx-auto px-4 text-center">
         <button
@@ -175,26 +176,32 @@ export default function TestimonialSection({ id }) {
           onPointerDown={handlePointerDown}
         >
           <div className="max-w-md mx-auto">
-            <div className={`rounded-2xl p-6 shadow-xl ${testimonials[activeIndex].bg}`}>
-              <div className="flex">
-                <div className="flex">
-                  {Array.from({ length: testimonials[activeIndex].rating }).map((_, s) => (
-                    <svg key={s} className={`w-4 h-4 ${testimonials[activeIndex].bg.includes('bg-black') ? 'text-yellow-300' : 'text-yellow-400'}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118L10 13.347l-3.37 2.448c-.785.57-1.84-.197-1.54-1.118l1.287-3.95a1 1 0 00-.364-1.118L2.643 9.377c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.95z" />
-                    </svg>
-                  ))}
+            {(() => {
+              const idx = ((activeIndex % len) + len) % len;
+              const t = testimonials[idx];
+              return (
+                <div className={`rounded-2xl p-6 shadow-xl ${t.bg}`}>
+                  <div className="flex">
+                    <div className="flex">
+                      {Array.from({ length: t.rating }).map((_, s) => (
+                        <svg key={s} className={`w-4 h-4 ${t.bg.includes('bg-black') ? 'text-yellow-300' : 'text-yellow-400'}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118L10 13.347l-3.37 2.448c-.785.57-1.84-.197-1.54-1.118l1.287-3.95a1 1 0 00-.364-1.118L2.643 9.377c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.95z" />
+                        </svg>
+                      ))}
+                    </div>
+                  </div>
+                  <p className={`mt-4 text-sm leading-relaxed ${t.bg.includes('bg-black') ? 'text-gray-100' : ''}`}>
+                    {t.quote}
+                  </p>
+                  <p className={`mt-6 font-semibold ${t.bg.includes('bg-black') ? 'text-white' : 'text-gray-900'}`}>{t.author}</p>
                 </div>
-              </div>
-              <p className={`mt-4 text-sm leading-relaxed ${testimonials[activeIndex].bg.includes('bg-black') ? 'text-gray-100' : ''}`}>
-                {testimonials[activeIndex].quote}
-              </p>
-              <p className={`mt-6 font-semibold ${testimonials[activeIndex].bg.includes('bg-black') ? 'text-white' : 'text-gray-900'}`}>{testimonials[activeIndex].author}</p>
-            </div>
+              );
+            })()}
           </div>
         </div>
       ) : (
         <div
-          className="relative h-[420px] touch-none select-none overflow-visible"
+          className="relative min-h-[480px] md:h-[520px] touch-none select-none overflow-visible"
           style={{ width: '100vw', marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
@@ -202,13 +209,17 @@ export default function TestimonialSection({ id }) {
         >
           {testimonials.map((t, idx) => {
             const pos = positions[idx % positions.length];
-            const offsetIndex = idx - activeIndex;
+            // compute shortest circular offset between idx and activeIndex
+            let raw = idx - activeIndex;
+            if (raw > len / 2) raw -= len;
+            if (raw < -len / 2) raw += len;
+            const offsetIndex = raw;
             const baseX = offsetIndex * (cardSpacing * 0.6); // overlap space
             const dragX = translate; // from drag
             const isActive = idx === activeIndex;
             return (
               <div
-                key={idx}
+                key={`${idx}-${t.author}`}
                 className={`absolute rounded-2xl p-6 md:p-8 shadow-2xl transform transition-all duration-500 ${t.bg}`}
                 style={{
                   left: pos.left,
