@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { Toaster } from "react-hot-toast";
@@ -93,6 +93,7 @@ import Managers from "./page/admin/pages/managers/Managers";
 import AllManagerOrders from "./page/admin/pages/Order/AllManagerOrders";
 import OldRegister from "./page/auth/OldRegister";
 import ProductPageDesign from "./page/ProductPageDesign";
+import ComingSoon from "./page/public/ComingSoon";
 
 function App() {
   const { user } = useSelector((state) => state.user);
@@ -112,36 +113,32 @@ function App() {
     return user ? element : <Navigate to="/login" />;
   };
 
+  // Small components that conditionally render Navbar/Footer
+  // depending on the current location (we hide them for the root coming-soon page)
+  function InnerNavFooter({ user }) {
+    const loc = useLocation();
+    if (loc.pathname === "/") return null;
+    return user ? (user.role === "user" && <Navbar usercheck={true} />) : <Navbar usercheck={false} />;
+  }
+
+  function InnerFooter({ user }) {
+    const loc = useLocation();
+    if (loc.pathname === "/") return null;
+    return user ? (user.role === "user" && <Footer />) : <Footer />;
+  }
+
   return (
     <>
       <Toaster position="top-center" />
 
       <BrowserRouter>
-        {user ? user.role === "user" && <Navbar usercheck={true} /> : <Navbar usercheck={false} />}
+        {/* hide header/footer on the root coming-soon page */}
+        <InnerNavFooter user={user} />
         {/* {user ? user.role === "user" && <CategorySection /> : <CategorySection />} */}
 
         <Routes>
-          <Route
-            path="/"
-            element={
-              user ? (
-                user.role === "admin" ? (
-                  <Navigate to="/admin/" />
-                ) : user.role === "superAdmin" ? (
-                    // Super-admins should land on the admin panel (full access)
-                    <Navigate to="/admin/" />
-                ) : (
-                  // <Home />
-                  <Home2 />
-                  // <Dashboard />
-                )
-              ) : (
-                // <Home />
-                <Home2 />
-                // <Home />
-              )
-            }
-          />
+          {/* Root now shows ComingSoon (no header/footer) */}
+          <Route path="/" element={<ComingSoon />} />
 
 
           <Route path="/manager-signup" element={<ManagerSignup />} />
@@ -221,7 +218,7 @@ function App() {
 
           {/* <Route path="*" element={<Error404 />} /> */}
         </Routes>
-        {user ? user.role === "user" && <Footer /> : <Footer />}
+  <InnerFooter user={user} />
       </BrowserRouter>
     </>
   );
