@@ -35,6 +35,7 @@ export const deleteEntireCart = createAsyncThunk(
     if (!token) {
       try {
         localStorage.removeItem("guest_cart");
+        try { window.dispatchEvent(new Event('guest_cart_updated')); } catch (e) {}
         return { message: "Guest cart cleared" };
       } catch (e) {
         return rejectWithValue("Failed to clear guest cart");
@@ -64,7 +65,8 @@ export const deleteOneProduct = createAsyncThunk(
           const pid = it.product?._id || it.product;
           return pid !== productId;
         });
-        localStorage.setItem("guest_cart", JSON.stringify(filtered));
+  localStorage.setItem("guest_cart", JSON.stringify(filtered));
+  try { window.dispatchEvent(new Event('guest_cart_updated')); } catch (e) {}
         return { productId };
       } catch (e) {
         return rejectWithValue("Failed to modify guest cart");
@@ -97,6 +99,7 @@ export const incrementCount = createAsyncThunk(
         if (idx >= 0) {
           arr[idx].quantity = (arr[idx].quantity || 0) + 1;
           localStorage.setItem("guest_cart", JSON.stringify(arr));
+          try { window.dispatchEvent(new Event('guest_cart_updated')); } catch (e) {}
           return { updatedItem: { product: productId } };
         }
         return rejectWithValue("Product not found in guest cart");
@@ -134,6 +137,7 @@ export const decrementCount = createAsyncThunk(
           // remove if quantity becomes zero
           const filtered = arr.filter((it) => (it.quantity || 0) > 0);
           localStorage.setItem("guest_cart", JSON.stringify(filtered));
+          try { window.dispatchEvent(new Event('guest_cart_updated')); } catch (e) {}
           return { updatedItem: { product: productId } };
         }
         return rejectWithValue("Product not found in guest cart");

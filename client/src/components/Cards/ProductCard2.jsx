@@ -104,8 +104,9 @@ const ProductCard2 = ({ product }) => {
         } else {
           arr.push({ product, quantity: 1, attributes: {} });
         }
-        localStorage.setItem("guest_cart", JSON.stringify(arr));
-        toast.success("Product added to cart!");
+  localStorage.setItem("guest_cart", JSON.stringify(arr));
+  try { window.dispatchEvent(new Event('guest_cart_updated')); } catch (e) {}
+  toast.success("Product added to cart!");
       } catch (error) {
         console.error("Guest cart error:", error);
         toast.error("Failed to add product to cart.");

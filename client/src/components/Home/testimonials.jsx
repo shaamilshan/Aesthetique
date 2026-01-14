@@ -247,7 +247,7 @@ export default function TestimonialSection({ id }) {
               const idx = ((activeIndex % len) + len) % len;
               const t = testimonials[idx];
               return (
-                <div className={`rounded-2xl p-6 shadow-md ${t.bg}`}>
+                  <div className={`rounded-2xl p-6 shadow-md ${t.bg} mb-5`}>
                   <div className="flex">
                     <div className="flex">
                       {Array.from({ length: t.rating }).map((_, s) => (
@@ -260,7 +260,7 @@ export default function TestimonialSection({ id }) {
                   <p className={`mt-4 text-sm leading-relaxed ${t.bg.includes('bg-black') ? 'text-gray-100' : ''}`}>
                     {t.quote}
                   </p>
-                  <p className={`mt-6 font-semibold ${t.bg.includes('bg-black') ? 'text-white' : 'text-gray-900'}`}>{t.author}</p>
+                    {/* author intentionally removed */}
                 </div>
               );
             })()}
@@ -283,7 +283,7 @@ export default function TestimonialSection({ id }) {
               {[...testimonials, ...testimonials].map((t, i) => {
                 const pos = positions[i % positions.length];
                 return (
-                  <div key={`${i}-${t.author}`} className={`rounded-2xl p-6 md:p-8 shadow-lg ${t.bg}`} style={{ width: 320, transform: `rotate(${pos.rotate}deg)`, flex: '0 0 auto' }}>
+                  <div key={`testimonial-${i}`} className={`rounded-2xl p-6 md:p-8 shadow-lg ${t.bg} mb-5`} style={{ width: 320, transform: `rotate(${pos.rotate}deg)`, flex: '0 0 auto' }}>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <div className="flex">
@@ -300,7 +300,7 @@ export default function TestimonialSection({ id }) {
                       {t.quote}
                     </p>
 
-                    <p className={`mt-6 font-semibold ${t.bg.includes('bg-black') ? 'text-white' : 'text-gray-900'}`}>{t.author}</p>
+                  {/* author intentionally removed */}
                   </div>
                 );
               })}

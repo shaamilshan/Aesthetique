@@ -117,13 +117,15 @@ function App() {
   // depending on the current location (we hide them for the root coming-soon page)
   function InnerNavFooter({ user }) {
     const loc = useLocation();
-    if (loc.pathname === "/") return null;
+    // only hide the navbar when the explicit coming-soon route is active
+    if (loc.pathname === "/coming-soon") return null;
     return user ? (user.role === "user" && <Navbar usercheck={true} />) : <Navbar usercheck={false} />;
   }
 
   function InnerFooter({ user }) {
     const loc = useLocation();
-    if (loc.pathname === "/") return null;
+    // only hide the footer when the explicit coming-soon route is active
+    if (loc.pathname === "/coming-soon") return null;
     return user ? (user.role === "user" && <Footer />) : <Footer />;
   }
 
@@ -137,8 +139,28 @@ function App() {
         {/* {user ? user.role === "user" && <CategorySection /> : <CategorySection />} */}
 
         <Routes>
-          {/* Root now shows ComingSoon (no header/footer) */}
-          <Route path="/" element={<ComingSoon />} />
+            <Route
+              path="/"
+              element={
+                user ? (
+                  user.role === "admin" ? (
+                    <Navigate to="/admin/" />
+                  ) : user.role === "superAdmin" ? (
+                      // Super-admins should land on the admin panel (full access)
+                      <Navigate to="/admin/" />
+                  ) : (
+                    // Authenticated regular users see the main site
+                    <Home2 />
+                  )
+                ) : (
+                  // Unauthenticated visitors see the Coming Soon landing
+                  <ComingSoon />
+                )
+              }
+            />
+
+            {/* explicit coming soon route (navbar/footer hidden only on this path) */}
+            <Route path="/coming-soon" element={<ComingSoon />} />
 
 
           <Route path="/manager-signup" element={<ManagerSignup />} />

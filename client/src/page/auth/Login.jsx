@@ -53,7 +53,12 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      // Redirect admins to admin dashboard, others to the coming soon landing
+      if (user.role === "admin" || user.role === "superAdmin") {
+        navigate("/admin/");
+      } else {
+        navigate("/coming-soon");
+      }
     }
     return () => {
       dispatch(updateError(""));

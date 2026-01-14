@@ -65,6 +65,17 @@ const SingleProduct = () => {
   const { user } = useSelector((state) => state.user);
   const { wishlist } = useSelector((state) => state.wishlist);
   const isProductInWishlist = wishlist?.some((item) => item?.product?._id === id) || false;
+  // derive cart count similar to Navbar for consistent badge behavior
+  const cartItems = useSelector((state) => {
+    try {
+      if (Array.isArray(state.cart?.cart)) return state.cart.cart;
+      if (Array.isArray(state.cart?.items)) return state.cart.items;
+      if (Array.isArray(state.userCart?.cart?.items)) return state.userCart.cart.items;
+      if (Array.isArray(state.cart)) return state.cart;
+    } catch (_) {}
+    return [];
+  });
+  const cartCount = cartItems?.length || 0;
   
   const isOutOfStock = product.stockQuantity === 0;
 
@@ -247,6 +258,10 @@ const SingleProduct = () => {
       }
       localStorage.setItem("guest_cart", JSON.stringify(arr));
       toast.success("Added to cart successfully");
+      // Notify other parts of the app (same-tab) that guest cart changed
+      try {
+        window.dispatchEvent(new Event('guest_cart_updated'));
+      } catch (e) {}
       return;
     }
   
@@ -296,6 +311,10 @@ const SingleProduct = () => {
       localStorage.setItem("guest_cart", JSON.stringify(arr));
       window.scrollTo({ top: 0, behavior: "smooth" });
       navigate("/cart");
+      // Notify other parts of the app (same-tab) that guest cart changed
+      try {
+        window.dispatchEvent(new Event('guest_cart_updated'));
+      } catch (e) {}
       return;
     }
   
@@ -647,6 +666,17 @@ const SingleProduct = () => {
     >
       <FaShareAlt size={18} />
     </Button>
+    {/* Cart icon with badge (same style as Navbar mobile) */}
+    <button
+      aria-label="Cart"
+      onClick={() => navigate('/cart')}
+      className="relative p-0.5 rounded-md text-gray-700 hover:bg-gray-100 h-12 w-12 flex items-center justify-center"
+    >
+      <ShoppingCart className="h-5 w-5" />
+      {cartCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">{cartCount}</span>
+      )}
+    </button>
   </div>
 </div>
 
@@ -695,43 +725,7 @@ const SingleProduct = () => {
             </div>
 
             {/* Additional Info (Shipping, Returns, etc) - Collapsible sections */}
-            <div className="border-t pt-4">
-              <div className="mb-3">
-                <button 
-                  className="flex justify-between items-center w-full py-2"
-                  onClick={() => handleClick('div1')}
-                >
-                  <span className="font-medium">Shipping Information</span>
-                  <RiArrowDropDownLine 
-                    size={24} 
-                    className={`transition-transform ${toggleStates.div1 ? 'rotate-180' : ''}`}
-                  />
-                </button>
-                {toggleStates.div1 && (
-                  <div className="py-2 text-sm text-gray-600">
-                    Free shipping on orders above ₹499. Standard delivery in 3-5 business days.
-                  </div>
-                )}
-              </div>
-              
-              <div className="mb-3 border-t pt-2">
-                <button 
-                  className="flex justify-between items-center w-full py-2"
-                  onClick={() => handleClick('div2')}
-                >
-                  <span className="font-medium">Returns & Exchanges</span>
-                  <RiArrowDropDownLine 
-                    size={24} 
-                    className={`transition-transform ${toggleStates.div2 ? 'rotate-180' : ''}`}
-                  />
-                </button>
-                {toggleStates.div2 && (
-                  <div className="py-2 text-sm text-gray-600">
-                    Easy 15-day returns. Defective or damaged products can be returned for a full refund or replacement.
-                  </div>
-                )}
-              </div>
-            </div>
+              {/* Shipping & Returns section commented out temporarily */}
           </div>
         </div>
 

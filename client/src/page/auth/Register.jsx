@@ -46,7 +46,12 @@ const Register = () => {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      // After signup, redirect admins to admin dashboard, others to coming soon
+      if (user.role === "admin" || user.role === "superAdmin") {
+        navigate("/admin/");
+      } else {
+        navigate("/coming-soon");
+      }
     }
     return () => {
       dispatch(updateError(""));

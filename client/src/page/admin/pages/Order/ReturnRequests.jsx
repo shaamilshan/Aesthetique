@@ -18,6 +18,8 @@ import UpdateReturnOrder from "./UpdateReturnOrder";
 import SearchBar from "../../../../components/SearchBar";
 import { URL } from "@common/api";
 import { getImageUrl } from "@/Common/functions";
+import RangeDatePicker from "../../../../components/RangeDatePicker";
+import ClearFilterButton from "../../Components/ClearFilterButton";
 
 const ReturnRequests = () => {
   const dispatch = useDispatch();
@@ -26,6 +28,8 @@ const ReturnRequests = () => {
   const { orders, loading, error } = useSelector((state) => state.orders);
 
   // Filtering
+  const [startingDate, setStartingDate] = useState("");
+  const [endingDate, setEndingDate] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,6 +45,19 @@ const ReturnRequests = () => {
       }
     }
     setSearchParams(params.toString() ? "?" + params.toString() : "");
+  };
+
+  const removeFilters = () => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete("search");
+    params.delete("page");
+    params.delete("status");
+    params.delete("startingDate");
+    params.delete("endingDate");
+    setSearch("");
+    setStartingDate("");
+    setEndingDate("");
+    setSearchParams(params);
   };
 
   useEffect(() => {
@@ -110,7 +127,7 @@ const ReturnRequests = () => {
           }
         />
       )}
-      <div className="p-5 w-full overflow-y-auto text-sm">
+      <div className="p-5 w-full overflow-y-auto text-sm h-screen">
         <SearchBar
           handleClick={handleFilter}
           search={search}
@@ -134,10 +151,14 @@ const ReturnRequests = () => {
             handleClick={handleFilter}
           />
           <div className="flex my-2 gap-3">
-            <button className="admin-button-fl bg-white">
-              <AiOutlineCalendar />
-              Select Date
-            </button>
+            <RangeDatePicker
+              handleFilter={handleFilter}
+              startingDate={startingDate}
+              setStartingDate={setStartingDate}
+              endingDate={endingDate}
+              setEndingDate={setEndingDate}
+            />
+            <ClearFilterButton handleClick={removeFilters} />
             <button className="admin-button-fl bg-white">
               <BsFilterRight />
               Filters

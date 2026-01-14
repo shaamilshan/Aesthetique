@@ -61,7 +61,7 @@ const RangeDatePicker = ({
           : "Select Date"}
       </button>
       {showDatePicker && (
-        <div className="bg-white px-3 py-2 rounded-lg shadow-2xl absolute right-0 top-10 text-sm">
+        <div className="bg-white px-3 py-2 rounded-lg shadow-2xl absolute right-0 top-10 text-sm z-50">
           <DayPicker
             defaultMonth={new Date().now}
             mode="range"

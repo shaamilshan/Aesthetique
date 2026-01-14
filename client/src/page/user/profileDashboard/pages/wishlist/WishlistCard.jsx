@@ -30,8 +30,9 @@ const WishlistCard = ({ item }) => {
           // We only have the id here; store minimal object
           arr.push({ product: { _id: id }, quantity: 1, attributes: {} });
         }
-        localStorage.setItem("guest_cart", JSON.stringify(arr));
-        toast.success("Added to cart");
+  localStorage.setItem("guest_cart", JSON.stringify(arr));
+  try { window.dispatchEvent(new Event('guest_cart_updated')); } catch (e) {}
+  toast.success("Added to cart");
         if (redirectToCheckout) navigate("/checkout");
         return;
       }
