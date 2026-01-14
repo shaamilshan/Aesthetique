@@ -125,7 +125,7 @@ const AllManagerOrders = () => {
 
   return (
     <>
-      <div className="p-5 w-full overflow-y-auto text-sm">
+  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
         <h1 className="font-bold text-2xl mb-4">Manager Orders</h1>
         {loading ? (
           <div className="flex items-center justify-center h-full">

@@ -20,37 +20,56 @@ const BlockOrUnBlock = ({ toggleModal, data }) => {
   };
 
   return (
-    <div className="w-2/6 bg-white p-5 rounded-lg">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Block User</h1>
-        <AiOutlineClose
-          className="text-2xl cursor-pointer hover:text-gray-500"
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="w-full max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-2xl overflow-visible"
+    >
+      <div className="flex items-start justify-between mb-4">
+        <h1 className="text-xl font-semibold">Block User</h1>
+        <button
+          aria-label="Close"
           onClick={() => toggleModal("")}
-        />
-      </div>
-      <div className="flex gap-3 items-center my-2">
-        <p className="py-5 shrink-0">Choose a Status</p>
-        <select
-          name="status"
-          id="status"
-          className="capitalize px-5 py-2 w-full bg-gray-300 rounded-lg"
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
         >
-          <option value="active" className="capitalize">
-            active
-          </option>
-          <option value="blocked" className="capitalize">
-            blocked
-          </option>
-        </select>
+          <AiOutlineClose className="text-2xl text-gray-700" />
+        </button>
       </div>
-      <button
-        className="btn-blue text-white uppercase w-full text-sm"
-        onClick={handleSave}
-      >
-        Save
-      </button>
+
+      <div className="grid grid-cols-1 gap-4">
+        <label className="text-sm text-gray-600">Choose a status</label>
+        <div>
+          <select
+            name="status"
+            id="status"
+            className="w-full appearance-none border border-gray-200 rounded-lg px-4 py-3 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black transition"
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+          >
+            <option value="active" className="capitalize">
+              Active
+            </option>
+            <option value="blocked" className="capitalize">
+              Blocked
+            </option>
+          </select>
+        </div>
+
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={() => toggleModal("")}
+            className="flex-1 py-3 rounded-lg border border-gray-200 text-sm font-medium hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 py-3 rounded-lg bg-black text-white text-sm font-medium hover:opacity-95 transition"
+          >
+            Save
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

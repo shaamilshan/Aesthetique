@@ -78,7 +78,7 @@ const Coupon = () => {
 
   return (
     <>
-      <div className="p-5 w-full overflow-y-auto text-sm">
+  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
         <SearchBar
           handleClick={handleFilter}
           search={search}

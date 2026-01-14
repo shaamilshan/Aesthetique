@@ -127,7 +127,7 @@ const ReturnRequests = () => {
           }
         />
       )}
-      <div className="p-5 w-full overflow-y-auto text-sm h-screen">
+  <div className="p-5 w-full min-h-screen overflow-visible text-sm h-screen">
         <SearchBar
           handleClick={handleFilter}
           search={search}
