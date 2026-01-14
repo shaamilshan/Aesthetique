@@ -50,7 +50,21 @@ const getAnnouncementById = async (req, res) => {
 // Create new announcement
 const createAnnouncement = async (req, res) => {
   try {
-    const { title, content, status, priority, startDate, endDate, isMarquee } = req.body;
+    const {
+      title,
+      content,
+      status,
+      priority,
+      startDate,
+      endDate,
+      isMarquee,
+      // styling fields
+      bgColor,
+      fontFamily,
+      fontSize,
+      useGoogleFont,
+      googleFontLink
+    } = req.body;
     
     const newAnnouncement = new Announcement({
       title,
@@ -59,7 +73,13 @@ const createAnnouncement = async (req, res) => {
       priority: priority || 'medium',
       startDate: startDate ? new Date(startDate) : new Date(),
       endDate: endDate ? new Date(endDate) : undefined,
-    isMarquee: isMarquee !== undefined ? isMarquee : true
+      isMarquee: isMarquee !== undefined ? isMarquee : true,
+      // persistence of styling fields (optional)
+  bgColor: bgColor || '#ffffff',
+  fontFamily: fontFamily || "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+      fontSize: fontSize !== undefined ? Number(fontSize) : 16,
+      useGoogleFont: !!useGoogleFont,
+      googleFontLink: googleFontLink || ''
     });
 
     const savedAnnouncement = await newAnnouncement.save();
@@ -75,19 +95,41 @@ const createAnnouncement = async (req, res) => {
 const updateAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, content, status, priority, startDate, endDate, isMarquee } = req.body;
+    const {
+      title,
+      content,
+      status,
+      priority,
+      startDate,
+      endDate,
+      isMarquee,
+      // styling fields
+      bgColor,
+      fontFamily,
+      fontSize,
+      useGoogleFont,
+      googleFontLink
+    } = req.body;
+
+    const updateObj = {
+      ...(title !== undefined && { title }),
+      ...(content !== undefined && { content }),
+      ...(status !== undefined && { status }),
+      ...(priority !== undefined && { priority }),
+      ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : new Date() }),
+      ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : undefined }),
+      ...(isMarquee !== undefined && { isMarquee }),
+      // styling fields
+      ...(bgColor !== undefined && { bgColor }),
+      ...(fontFamily !== undefined && { fontFamily }),
+      ...(fontSize !== undefined && { fontSize: Number(fontSize) }),
+      ...(useGoogleFont !== undefined && { useGoogleFont: !!useGoogleFont }),
+      ...(googleFontLink !== undefined && { googleFontLink })
+    };
 
     const updatedAnnouncement = await Announcement.findByIdAndUpdate(
       id,
-      {
-        ...(title !== undefined && { title }),
-        ...(content !== undefined && { content }),
-        ...(status !== undefined && { status }),
-        ...(priority !== undefined && { priority }),
-        ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : new Date() }),
-        ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : undefined }),
-        ...(isMarquee !== undefined && { isMarquee })
-      },
+      updateObj,
       { new: true, runValidators: true }
     );
 

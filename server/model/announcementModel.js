@@ -33,6 +33,28 @@ const announcementSchema = new mongoose.Schema(
       type: Boolean, 
       default: true 
     }
+    ,
+    // Styling/customization fields added so admin can control public marquee appearance
+    bgColor: {
+      type: String,
+      default: '#ffffff'
+    },
+    fontFamily: {
+      type: String,
+      default: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial"
+    },
+    fontSize: {
+      type: Number,
+      default: 16
+    },
+    useGoogleFont: {
+      type: Boolean,
+      default: false
+    },
+    googleFontLink: {
+      type: String,
+      default: ''
+    }
   },
   { timestamps: true }
 );

@@ -183,9 +183,55 @@ const Navbar = ({ usercheck }) => {
         // Debug: log the response so we can see what the public API returns
         console.debug('public/announcements response', res);
         if (res && res.success && res.data && res.data.marquee) {
-          // Extract content from marquee announcements
-          const marqueeContents = res.data.marquee.map(ann => ann.content);
-          setAnnouncement(marqueeContents);
+          // Normalize marquee items to objects so older arrays of strings continue to work
+          const normalized = (res.data.marquee || []).map((it) => typeof it === 'string' ? { content: it } : it || { content: '' });
+          setAnnouncement(normalized);
+          // Preload any google fonts referenced by announcements
+          try {
+            const anns = res.data.marquee || [];
+            anns.forEach((a) => {
+              if (a && a.useGoogleFont && a.googleFontLink) {
+                // inject custom google link
+                const id = `gf-custom-${btoa(a.googleFontLink).slice(0,8)}`;
+                if (!document.getElementById(id)) {
+                  const l = document.createElement('link');
+                  l.id = id;
+                  l.rel = 'stylesheet';
+                  l.href = a.googleFontLink;
+                  document.head.appendChild(l);
+                }
+              } else if (a && a.fontFamily) {
+                // attempt to detect known google families and load them
+                const fams = ['Poppins','Montserrat','Roboto','Lato'];
+                const found = fams.find(f => a.fontFamily.includes(f));
+                if (found) {
+                  const id = `gf-${found}`;
+                  if (!document.getElementById(id)) {
+                    if (!document.getElementById('gf-preconnect')) {
+                      const pre1 = document.createElement('link');
+                      pre1.rel = 'preconnect';
+                      pre1.href = 'https://fonts.googleapis.com';
+                      pre1.id = 'gf-preconnect';
+                      document.head.appendChild(pre1);
+                      const pre2 = document.createElement('link');
+                      pre2.rel = 'preconnect';
+                      pre2.href = 'https://fonts.gstatic.com';
+                      pre2.crossOrigin = '';
+                      document.head.appendChild(pre2);
+                    }
+                    const link = document.createElement('link');
+                    link.id = id;
+                    link.rel = 'stylesheet';
+                    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(found)}:wght@400;500;600;700&display=swap`;
+                    document.head.appendChild(link);
+                  }
+                }
+              }
+            });
+          } catch (e) {
+            // ignore font loading errors
+            console.warn('announcement font preload failed', e);
+          }
         }
       } catch (err) {
         // ignore - keep fallback text
@@ -210,11 +256,38 @@ const Navbar = ({ usercheck }) => {
     <>
       {/* Marquee banner above navbar (reduced height, vertically centered) - hidden when no announcement text */}
       {(() => {
-        const hasAnnouncement = Array.isArray(announcement) ? announcement.some((x) => !!String(x).trim()) : (announcement && String(announcement).trim() !== "");
-        // Display one announcement at a time
-        const displayText = Array.isArray(announcement) ? (announcement[announcementIndex] || "") : (announcement || "");
+        const hasAnnouncement = Array.isArray(announcement) ? announcement.some((x) => !!(x && String(x.content).trim())) : (announcement && String(announcement).trim() !== "");
+        // Current announcement object
+        const current = Array.isArray(announcement) ? (announcement[announcementIndex] || null) : null;
+        const displayText = current ? current.content : (announcement || "");
+
+        // determine readable text color based on bgColor (simple luminance test)
+        const getTextColorForBg = (bg) => {
+          try {
+            if (!bg || typeof bg !== 'string') return '#111827';
+            const hex = bg.replace('#','');
+            if (hex.length === 3) {
+              const r = parseInt(hex[0]+hex[0],16);
+              const g = parseInt(hex[1]+hex[1],16);
+              const b = parseInt(hex[2]+hex[2],16);
+              const lum = 0.2126*r + 0.7152*g + 0.0722*b;
+              return lum < 128 ? '#ffffff' : '#111827';
+            }
+            if (hex.length === 6) {
+              const r = parseInt(hex.substring(0,2),16);
+              const g = parseInt(hex.substring(2,4),16);
+              const b = parseInt(hex.substring(4,6),16);
+              const lum = 0.2126*r + 0.7152*g + 0.0722*b;
+              return lum < 128 ? '#ffffff' : '#111827';
+            }
+          } catch (e) {
+            // fallback
+          }
+          return '#111827';
+        };
+
         return hasAnnouncement ? (
-          <div className="w-full bg-black text-white h-8 overflow-hidden">
+          <div className="w-full h-8 overflow-hidden" style={{ backgroundColor: current?.bgColor || 'black' }}>
             <div
               aria-hidden={false}
               role="region"
@@ -222,7 +295,7 @@ const Navbar = ({ usercheck }) => {
               className="h-full flex items-center"
             >
               <div key={announcementIndex} className="marquee whitespace-nowrap">
-                <span className="text-sm inline-block px-4">
+                <span className="text-sm inline-block px-4" style={{ fontFamily: current?.fontFamily, fontSize: current?.fontSize ? `${current.fontSize}px` : undefined, color: getTextColorForBg(current?.bgColor) }}>
                   {displayText}
                 </span>
               </div>

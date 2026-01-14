@@ -17,8 +17,88 @@ const Announcement = () => {
     priority: "medium",
     startDate: new Date().toISOString().split('T')[0],
     endDate: "",
-    isMarquee: true
+    isMarquee: true,
+    // new customization options
+    bgColor: "#ffffff",
+    fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+    fontSize: 16
   });
+
+  // font key -> CSS font-family mapping
+  const FONT_MAP = {
+    system: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+    Arial: "Arial, Helvetica, sans-serif",
+    Helvetica: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+    Georgia: "Georgia, 'Times New Roman', Times, serif",
+    Times: "'Times New Roman', Times, serif",
+    Poppins: "'Poppins', 'Helvetica Neue', Arial, sans-serif",
+    Montserrat: "'Montserrat', 'Helvetica Neue', Arial, sans-serif",
+    Roboto: "'Roboto', 'Helvetica Neue', Arial, sans-serif",
+    Lato: "'Lato', 'Helvetica Neue', Arial, sans-serif",
+  };
+
+  const GOOGLE_FONTS = ["Poppins", "Montserrat", "Roboto", "Lato"];
+
+  const loadGoogleFont = (fontName) => {
+    if (!fontName) return;
+    try {
+      const familyParam = encodeURIComponent(fontName);
+      const id = `gf-${fontName.replace(/\s+/g, '-')}`;
+      if (document.getElementById(id)) return; // already loaded
+
+      // preconnect for performance (only once)
+      if (!document.getElementById('gf-preconnect')) {
+        const pre1 = document.createElement('link');
+        pre1.rel = 'preconnect';
+        pre1.href = 'https://fonts.googleapis.com';
+        pre1.id = 'gf-preconnect';
+        document.head.appendChild(pre1);
+        const pre2 = document.createElement('link');
+        pre2.rel = 'preconnect';
+        pre2.href = 'https://fonts.gstatic.com';
+        pre2.crossOrigin = '';
+        document.head.appendChild(pre2);
+      }
+
+      const link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      // request common weights to be safe
+      link.href = `https://fonts.googleapis.com/css2?family=${familyParam}:wght@400;500;600;700&display=swap`;
+      document.head.appendChild(link);
+    } catch (err) {
+      // fail silently
+      console.warn('Failed to load google font', fontName, err);
+    }
+  };
+  
+  // load a custom Google Fonts link (user-provided)
+  const loadCustomGoogleLink = (link) => {
+    if (!link) return;
+    try {
+      const id = `gf-custom-${btoa(link).slice(0, 8)}`;
+      if (document.getElementById(id)) return;
+
+      // remove any previous custom gf links we've added to avoid duplicates
+      Array.from(document.querySelectorAll('[id^="gf-custom-"]')).forEach((el) => el.remove());
+
+      const l = document.createElement('link');
+      l.id = id;
+      l.rel = 'stylesheet';
+      l.href = link;
+      document.head.appendChild(l);
+
+      // attempt to parse family name from the link and set fontFamily
+      const m = link.match(/[?&]family=([^:&]+)/);
+      if (m && m[1]) {
+        const fam = decodeURIComponent(m[1]).split(':')[0].replace(/\+/g, ' ');
+        // set a sensible CSS font-family using the parsed family
+        setCurrentAnnouncement((s) => ({ ...s, fontFamily: `"${fam}", ${FONT_MAP.system}` }));
+      }
+    } catch (err) {
+      console.warn('Failed to load custom google link', err);
+    }
+  };
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("manage"); // 'manage' or 'marquee'
 
@@ -68,7 +148,12 @@ const Announcement = () => {
           priority: "medium",
           startDate: new Date().toISOString().split('T')[0],
           endDate: "",
-          isMarquee: true
+          isMarquee: true,
+          bgColor: "#ffffff",
+          fontFamily: FONT_MAP.system,
+          fontSize: 16,
+          useGoogleFont: false,
+          googleFontLink: ""
         });
         setTimeout(() => setSuccess(""), 3000);
       } else {
@@ -113,7 +198,12 @@ const Announcement = () => {
       priority: "medium",
       startDate: new Date().toISOString().split('T')[0],
       endDate: "",
-      isMarquee: true
+      isMarquee: true,
+      bgColor: "#ffffff",
+      fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+      fontSize: 16,
+      useGoogleFont: false,
+      googleFontLink: ""
     });
     setIsEditing(false);
     setIsModalOpen(true);
@@ -126,7 +216,19 @@ const Announcement = () => {
       endDate: announcement.endDate ? new Date(announcement.endDate).toISOString().split('T')[0] : "",
       // ensure marquee is always enabled (hide the toggle in UI)
       isMarquee: true
+      ,
+      // preserve customization fields if present, otherwise set defaults
+      bgColor: announcement.bgColor || "#ffffff",
+      fontFamily: announcement.fontFamily || "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+      fontSize: announcement.fontSize || 16,
+      // google link support
+      useGoogleFont: announcement.useGoogleFont || false,
+      googleFontLink: announcement.googleFontLink || ""
     });
+    // If the announcement already had a custom google link, load it so preview shows correctly
+    if (announcement.useGoogleFont && announcement.googleFontLink) {
+      loadCustomGoogleLink(announcement.googleFontLink);
+    }
     setIsEditing(true);
     setIsModalOpen(true);
   };
@@ -569,6 +671,115 @@ const Announcement = () => {
                     className="w-full border px-3 py-2 rounded text-sm h-24"
                     required
                   />
+                </div>
+
+                {/* Customization controls: bg color, font family, font size */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Background color</label>
+                    <input
+                      type="color"
+                      value={currentAnnouncement.bgColor}
+                      onChange={(e) => setCurrentAnnouncement({...currentAnnouncement, bgColor: e.target.value})}
+                      className="w-full h-10 p-1 rounded"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Font family</label>
+                    <div className="flex items-center gap-3">
+                      <label className="inline-flex items-center text-sm">
+                        <input
+                          type="checkbox"
+                          checked={currentAnnouncement.useGoogleFont || false}
+                          onChange={(e) => setCurrentAnnouncement({...currentAnnouncement, useGoogleFont: e.target.checked})}
+                          className="mr-2"
+                        />
+                        <span>Use Google font (paste link)</span>
+                      </label>
+                    </div>
+                    {!currentAnnouncement.useGoogleFont && (
+                      <select
+                        value={Object.keys(FONT_MAP).find(k => FONT_MAP[k] === currentAnnouncement.fontFamily) || 'system'}
+                        onChange={(e) => {
+                          const key = e.target.value;
+                          const family = FONT_MAP[key] || FONT_MAP.system;
+                          setCurrentAnnouncement({ ...currentAnnouncement, fontFamily: family });
+                          if (GOOGLE_FONTS.includes(key)) loadGoogleFont(key);
+                        }}
+                        className="w-full border px-3 py-2 rounded text-sm mt-2"
+                      >
+                        <option value={"system"}>System</option>
+                        <option value={"Arial"}>Arial</option>
+                        <option value={"Helvetica"}>Helvetica</option>
+                        <option value={"Georgia"}>Georgia</option>
+                        <option value={"Times"}>Times</option>
+                        <option value={"Poppins"}>Poppins (Google)</option>
+                        <option value={"Montserrat"}>Montserrat (Google)</option>
+                        <option value={"Roboto"}>Roboto (Google)</option>
+                        <option value={"Lato"}>Lato (Google)</option>
+                      </select>
+                    )}
+                    {currentAnnouncement.useGoogleFont && (
+                      <div className="mt-2">
+                        <input
+                          type="text"
+                          placeholder="Paste Google Fonts URL (https://fonts.googleapis.com/...)"
+                          value={currentAnnouncement.googleFontLink || ''}
+                          onChange={(e) => setCurrentAnnouncement({...currentAnnouncement, googleFontLink: e.target.value})}
+                          className="w-full border px-3 py-2 rounded text-sm"
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            type="button"
+                            onClick={() => loadCustomGoogleLink(currentAnnouncement.googleFontLink)}
+                            className="px-3 py-2 bg-black text-white rounded text-sm"
+                          >
+                            Apply Link
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCurrentAnnouncement({...currentAnnouncement, googleFontLink: ''});
+                              // remove previous custom links
+                              Array.from(document.querySelectorAll('[id^="gf-custom-"]')).forEach((el) => el.remove());
+                            }}
+                            className="px-3 py-2 border rounded text-sm"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Font size (px)</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="48"
+                      value={currentAnnouncement.fontSize}
+                      onChange={(e) => setCurrentAnnouncement({...currentAnnouncement, fontSize: parseInt(e.target.value || 16)})}
+                      className="w-full border px-3 py-2 rounded text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Live preview */}
+                <div className="mt-3">
+                  <p className="text-sm text-gray-600 mb-2">Preview</p>
+                  <div
+                    className="p-3 rounded"
+                    style={{
+                      backgroundColor: currentAnnouncement.bgColor,
+                      fontFamily: currentAnnouncement.fontFamily,
+                      fontSize: `${currentAnnouncement.fontSize}px`,
+                      color: '#111827'
+                    }}
+                  >
+                    {currentAnnouncement.content || <span className="text-gray-500">(preview)</span>}
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
