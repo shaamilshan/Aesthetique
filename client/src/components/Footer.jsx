@@ -22,6 +22,23 @@ function Footer() {
     window.location.href = "/about-us";
   };
 
+  const handleScrollReturn = (e) => {
+    try {
+      e.preventDefault();
+    } catch (err) {
+      /* ignore if called programmatically without an event */
+    }
+    const ids = ["return-policy", "return-refund"];
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+    }
+    window.location.href = "/return-policy";
+  };
+
   return (
     <footer className="bg-white text-black py-8 border-t">
       <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-start gap-8">
@@ -44,6 +61,11 @@ function Footer() {
               <li>
                 <a href="/about-us" onClick={handleScrollAbout} className="hover:text-gray-700">
                   About
+                </a>
+              </li>
+              <li>
+                <a href="/return-policy" onClick={handleScrollReturn} className="hover:text-gray-700">
+                  Return &amp; Refund
                 </a>
               </li>
               <li><a href="#contact" className="hover:text-gray-700">Contact</a></li>
