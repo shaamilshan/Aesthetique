@@ -36,10 +36,12 @@ const WishList = () => {
             {wishlist && wishlist.length > 0 && (
               <button
                 onClick={clearWishlist}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-gray-100 text-gray-700 hover:bg-black hover:text-white rounded-xl transition-all duration-200 hover:shadow-lg transform hover:scale-[1.02] font-medium"
+                title="Clear wishlist"
+                aria-label="Clear wishlist"
+                className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 text-sm bg-gray-100 text-gray-700 hover:bg-black hover:text-white rounded-xl transition-all duration-200 hover:shadow-lg transform hover:scale-[1.02] font-medium"
               >
                 <Trash2 className="w-4 h-4" />
-                Clear All
+                <span className="hidden sm:inline">Clear All</span>
               </button>
             )}
           </div>

@@ -125,12 +125,7 @@ const WishlistCard = ({ item }) => {
               <span className="text-gray-400 text-sm">📷</span>
             </div>
           )}
-          {/* Status Badge */}
-          <div className="absolute -top-1 -right-1">
-            <span className={`px-1 py-0.5 text-xs font-medium rounded-full ${getStatusStyle(item.product.status)}`}>
-              {getStatusText(item.product.status)}
-            </span>
-          </div>
+          {/* Status badge intentionally hidden in wishlist view */}
         </div>
 
         {/* Product Details */}
@@ -160,25 +155,25 @@ const WishlistCard = ({ item }) => {
           })()}
 
           {/* Price */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex w-full sm:w-auto sm:flex-row flex-col items-stretch sm:items-center gap-2 flex-shrink-0">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 addToCart(item.product._id, false);
               }}
               disabled={cartLoading || item.product.status === "out of stock"}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-colors duration-200 ${
+              className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg font-medium text-sm sm:text-xs transition-colors duration-200 ${
                 item.product.status === "out of stock"
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-black text-white hover:bg-gray-800"
               }`}
             >
               {cartLoading ? (
-                <div className="animate-spin rounded-full h-3 w-3 border border-gray-300 border-t-white"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border border-gray-300 border-t-white"></div>
               ) : (
                 <>
-                  <ShoppingCart className="w-3 h-3" />
-                  {item.product.status === "out of stock" ? "Out of Stock" : "Add to cart"}
+                  <ShoppingCart className="w-4 h-4" />
+                  <span className="ml-1">{item.product.status === "out of stock" ? "Out of Stock" : "Add to cart"}</span>
                 </>
               )}
             </button>
@@ -189,7 +184,7 @@ const WishlistCard = ({ item }) => {
                 addToCart(item.product._id, true);
               }}
               disabled={cartLoading || item.product.status === "out of stock"}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs transition-colors duration-200 border ${
+              className={`w-full sm:w-auto flex items-center justify-center px-3 py-2 rounded-lg font-medium text-sm sm:text-xs transition-colors duration-200 border ${
                 item.product.status === "out of stock"
                   ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"
                   : "border-black text-black bg-white hover:bg-gray-50"
