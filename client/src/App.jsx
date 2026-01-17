@@ -93,7 +93,6 @@ import Managers from "./page/admin/pages/managers/Managers";
 import AllManagerOrders from "./page/admin/pages/Order/AllManagerOrders";
 import OldRegister from "./page/auth/OldRegister";
 import ProductPageDesign from "./page/ProductPageDesign";
-import ComingSoon from "./page/public/ComingSoon";
 
 function App() {
   const { user } = useSelector((state) => state.user);
@@ -116,16 +115,11 @@ function App() {
   // Small components that conditionally render Navbar/Footer
   // depending on the current location (we hide them for the root coming-soon page)
   function InnerNavFooter({ user }) {
-    const loc = useLocation();
-    // only hide the navbar when the explicit coming-soon route is active
-    if (loc.pathname === "/coming-soon") return null;
+    // keep previous behavior for roles: show Navbar for regular users, hide for admin roles
     return user ? (user.role === "user" && <Navbar usercheck={true} />) : <Navbar usercheck={false} />;
   }
 
   function InnerFooter({ user }) {
-    const loc = useLocation();
-    // only hide the footer when the explicit coming-soon route is active
-    if (loc.pathname === "/coming-soon") return null;
     return user ? (user.role === "user" && <Footer />) : <Footer />;
   }
 
@@ -153,14 +147,12 @@ function App() {
                     <Home2 />
                   )
                 ) : (
-                  // Unauthenticated visitors see the Coming Soon landing
-                  <ComingSoon />
+                  // Unauthenticated visitors see the public Home
+                  <Home2 />
                 )
               }
             />
 
-            {/* explicit coming soon route (navbar/footer hidden only on this path) */}
-            <Route path="/coming-soon" element={<ComingSoon />} />
 
 
           <Route path="/manager-signup" element={<ManagerSignup />} />
