@@ -63,9 +63,10 @@ const createAnnouncement = async (req, res) => {
       fontFamily,
       fontSize,
       useGoogleFont,
-      googleFontLink
+      googleFontLink,
+      fontColor
     } = req.body;
-    
+
     const newAnnouncement = new Announcement({
       title,
       content,
@@ -75,15 +76,16 @@ const createAnnouncement = async (req, res) => {
       endDate: endDate ? new Date(endDate) : undefined,
       isMarquee: isMarquee !== undefined ? isMarquee : true,
       // persistence of styling fields (optional)
-  bgColor: bgColor || '#ffffff',
-  fontFamily: fontFamily || "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+      bgColor: bgColor || '#ffffff',
+      fontFamily: fontFamily || "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
       fontSize: fontSize !== undefined ? Number(fontSize) : 16,
       useGoogleFont: !!useGoogleFont,
-      googleFontLink: googleFontLink || ''
+      googleFontLink: googleFontLink || '',
+      fontColor: fontColor || '#111827'
     });
 
     const savedAnnouncement = await newAnnouncement.save();
-    
+
     return res.status(201).json({ success: true, data: savedAnnouncement });
   } catch (err) {
     console.error('createAnnouncement error', err);
@@ -108,7 +110,8 @@ const updateAnnouncement = async (req, res) => {
       fontFamily,
       fontSize,
       useGoogleFont,
-      googleFontLink
+      googleFontLink,
+      fontColor
     } = req.body;
 
     const updateObj = {
@@ -124,7 +127,8 @@ const updateAnnouncement = async (req, res) => {
       ...(fontFamily !== undefined && { fontFamily }),
       ...(fontSize !== undefined && { fontSize: Number(fontSize) }),
       ...(useGoogleFont !== undefined && { useGoogleFont: !!useGoogleFont }),
-      ...(googleFontLink !== undefined && { googleFontLink })
+      ...(googleFontLink !== undefined && { googleFontLink }),
+      ...(fontColor !== undefined && { fontColor })
     };
 
     const updatedAnnouncement = await Announcement.findByIdAndUpdate(
@@ -132,7 +136,7 @@ const updateAnnouncement = async (req, res) => {
       updateObj,
       { new: true, runValidators: true }
     );
-
+    
     if (!updatedAnnouncement) {
       return res.status(404).json({ success: false, message: 'Announcement not found' });
     }

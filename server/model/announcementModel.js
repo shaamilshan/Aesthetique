@@ -55,6 +55,12 @@ const announcementSchema = new mongoose.Schema(
       type: String,
       default: ''
     }
+    ,
+    // explicit font color for announcement text
+    fontColor: {
+      type: String,
+      default: '#111827'
+    }
   },
   { timestamps: true }
 );

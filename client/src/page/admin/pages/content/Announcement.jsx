@@ -21,7 +21,8 @@ const Announcement = () => {
     // new customization options
     bgColor: "#ffffff",
     fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
-    fontSize: 16
+    fontSize: 16,
+    fontColor: '#111827'
   });
 
   // font key -> CSS font-family mapping
@@ -152,6 +153,7 @@ const Announcement = () => {
           bgColor: "#ffffff",
           fontFamily: FONT_MAP.system,
           fontSize: 16,
+          fontColor: '#111827',
           useGoogleFont: false,
           googleFontLink: ""
         });
@@ -202,6 +204,7 @@ const Announcement = () => {
       bgColor: "#ffffff",
       fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
       fontSize: 16,
+      fontColor: '#111827',
       useGoogleFont: false,
       googleFontLink: ""
     });
@@ -221,6 +224,7 @@ const Announcement = () => {
       bgColor: announcement.bgColor || "#ffffff",
       fontFamily: announcement.fontFamily || "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
       fontSize: announcement.fontSize || 16,
+      fontColor: announcement.fontColor || '#111827',
       // google link support
       useGoogleFont: announcement.useGoogleFont || false,
       googleFontLink: announcement.googleFontLink || ""
@@ -683,6 +687,15 @@ const Announcement = () => {
                       onChange={(e) => setCurrentAnnouncement({...currentAnnouncement, bgColor: e.target.value})}
                       className="w-full h-10 p-1 rounded"
                     />
+                    <div className="mt-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Font color</label>
+                      <input
+                        type="color"
+                        value={currentAnnouncement.fontColor}
+                        onChange={(e) => setCurrentAnnouncement({...currentAnnouncement, fontColor: e.target.value})}
+                        className="w-full h-10 p-1 rounded"
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -775,7 +788,7 @@ const Announcement = () => {
                       backgroundColor: currentAnnouncement.bgColor,
                       fontFamily: currentAnnouncement.fontFamily,
                       fontSize: `${currentAnnouncement.fontSize}px`,
-                      color: '#111827'
+                      color: currentAnnouncement.fontColor || '#111827'
                     }}
                   >
                     {currentAnnouncement.content || <span className="text-gray-500">(preview)</span>}

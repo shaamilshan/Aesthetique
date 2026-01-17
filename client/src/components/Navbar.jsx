@@ -295,7 +295,7 @@ const Navbar = ({ usercheck }) => {
               className="h-full flex items-center"
             >
               <div key={announcementIndex} className="marquee whitespace-nowrap">
-                <span className="text-sm inline-block px-4" style={{ fontFamily: current?.fontFamily, fontSize: current?.fontSize ? `${current.fontSize}px` : undefined, color: getTextColorForBg(current?.bgColor) }}>
+                <span className="text-sm inline-block px-4" style={{ fontFamily: current?.fontFamily, fontSize: current?.fontSize ? `${current.fontSize}px` : undefined, color: (current && current.fontColor) ? current.fontColor : getTextColorForBg(current?.bgColor) }}>
                   {displayText}
                 </span>
               </div>
