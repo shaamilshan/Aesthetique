@@ -66,13 +66,13 @@ const Categories = () => {
 
   return (
     <>
-  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
+  <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
         <SearchBar
           handleClick={handleFilter}
           search={search}
           setSearch={setSearch}
         />
-        <div className="flex justify-between items-center font-semibold">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center font-semibold gap-3 md:gap-0">
           <div>
             <h1 className="font-bold text-2xl">Category</h1>
             <BreadCrumbs list={["Dashboard", "Category List"]} />

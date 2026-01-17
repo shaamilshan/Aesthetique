@@ -342,6 +342,16 @@ body,
   @apply text-sm p-4;
 }
 
+/* horizontal scroll helper for touch devices */
+.horizontal-scroll {
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  /* allow vertical page panning by default so users can scroll down the page
+     when starting touches inside the pill row; horizontal swipes are still
+     handled by the JS pointer/touch handlers that translate into scrollLeft. */
+  touch-action: pan-y;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
 /* User Page */
 
 .category-li {

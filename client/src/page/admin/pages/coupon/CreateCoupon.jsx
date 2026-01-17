@@ -66,16 +66,16 @@ const CreateCoupon = () => {
       )}
       <div className="p-5 w-full overflow-y-scroll">
         {/* Top Bar */}
-        <div className="flex justify-between items-center text-sm font-semibold">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-sm font-semibold gap-3 md:gap-0">
           <div>
             <h1 className="font-bold text-2xl">Create Coupon</h1>
             {/* Bread Crumbs */}
             <BreadCrumbs list={["Dashboard", "Coupon List", "Create Coupon"]} />
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              className="admin-button-fl bg-gray-200 text-blue-700"
+              className="admin-button-fl w-full md:w-auto bg-gray-200 text-blue-700"
               onClick={() => navigate(-1)}
             >
               <AiOutlineClose />
@@ -83,7 +83,7 @@ const CreateCoupon = () => {
             </button>
             <button
               type="submit"
-              className="admin-button-fl bg-blue-700 text-white"
+              className="admin-button-fl w-full md:w-auto bg-blue-700 text-white"
               onClick={() => {
                 formikRef.current.submitForm();
               }}

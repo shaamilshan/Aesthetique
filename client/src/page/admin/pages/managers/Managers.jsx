@@ -86,13 +86,13 @@ const Managers = () => {
           }
         />
       )}
-  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
+  <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
         <SearchBar
           handleClick={handleFilter}
           search={search}
           setSearch={setSearch}
         />
-        <div className="flex justify-between items-center font-semibold">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center font-semibold gap-3 md:gap-0">
           <div>
             <h1 className="font-bold text-2xl">Super Admins</h1>
             <div className="flex items-center gap-2 mt-2 mb-4 text-gray-500">
@@ -104,12 +104,12 @@ const Managers = () => {
             </div>
           </div>
         </div>
-        <div className="lg:flex justify-between items-center font-semibold">
+  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center font-semibold gap-3 lg:gap-0">
           <FilterArray
             list={["all", "active", "blocked"]}
             handleClick={handleFilter}
           />
-          <div className="flex my-2 gap-3">
+          <div className="flex flex-wrap my-2 gap-3">
             <RangeDatePicker
               handleFilter={handleFilter}
               startingDate={startingDate}
@@ -120,21 +120,21 @@ const Managers = () => {
             <ClearFilterButton handleClick={removeFilters} />
           </div>
         </div>
-        <div className="overflow-x-scroll  bg-white rounded-lg">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           {customers && (
-            <table className="w-full min-w-max table-auto">
-              <thead className="font-normal">
-                <tr className="border-b border-gray-200">
-                  <th className="admin-table-head w-52">Name</th>
-                  <th className="admin-table-head">Email</th>
-                  <th className="admin-table-head">Phone No</th>
-                  <th className="admin-table-head">Status</th>
-                  <th className="admin-table-head">Joined</th>
-                  <th className="admin-table-head">Action</th>
-                  <th className="admin-table-head">View</th>
+            <table className="w-full table-auto">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Phone</th>
+                  <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Joined</th>
+                  <th className="text-right px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Action</th>
+                  <th className="text-right px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">View</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y">
                 {customers.map((customer, index) => {
                   const isLast = index === customers.length - 1;
 
@@ -142,7 +142,7 @@ const Managers = () => {
                     <TableRow
                       isLast={isLast}
                       customer={customer}
-                      key={index}
+                      key={customer._id || index}
                       toggleBlockUnBlockModal={toggleBlockUnBlockModal}
                     />
                   );

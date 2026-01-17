@@ -84,7 +84,7 @@ const EditCategory = () => {
       )}
       <div className="p-5 w-full overflow-y-scroll text-sm">
         {/* Top Bar */}
-        <div className="flex justify-between items-center font-semibold">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center font-semibold gap-3 md:gap-0">
           <div>
             <h1 className="font-bold text-2xl">Edit Category</h1>
             {/* Bread Crumbs */}
@@ -92,10 +92,10 @@ const EditCategory = () => {
               list={["Dashboard", "Category List", "Edit Category"]}
             />
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              className="admin-button-fl bg-gray-200 text-[#A53030]"
+              className="admin-button-fl w-full md:w-auto bg-gray-200 text-[#A53030]"
               onClick={() => navigate(-1)}
             >
               <AiOutlineClose />
@@ -103,7 +103,7 @@ const EditCategory = () => {
             </button>
             <button
               type="button"
-              className="admin-button-fl bg-[#A53030] text-white"
+              className="admin-button-fl w-full md:w-auto bg-[#A53030] text-white"
               onClick={() => {
                 formikRef.current.submitForm();
               }}

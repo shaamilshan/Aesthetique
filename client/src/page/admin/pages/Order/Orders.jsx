@@ -117,30 +117,32 @@ const Orders = () => {
           }
         />
       )}
-  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
+  <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
         <SearchBar
           handleClick={handleFilter}
           search={search}
           setSearch={setSearch}
           placeholder="Search Using Order Id..."
         />
-        <div className="flex justify-between items-center font-semibold">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center font-semibold gap-3 md:gap-0">
           <div>
             <h1 className="font-bold text-2xl">Orders</h1>
             <BreadCrumbs list={["Dashboard", "Orders"]} />
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
-              className="admin-button-fl bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-#black"
+              className="admin-button-fl w-full md:w-auto bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-black"
               onClick={toggleExportModal}
             >
               <FiDownload />
               Export
             </button>
-            <ReturnRequestsButtonInOrders />
+            <div className="w-full md:w-auto">
+              <ReturnRequestsButtonInOrders />
+            </div>
           </div>
         </div>
-        <div className="lg:flex justify-between items-center font-semibold">
+  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center font-semibold gap-3 lg:gap-0">
           <FilterArray
             list={[
               "all",
@@ -153,7 +155,7 @@ const Orders = () => {
             ]}
             handleClick={handleFilter}
           />
-          <div className="flex my-2 gap-3">
+          <div className="flex flex-wrap my-2 gap-3">
             <RangeDatePicker
               handleFilter={handleFilter}
               startingDate={startingDate}

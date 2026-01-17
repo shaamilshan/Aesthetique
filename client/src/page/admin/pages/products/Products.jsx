@@ -87,20 +87,20 @@ const Products = () => {
 
   return (
     <>
-  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
+  <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
         <SearchBar
           handleClick={handleFilter}
           search={search}
           setSearch={setSearch}
         />
-        <div className="flex justify-between items-center font-semibold mt-5">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center font-semibold gap-3 md:gap-0 mt-5">
           <div>
             <h1 className="font-bold text-2xl">Products</h1>
             <BreadCrumbs list={["Dashboard", "Product List"]} />
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
-              className="admin-button-fl bg-black text-white"
+              className="admin-button-fl w-full md:w-auto bg-black text-white"
               onClick={() => navigate("add")}
             >
               <AiOutlinePlus />
@@ -108,7 +108,7 @@ const Products = () => {
             </button>
           </div>
         </div>
-        <div className="lg:flex justify-between items-center font-semibold">
+  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center font-semibold gap-3 lg:gap-0">
           <FilterArray
             list={[
               "all",
@@ -120,7 +120,7 @@ const Products = () => {
             ]}
             handleClick={handleFilter}
           />
-          <div className="flex my-2 gap-3">
+          <div className="flex flex-wrap my-2 gap-3 items-center">
             <RangeDatePicker
               handleFilter={handleFilter}
               startingDate={startingDate}

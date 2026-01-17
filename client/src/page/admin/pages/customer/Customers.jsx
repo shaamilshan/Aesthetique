@@ -64,6 +64,7 @@ const Customers = () => {
     params.delete("search");
     params.delete("page");
     params.delete("status");
+    params.delete("role");
     params.delete("startingDate");
     params.delete("endingDate");
     setSearch("");
@@ -79,6 +80,16 @@ const Customers = () => {
     setPage(parseInt(pageNumber || 1));
   }, [searchParams]);
 
+  // Helper: compute initials for avatar fallback
+  const getInitials = (c) => {
+    const name = (c.firstName || "") + " " + (c.lastName || "");
+    const full = (c.name || name || c.email || "").trim();
+    const parts = full.split(" ").filter(Boolean);
+    if (parts.length === 0) return "U";
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+  };
+
   return (
     <>
       {blockUnBlockModal && (
@@ -91,13 +102,13 @@ const Customers = () => {
           }
         />
       )}
-  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
+  <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
         <SearchBar
           handleClick={handleFilter}
           search={search}
           setSearch={setSearch}
         />
-        <div className="flex justify-between items-center font-semibold">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center font-semibold gap-3 md:gap-0">
           <div>
             <h1 className="font-bold text-2xl">Users</h1>
             <div className="flex items-center gap-2 mt-2 mb-4 text-gray-500">
@@ -109,12 +120,32 @@ const Customers = () => {
             </div>
           </div>
         </div>
-        <div className="lg:flex justify-between items-center font-semibold">
-          <FilterArray
-            list={["all", "active", "blocked"]}
-            handleClick={handleFilter}
-          />
-          <div className="flex my-2 gap-3 items-center">
+  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center font-semibold gap-3 lg:gap-0">
+          <div className="flex items-center gap-4">
+            <FilterArray
+              list={["all", "active", "blocked"]}
+              handleClick={handleFilter}
+            />
+
+            {/* Role filter: pill-style */}
+            <div className="flex items-center gap-2">
+              {['all', 'user', 'admin', 'superAdmin'].map((r) => {
+                const params = new URLSearchParams(window.location.search);
+                const activeRole = params.get('role') || 'all';
+                const active = activeRole === r;
+                return (
+                  <button
+                    key={r}
+                    onClick={() => handleFilter('role', r === 'all' ? '' : r)}
+                    className={`px-3 py-1 text-sm rounded-full border ${active ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200'} hover:shadow-sm`}
+                  >
+                    {r === 'superAdmin' ? 'SuperAdmin' : r.charAt(0).toUpperCase() + r.slice(1)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="flex flex-wrap my-2 gap-3 items-center">
             <RangeDatePicker
               handleFilter={handleFilter}
               startingDate={startingDate}
@@ -131,36 +162,83 @@ const Customers = () => {
             </button>
           </div>
         </div>
-        <div className="overflow-x-scroll  bg-white rounded-lg">
-          {customers && (
-            <table className="w-full min-w-max table-auto">
-              <thead className="font-normal">
-                <tr className="border-b border-gray-200">
-                  <th className="admin-table-head w-52">Name</th>
-                  <th className="admin-table-head">Email</th>
-                  <th className="admin-table-head">Phone No</th>
-                  <th className="admin-table-head">Role</th>
-                  <th className="admin-table-head">Status</th>
-                  <th className="admin-table-head">Joined</th>
-                  <th className="admin-table-head">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers.map((customer, index) => {
-                  const isLast = index === customers.length - 1;
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          {/* Desktop / tablet: table view */}
+          <div className="hidden md:block">
+            {customers && (
+              <table className="w-full table-auto">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">User</th>
+                    <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Role</th>
+                    <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="text-left px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th className="text-right px-6 py-3 text-xs text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {customers.map((customer, index) => {
+                    const isLast = index === customers.length - 1;
 
-                  return (
-                    <TableRow
-                      isLast={isLast}
-                      customer={customer}
-                      key={index}
-                      toggleBlockUnBlockModal={toggleBlockUnBlockModal}
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
+                    return (
+                      <TableRow
+                        isLast={isLast}
+                        customer={customer}
+                        key={customer._id || index}
+                        toggleBlockUnBlockModal={toggleBlockUnBlockModal}
+                      />
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* Mobile: stacked card view */}
+          <div className="block md:hidden">
+            {customers && customers.map((customer, index) => (
+              <div key={customer._id || index} className="px-4 py-4 border-b last:border-b-0">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">{getInitials(customer)}</div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{(customer.firstName || customer.lastName) ? `${(customer.firstName || '')} ${(customer.lastName || '')}`.trim() : customer.email}</div>
+                      <div className="text-xs text-gray-500">{customer.email}</div>
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-gray-500">{customer.createdAt ? new Date(customer.createdAt).toLocaleDateString() : '—'}</div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${customer.role === 'admin' ? 'bg-indigo-100 text-indigo-700' : customer.role === 'superAdmin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
+                      {customer.role ? (customer.role === 'superAdmin' ? 'SuperAdmin' : customer.role.charAt(0).toUpperCase() + customer.role.slice(1)) : 'User'}
+                    </div>
+                    <div className="text-sm text-gray-700">{customer.phoneNumber || '-'}</div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Hide actions for plain users - no role editing needed */}
+                    {(customer.role && customer.role !== 'user') ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleBlockUnBlockModal({ id: customer._id, status: customer.isActive, role: customer.role });
+                        }}
+                        className="text-sm px-3 py-1 rounded border border-gray-200 bg-white hover:shadow-sm"
+                      >
+                        Actions
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400">&mdash;</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="py-5">
           <Pagination

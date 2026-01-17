@@ -231,7 +231,7 @@ console.log(formData);
       {/* Product edit page */}
       <div className="p-5 w-full overflow-y-scroll text-sm">
         {/* Top Bar */}
-        <div className="flex justify-between items-center font-semibold">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center font-semibold gap-3 md:gap-0">
           <div>
             <h1 className="font-bold text-2xl">Edit Stocks</h1>
             {/* Bread Crumbs */}
@@ -239,16 +239,16 @@ console.log(formData);
               list={["Dashboard", "Enquiry", "Edit Stocks"]}
             />
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
-              className="admin-button-fl bg-gray-200 text-blue-700"
+              className="admin-button-fl w-full md:w-auto bg-gray-200 text-blue-700"
               onClick={() => navigate(-1)}
             >
               <AiOutlineClose />
               Cancel
             </button>
             <button
-              className="admin-button-fl bg-blue-700 text-white"
+              className="admin-button-fl w-full md:w-auto bg-blue-700 text-white"
               onClick={toggleConfirm}
             >
               <AiOutlineSave />

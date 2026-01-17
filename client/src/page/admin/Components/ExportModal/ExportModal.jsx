@@ -65,7 +65,7 @@ const ExportModal = ({ toggleExportModal }) => {
 
       <div className="mt-4">
         <h3 className="text-sm font-medium text-gray-700 mb-2">Date range</h3>
-        <div className="flex gap-3">
+  <div className="flex flex-wrap gap-3">
           <button
             onClick={() => changeSelectedDate("all")}
             className={`px-3 py-2 rounded-md border ${
@@ -110,7 +110,7 @@ const ExportModal = ({ toggleExportModal }) => {
 
       <div className="mt-5">
         <h3 className="text-sm font-medium text-gray-700 mb-2">File type</h3>
-        <div className="flex gap-3">
+  <div className="flex flex-wrap gap-3">
           <TypeButton value="excel">
             <FiFileText /> Excel
           </TypeButton>
@@ -123,16 +123,16 @@ const ExportModal = ({ toggleExportModal }) => {
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-end gap-3">
+      <div className="mt-6 flex flex-wrap items-center justify-end gap-3">
         <button
           onClick={toggleExportModal}
-          className="px-4 py-2 rounded-md border bg-white text-gray-700"
+          className="w-full sm:w-auto px-4 py-2 rounded-md border bg-white text-gray-700"
         >
           Cancel
         </button>
         <button
           onClick={handleDownload}
-          className="px-4 py-2 rounded-md bg-gradient-to-r from-green-600 to-green-500 text-white flex items-center gap-2"
+          className="w-full sm:w-auto px-4 py-2 rounded-md bg-gradient-to-r from-green-600 to-green-500 text-white flex items-center gap-2 justify-center"
         >
           <FiDownload />
           Download

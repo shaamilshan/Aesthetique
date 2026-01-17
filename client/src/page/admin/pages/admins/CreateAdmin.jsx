@@ -65,17 +65,17 @@ const CreateAdmin = () => {
   };
 
   return (
-  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
-      <div className="flex justify-between items-center text-sm font-semibold">
+  <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center text-sm font-semibold gap-3 md:gap-0">
         <div>
           <h1 className="font-bold text-2xl">Manage Admins</h1>
           <BreadCrumbs
             list={["Dashboard", "Admins List", "Create new Admin"]}
           />
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
-            className="admin-button-fl bg-gray-200 text-blue-700"
+            className="admin-button-fl w-full md:w-auto bg-gray-200 text-blue-700"
             onClick={() => navigate(-1)}
           >
             <AiOutlineClose />

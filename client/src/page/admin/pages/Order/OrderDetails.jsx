@@ -71,7 +71,7 @@ const OrderDetails = () => {
   };
 
   return (
-  <div className="p-5 w-full min-h-screen overflow-visible text-sm">
+  <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
       <div className="xy-center font-semibold">
         <div>
           <h1 className="font-bold text-2xl">Orders Details</h1>
