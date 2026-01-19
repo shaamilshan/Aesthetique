@@ -217,6 +217,45 @@ export default function TestimonialSection({ id }) {
     return () => track.removeEventListener('transitionend', onTransitionEnd);
   }, [len]);
 
+  // manual navigation (prev/next) handlers for both mobile and desktop
+  const goPrev = (e) => {
+    e?.stopPropagation();
+    if (isMobile) {
+      setActiveIndex((i) => ((i - 1) % len + len) % len);
+    } else {
+      setStepIndex((s) => (s - 1 + len) % len);
+    }
+    // pause autoplay briefly after manual interaction
+    setPaused(true);
+    clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => setPaused(false), 2500);
+  };
+
+  const goNext = (e) => {
+    e?.stopPropagation();
+    if (isMobile) {
+      setActiveIndex((i) => (i + 1) % len);
+    } else {
+      setStepIndex((s) => (s + 1) % len);
+    }
+    setPaused(true);
+    clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => setPaused(false), 2500);
+  };
+
+  const goTo = (index) => {
+    // index is 0..len-1
+    if (isMobile) {
+      setActiveIndex(((index % len) + len) % len);
+    } else {
+      // for desktop stepIndex corresponds to slot position
+      setStepIndex(((index % len) + len) % len);
+    }
+    setPaused(true);
+    clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => setPaused(false), 2500);
+  };
+
   return (
   // allow vertical overflow so card tops/bottoms aren't clipped;
   // increase vertical padding so tall cards have room; left gradient removed per request
@@ -234,7 +273,7 @@ export default function TestimonialSection({ id }) {
       </div>
 
       {/* Full-width cards area */}
-      {isMobile ? (
+  {isMobile ? (
         // Mobile: single centered card with swipe support
         <div
           className="w-full px-4"
@@ -264,6 +303,21 @@ export default function TestimonialSection({ id }) {
                 </div>
               );
             })()}
+            {/* Pagination dots for mobile */}
+            <div className="flex justify-center gap-2 mt-4">
+              {testimonials.map((_, i) => {
+                const idx = ((activeIndex % len) + len) % len;
+                const active = idx === i;
+                return (
+                  <button
+                    key={`dot-mobile-${i}`}
+                    onClick={(e) => { e.stopPropagation(); goTo(i); }}
+                    aria-label={`Go to testimonial ${i + 1}`}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${active ? 'bg-black scale-110' : 'bg-gray-300 hover:bg-gray-500'}`}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
       ) : (
@@ -273,6 +327,24 @@ export default function TestimonialSection({ id }) {
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
+          {/* Pagination dots for desktop (centered) */}
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-6 z-40">
+            <div className="flex gap-3">
+              {testimonials.map((_, i) => {
+                // determine active by stepIndex modulo len
+                const idx = ((stepIndex % len) + len) % len;
+                const active = idx === i;
+                return (
+                  <button
+                    key={`dot-desktop-${i}`}
+                    onClick={(e) => { e.stopPropagation(); goTo(i); }}
+                    aria-label={`Go to testimonials starting at ${i + 1}`}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${active ? 'bg-black scale-110' : 'bg-gray-300 hover:bg-gray-500'}`}
+                  />
+                );
+              })}
+            </div>
+          </div>
           {/* JS-driven step marquee: moves one card per interval (5s) with a smooth transition */}
           <div className="w-full overflow-hidden">
             <div

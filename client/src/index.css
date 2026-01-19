@@ -199,6 +199,23 @@ body,
   @apply border-2 text-blue-600 hover:text-blue-200 uppercase text-sm border-blue-600 px-5 font-semibold lg:px-12 py-3 rounded-lg hover:bg-blue-700;
 }
 
+/* Custom slick dots styling to match compact site design */
+.slick-dots {
+  bottom: 1rem; /* lift dots a bit inside banner */
+}
+.slick-dots li button {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border-radius: 9999px;
+  background: #d1d5db; /* tailwind gray-300 */
+  border: 0;
+}
+.slick-dots li.slick-active button {
+  background: #000; /* active black */
+  transform: scale(1.1);
+}
+
 .btn-red-border {
   /* border variant using black as primary */
   @apply border-2 text-black uppercase text-sm border-black px-5 font-semibold lg:px-12 py-3 rounded-lg hover:bg-black hover:text-white;
