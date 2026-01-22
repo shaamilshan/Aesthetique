@@ -237,6 +237,12 @@ const BuyNow = () => {
       return;
     }
 
+    if (selectedPayment === "cashOnDelivery") {
+      // Save order with Cash on Delivery
+      saveOrderOnCashDeliveryOrMyWallet();
+      return;
+    }
+
     // If we reach here, payment method is invalid
     toast.error("Invalid payment method selected.");
   };
@@ -254,7 +260,7 @@ const BuyNow = () => {
             />
             <div className="bg-white my-5 p-5 rounded">
               <h1 className="text-xl font-semibold border-b pb-2 mb-3">
-                Payment Option 
+                Payment Option
               </h1>
               <CheckoutPaymentOption
                 handleSelectedPayment={handleSelectedPayment}

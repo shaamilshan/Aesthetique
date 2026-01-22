@@ -50,12 +50,54 @@ const Checkout = () => {
 
   // Page switching
   const [orderPlacedLoading, setOrderPlacedLoading] = useState(false);
-  
+
   // Order confirmation state
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [orderData, setOrderData] = useState({});
 
-  // Wallet removed: non-Razorpay payments are not supported here
+  // Cash on Delivery order
+  const saveOrderOnCashOnDelivery = async () => {
+    setOrderPlacedLoading(true);
+
+    try {
+      const orderResponse = await axios.post(
+        `${URL}/user/order`,
+        {
+          notes: additionalNotes,
+          address: selectedAddress,
+          paymentMode: "cashOnDelivery",
+        },
+        config
+      );
+
+      const { order } = orderResponse.data;
+
+      // Format order data for the confirmation page
+      const formattedOrderData = {
+        orderId: order.orderId || order._id,
+        _id: order._id,
+        totalPrice: order.totalPrice.toFixed(2),
+        deliveryDate: order.deliveryDate,
+      };
+
+      // Updating user side
+      toast.success("Order Placed Successfully!");
+      dispatch(clearCartOnOrderPlaced());
+
+      // Show confirmation UI
+      setOrderData(formattedOrderData);
+      setOrderConfirmed(true);
+      setOrderPlacedLoading(false);
+    } catch (error) {
+      console.error("Order placement error:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        "Something went wrong. Please try again.";
+      toast.error(errorMessage);
+      setOrderPlacedLoading(false);
+    }
+  };
+
 
   // Razor Pay payment
   // Saving the order to db
@@ -94,12 +136,12 @@ const Checkout = () => {
       // Updating user side
       toast.success("Order Placed");
       dispatch(clearCartOnOrderPlaced());
-      
+
       // Show confirmation UI
       setOrderData(formattedOrderData);
       setOrderConfirmed(true);
       setOrderPlacedLoading(false);
-      
+
     } catch (error) {
       // Error Handling
       console.error("Order placement error:", error);
@@ -135,7 +177,7 @@ const Checkout = () => {
         currency: "INR",
         name: "BM AESTHETIQUE",
         description: "Test Transaction",
-      // No logo passed to Razorpay (intentionally left blank to avoid PNA/CORS issues)
+        // No logo passed to Razorpay (intentionally left blank to avoid PNA/CORS issues)
         order_id: order.id,
         handler: function (response) {
           saveOrder(response);
@@ -199,7 +241,11 @@ const Checkout = () => {
       return;
     }
 
-    // Removed Cash on Delivery logic
+    if (selectedPayment === "cashOnDelivery") {
+      saveOrderOnCashOnDelivery();
+      return;
+    }
+
     toast.error("Invalid payment method selected.");
   };
 
@@ -259,10 +305,10 @@ const Checkout = () => {
 
               <div className="lg:flex lg:flex-col lg:h-full lg:gap-6">
                 <div className="bg-white shadow-sm rounded-lg p-6 mb-6 lg:mb-0 lg:flex-1">
-                <AddressCheckoutSession
-                  selectedAddress={selectedAddress}
-                  setSelectedAddress={setSelectedAddress}
-                />
+                  <AddressCheckoutSession
+                    selectedAddress={selectedAddress}
+                    setSelectedAddress={setSelectedAddress}
+                  />
                 </div>
 
                 <div className="bg-white shadow-sm rounded-lg p-6 mb-6 lg:mb-0 lg:flex-1">
@@ -282,14 +328,14 @@ const Checkout = () => {
             {/* Order Summary Session */}
             <aside className="w-full lg:w-96 mt-6 lg:mt-0">
               <div className="bg-white shadow sticky top-28 rounded-lg p-6 border border-gray-100">
-                  {/* Voucher section placed above order summary for quick access */}
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
-                    <div className="bg-white">
-                      <VoucherCodeSection />
-                    </div>
+                {/* Voucher section placed above order summary for quick access */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
+                  <div className="bg-white">
+                    <VoucherCodeSection />
                   </div>
-                  <h3 className="font-semibold text-lg mb-3">Order Summary</h3>
+                </div>
+                <h3 className="font-semibold text-lg mb-3">Order Summary</h3>
                 <div className="divide-y divide-gray-100 space-y-3 mb-3">
                   <div className="pt-1 pb-3">
                     {cart && cart.map((item, index) => (
@@ -313,17 +359,17 @@ const Checkout = () => {
           {/* Full width Additional Notes */}
           <div className="max-w-6xl mx-auto mt-6">
             <div className="bg-white shadow-sm rounded-lg p-6 border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Delivery instructions (optional)</h3>
-                <textarea
-                  aria-label="Delivery instructions"
-                  placeholder="Delivery instructions (optional) — e.g. gate code, preferred drop-off spot"
-                  className="w-full h-40 px-4 py-3 outline-none rounded-lg resize-none border border-gray-100 bg-gray-50"
-                  value={additionalNotes}
-                  onChange={(e) => {
-                    setAdditionalNotes(e.target.value);
-                  }}
-                ></textarea>
-              </div>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Delivery instructions (optional)</h3>
+              <textarea
+                aria-label="Delivery instructions"
+                placeholder="Delivery instructions (optional) — e.g. gate code, preferred drop-off spot"
+                className="w-full h-40 px-4 py-3 outline-none rounded-lg resize-none border border-gray-100 bg-gray-50"
+                value={additionalNotes}
+                onChange={(e) => {
+                  setAdditionalNotes(e.target.value);
+                }}
+              ></textarea>
+            </div>
           </div>
 
         </div>
