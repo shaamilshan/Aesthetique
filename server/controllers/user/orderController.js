@@ -136,6 +136,10 @@ const createOrder = async (req, res) => {
 
     const { address, paymentMode, notes } = req.body;
 
+    if (paymentMode === "cashOnDelivery") {
+      throw Error("Cash on Delivery is currently disabled. Please choose another payment method.");
+    }
+
     const addressData = await Address.findOne({ _id: address });
 
     const cart = await Cart.findOne({ user: _id }).populate("items.product", {
@@ -701,6 +705,10 @@ const orderCount = async (req, res) => {
 const buyNow = async (req, res) => {
   try {
     const { address, paymentMode, notes, quantity } = req.body;
+
+    if (paymentMode === "cashOnDelivery") {
+      throw Error("Cash on Delivery is currently disabled. Please choose another payment method.");
+    }
 
     // User Id
     const token = req.cookies.user_token;

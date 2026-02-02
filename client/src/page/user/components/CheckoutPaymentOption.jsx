@@ -32,7 +32,7 @@ const CheckoutPaymentOption = ({ selectedPayment, handleSelectedPayment }) => {
         </label>
 
         {/* Cash on Delivery Option */}
-        <label className="cursor-pointer">
+        {/* <label className="cursor-pointer">
           <div className={`border p-4 rounded-lg hover:shadow-md transition-shadow flex items-start gap-3 ${selectedPayment === 'cashOnDelivery' ? 'ring-2 ring-black' : ''}`}>
             <div className="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-md border">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -56,7 +56,7 @@ const CheckoutPaymentOption = ({ selectedPayment, handleSelectedPayment }) => {
               />
             </div>
           </div>
-        </label>
+        </label> */}
       </div>
 
       {/* Optional wallet display (kept commented out) */}

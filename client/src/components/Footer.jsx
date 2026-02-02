@@ -76,7 +76,7 @@ function Footer() {
           <div>
             <h4 className="text-lg font-medium mb-4">Help</h4>
             <ul className="space-y-2">
-              <li><a href="/" className="hover:text-gray-700">Payment Options</a></li>
+              {/* <li><a href="/" className="hover:text-gray-700">Payment Options</a></li> */}
               <li><a href="https://merchant.razorpay.com/policy/RnRbtSskV6hPhM/refund" className="hover:text-gray-700">Cancellations and Refunds</a></li>
               <li><a href="https://merchant.razorpay.com/policy/RnRbtSskV6hPhM/terms" className="hover:text-gray-700">Terms and Conditions</a></li>
               <li><a href="https://merchant.razorpay.com/policy/RnRbtSskV6hPhM/privacy" className="hover:text-gray-700">Privacy Policy</a></li>

@@ -241,11 +241,6 @@ const Checkout = () => {
       return;
     }
 
-    if (selectedPayment === "cashOnDelivery") {
-      saveOrderOnCashOnDelivery();
-      return;
-    }
-
     toast.error("Invalid payment method selected.");
   };
 

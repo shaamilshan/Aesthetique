@@ -237,11 +237,7 @@ const BuyNow = () => {
       return;
     }
 
-    if (selectedPayment === "cashOnDelivery") {
-      // Save order with Cash on Delivery
-      saveOrderOnCashDeliveryOrMyWallet();
-      return;
-    }
+    // Cash on Delivery removed
 
     // If we reach here, payment method is invalid
     toast.error("Invalid payment method selected.");
