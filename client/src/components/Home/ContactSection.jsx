@@ -216,7 +216,7 @@ export default function ContactSection({ id }) {
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2">Call Center</h4>
-                  <div className="mt-1"><a href="tel:8137011855" className="text-blue-600 hover:underline"> +91 837011855</a></div>
+                  <div className="mt-1"><a href="tel:7539995287" className="text-blue-600 hover:underline"> +91 7539995287</a></div>
                 </div>
 
 
@@ -227,10 +227,10 @@ export default function ContactSection({ id }) {
                 <div>
                   <h4 className="font-semibold mb-2">Social</h4>
                   <div className="flex items-center gap-3 mt-1">
-                    <a href="#" className="text-gray-500 hover:text-gray-800"><FaInstagram /></a>
-                    <a href="#" className="text-gray-500 hover:text-gray-800"><FaFacebookF /></a>
+                    <a href="https://www.instagram.com/bmaesthetique/" className="text-gray-500 hover:text-gray-800"><FaInstagram /></a>
+                    <a href="https://www.facebook.com/profile.php?id=61584575857162&sk=about" className="text-gray-500 hover:text-gray-800"><FaFacebookF /></a>
                     {/* <a href="#" className="text-gray-500 hover:text-gray-800"><FaLinkedinIn /></a> */}
-                    <a href="https://wa.me/918137011855" className="text-gray-500 hover:text-gray-800"><FaWhatsapp /></a>
+                    <a href="https://wa.me/7539995287" className="text-gray-500 hover:text-gray-800"><FaWhatsapp /></a>
                   </div>
                 </div>
               </div>

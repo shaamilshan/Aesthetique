@@ -11,7 +11,7 @@ const Coupon = require("../../model/couponModel");
 const { generateInvoicePDF } = require("../Common/invoicePDFGenFunctions");
 const Counter = require("../../model/counterModel");
 const managerOrderModel = require("../../model/managerOrderModel");
-const { sendOrderPlacedMail } = require("../../util/mailFunction");
+const { sendOrderPlacedMail, sendAdminOrderNotification } = require("../../util/mailFunction");
 
 // // Just the function increment or decrement product count
 // const updateProductList = async (id, count) => {
@@ -186,7 +186,7 @@ const createOrder = async (req, res) => {
           status: "pending",
         },
       ],
-  ...(notes ? { notes } : {}),
+      ...(notes ? { notes } : {}),
       ...(cart.coupon ? { coupon: cart.coupon } : {}),
       ...(cart.couponCode ? { couponCode: cart.couponCode } : {}),
       ...(cart.discount ? { discount: cart.discount } : {}),
@@ -241,33 +241,55 @@ const createOrder = async (req, res) => {
 
     // Try to send confirmation email to user (non-blocking) and attach invoice
     try {
-      const populated = await Order.findById(order._id).populate("user", { firstName: 1, lastName: 1, email: 1 }).populate("products.productId", { name: 1, price: 1 });
+      const populated = await Order.findById(order._id)
+        .populate("user", { firstName: 1, lastName: 1, email: 1, phoneNumber: 1 })
+        .populate("products.productId", { name: 1, price: 1 });
       const userEmail = populated?.user?.email;
       const customerName = `${populated?.user?.firstName || ''} ${populated?.user?.lastName || ''}`.trim();
+
+      const adminEmail = 'help.bmaesthetique@gmail.com';
+      const productsForMail = (populated.products || []).map((p) => ({
+        name: p.productId?.name || '',
+        quantity: p.quantity,
+        price: p.price
+      }));
+      const orderNumber = populated.orderId || populated._id;
+      const totalPrice = populated.totalPrice || '';
+      const addressString = populated.address ?
+        `${populated.address.firstName || ''} ${populated.address.lastName || ''}, ${populated.address.address || ''}, ${populated.address.city || ''}, ${populated.address.regionState || ''}, ${populated.address.country || ''} - ${populated.address.pinCode || ''}. Ph: ${populated.address.phoneNumber || ''}` :
+        'Address not available';
+
+      // Send to Admin
+      sendAdminOrderNotification(adminEmail, {
+        customerName: customerName || 'Customer',
+        orderNumber,
+        totalPrice,
+        products: productsForMail,
+        address: addressString
+      }).catch((err) => console.error('Failed to send admin order notification', err));
+
       if (userEmail) {
         try {
           // generate invoice PDF and attach
           const pdfBuffer = await generateInvoicePDF(populated);
-          // Prepare products array for the email table
-          const productsForMail = (populated.products || []).map((p) => ({ name: p.productId?.name || '', quantity: p.quantity, price: p.price }));
+
           sendOrderPlacedMail(
             userEmail,
             {
               customerName: customerName || 'Customer',
-              orderNumber: populated.orderId || populated._id,
-              totalPrice: populated.totalPrice || '',
+              orderNumber,
+              totalPrice,
               products: productsForMail,
             },
-            [{ filename: `invoice_${populated.orderId || populated._id}.pdf`, content: pdfBuffer }]
+            [{ filename: `invoice_${orderNumber}.pdf`, content: pdfBuffer }]
           ).catch((err) => console.error('Failed to send order-placed email', err));
         } catch (err) {
           console.error('Failed to generate invoice or send order-placed email:', err);
           // Still attempt to send without attachment
-          const productsForMail = (populated.products || []).map((p) => ({ name: p.productId?.name || '', quantity: p.quantity, price: p.price }));
           sendOrderPlacedMail(userEmail, {
             customerName: customerName || 'Customer',
-            orderNumber: populated.orderId || populated._id,
-            totalPrice: populated.totalPrice || '',
+            orderNumber,
+            totalPrice,
             products: productsForMail,
           }).catch((err) => console.error('Failed to send order-placed email (no attach)', err));
         }
@@ -700,8 +722,8 @@ const buyNow = async (req, res) => {
       throw Error("Insufficient Quantity");
     }
 
-  const sum = product.price * quantity;
-  const sumWithTax = parseInt(sum);
+    const sum = product.price * quantity;
+    const sumWithTax = parseInt(sum);
     // const sumWithTax = parseInt(sum + sum * 0.08);
 
     // Request Body
@@ -725,7 +747,7 @@ const buyNow = async (req, res) => {
       user: _id,
       address: addressData,
       products: products,
-  subTotal: sum,
+      subTotal: sum,
       // tax: parseInt(sum * 0.08),
       tax: 0, // No tax
       totalPrice: sumWithTax,
@@ -736,7 +758,7 @@ const buyNow = async (req, res) => {
           status: "pending",
         },
       ],
-  ...(notes ? { notes } : {}),
+      ...(notes ? { notes } : {}),
       // ...(cart.coupon ? { coupon: cart.coupon } : {}),
       // ...(cart.couponCode ? { couponCode: cart.couponCode } : {}),
       // ...(cart.discount ? { discount: cart.discount } : {}),
@@ -746,6 +768,62 @@ const buyNow = async (req, res) => {
     await updateProductList(id, -quantity, new Map());
 
     const order = await Order.create(orderData);
+
+    // Try to send confirmation email (non-blocking)
+    try {
+      const populated = await Order.findById(order._id)
+        .populate("user", { firstName: 1, lastName: 1, email: 1, phoneNumber: 1 })
+        .populate("products.productId", { name: 1, price: 1 });
+      const userEmail = populated?.user?.email;
+      const customerName = `${populated?.user?.firstName || ''} ${populated?.user?.lastName || ''}`.trim();
+
+      const adminEmail = 'help.bmaesthetique@gmail.com';
+      const productsForMail = (populated.products || []).map((p) => ({
+        name: p.productId?.name || '',
+        quantity: p.quantity,
+        price: p.price
+      }));
+      const orderNumber = populated.orderId || populated._id;
+      const totalPrice = populated.totalPrice || '';
+      const addressString = populated.address ?
+        `${populated.address.firstName || ''} ${populated.address.lastName || ''}, ${populated.address.address || ''}, ${populated.address.city || ''}, ${populated.address.regionState || ''}, ${populated.address.country || ''} - ${populated.address.pinCode || ''}. Ph: ${populated.address.phoneNumber || ''}` :
+        'Address not available';
+
+      // Send to Admin
+      sendAdminOrderNotification(adminEmail, {
+        customerName: customerName || 'Customer',
+        orderNumber,
+        totalPrice,
+        products: productsForMail,
+        address: addressString
+      }).catch((err) => console.error('Failed to send admin order notification', err));
+
+      if (userEmail) {
+        try {
+          const pdfBuffer = await generateInvoicePDF(populated);
+          sendOrderPlacedMail(
+            userEmail,
+            {
+              customerName: customerName || 'Customer',
+              orderNumber,
+              totalPrice,
+              products: productsForMail,
+            },
+            [{ filename: `invoice_${orderNumber}.pdf`, content: pdfBuffer }]
+          ).catch((err) => console.error('Failed to send order-placed email', err));
+        } catch (err) {
+          console.error('Failed to generate invoice or send order-placed email:', err);
+          sendOrderPlacedMail(userEmail, {
+            customerName: customerName || 'Customer',
+            orderNumber,
+            totalPrice,
+            products: productsForMail,
+          }).catch((err) => console.error('Failed to send order-placed email (no attach)', err));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to trigger order emails in buyNow:', err);
+    }
 
     // When payment is done using wallet reducing the wallet and creating payment
     if (paymentMode === "myWallet") {

@@ -35,6 +35,8 @@ const {
   clearOrder,
   updateOrderStatus,
   generateOrderInvoice,
+  getUnreadOrderCount,
+  markOrderAsRead,
 } = require("../controllers/admin/orderController");
 const {
   generateOrderExcel,
@@ -120,6 +122,8 @@ router.post("/category", requirePermission("categories:add"), (req, res, next) =
 }, createCategory);
 
 // Order controller functions mounting them to corresponding route
+router.get("/unread-orders-count", getUnreadOrderCount);
+router.patch("/order-mark-read/:id", markOrderAsRead);
 router.get("/orders", getOrders);
 router.get("/latest-orders", getLatestOrders);
 router.delete("/clear-orders", clearOrder);

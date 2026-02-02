@@ -111,7 +111,7 @@ function Footer() {
             <div className="font-semibold">BEST MED AESTHETIQUE PVT LTD</div>
             <div className="mt-1">2nd floor, No-16, Alex Square, opposite to Amirtha School, Ettimadai, Coimbatore, Tamil Nadu</div>
             <div className="mt-1">PIN CODE - 641112</div>
-            <div className="mt-1">phone no : <a href="tel:8137011855" className="text-blue-600 hover:underline">81370 11855</a></div>
+            <div className="mt-1">PHONE NO : <a href="tel:7539995287" className="text-blue-600 hover:underline">7539995287</a></div>
           </div>
         </div>
       </div>

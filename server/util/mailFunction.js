@@ -128,9 +128,8 @@ const sendEnquiryMail = async (email, enquiryData) => {
                       <p><strong>Stock Quantity:</strong> ${stockQuantity}</p>
                       <p><strong>Status:</strong> ${status}</p>
                       <p><strong>Markup:</strong> ${markup}</p>
-                      <p><strong>Attributes:</strong> ${
-                        attributes ? JSON.stringify(attributes) : "N/A"
-                      }</p>
+                      <p><strong>Attributes:</strong> ${attributes ? JSON.stringify(attributes) : "N/A"
+    }</p>
                      
                   </div>
                       <a href="http://localhost:5173/manager/enquiries" target="_blank" class="view-button">View</a>
@@ -678,6 +677,92 @@ const sendOrderPlacedMail = async (email, data = {}, attachments = []) => {
   console.log('Order-placed email sent:', mailResponse);
 };
 
+/**
+ * Send new order notification to admin
+ * data: { customerName, orderNumber, totalPrice, products, address }
+ */
+const sendAdminOrderNotification = async (adminEmail, data = {}) => {
+  const {
+    customerName = 'Customer',
+    orderNumber = '',
+    totalPrice = '',
+    products = [],
+    address = ''
+  } = data;
+
+  const subject = `New Order Received - #${orderNumber}`;
+
+  const itemsRowsHtml = products
+    .map((p) => `<tr>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">${escapeHtml(p.name || 'N/A')}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${escapeHtml(String(p.quantity || '0'))}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${escapeHtml(String(p.price || '0'))}</td>
+    </tr>`)
+    .join("");
+
+  const mailResponse = await mailSender(
+    adminEmail,
+    subject,
+    `<!doctype html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <title>${subject}</title>
+      <style>
+        body{font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial; background:#f7f7fa; margin:0; padding:0}
+        .card{max-width:680px;margin:28px auto;background:#fff;border-radius:8px;padding:28px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+        .brand{font-weight:700;color:#0f172a;text-align:center;font-size:20px;margin-bottom:8px}
+        .lead{color:#111827;font-size:16px;line-height:1.5;margin-bottom:20px}
+        .section{margin:20px 0;padding:16px;background:#f9fafb;border-radius:6px;border:1px solid #eef2f7}
+        .table{width:100%;border-collapse:collapse;margin-top:10px}
+        .footer{margin-top:25px;padding-top:15px;border-top:1px solid #eee;color:#6b7280;font-size:13px;text-align:center}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="brand">BM Aesthetique - Admin Notification</div>
+        <p class="lead">A new order has been placed on the website.</p>
+        
+        <div class="section">
+          <p><strong>Order Details:</strong></p>
+          <p>Order Number: #${escapeHtml(orderNumber)}</p>
+          <p>Customer Name: ${escapeHtml(customerName)}</p>
+          <p>Total Revenue: ₹${escapeHtml(String(totalPrice))}</p>
+        </div>
+
+        <div class="section">
+          <p><strong>Shipping Address:</strong></p>
+          <p>${escapeHtml(address) || 'N/A'}</p>
+        </div>
+
+        <div class="section">
+          <p><strong>Ordered Products:</strong></p>
+          <table class="table">
+            <thead>
+              <tr style="background: #f3f4f6;">
+                <th style="padding: 10px; text-align: left;">Product</th>
+                <th style="padding: 10px; text-align: center;">Qty</th>
+                <th style="padding: 10px; text-align: right;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsRowsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="footer">
+          <p>This is an automated notification from your store system.</p>
+          <p>&copy; ${new Date().getFullYear()} BM Aesthetique. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>`
+  );
+  console.log('Admin order notification sent:', mailResponse);
+};
+
 module.exports = {
   sendOTPMail,
   passwordChangedMail,
@@ -687,6 +772,7 @@ module.exports = {
   sendOrderShippedMail,
   sendOrderDeliveredMail,
   sendOrderPlacedMail,
+  sendAdminOrderNotification,
 };
 
 // NOTE: add sendOrderPlacedMail for order creation notifications

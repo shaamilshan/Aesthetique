@@ -30,6 +30,15 @@ const OrderDetails = () => {
         if (res) {
           setOrderData(res.data.order);
           setLoading(false);
+
+          // Mark order as read when viewed
+          try {
+            await axios.patch(`${URL}/admin/order-mark-read/${id}`, {}, {
+              withCredentials: true,
+            });
+          } catch (markReadError) {
+            console.error("Failed to mark order as read:", markReadError);
+          }
         }
       } catch (error) {
         setLoading(false);
@@ -37,7 +46,7 @@ const OrderDetails = () => {
       }
     };
     loadInitialData();
-  }, []);
+  }, [id]);
 
   // Downloading invoice
   const handleGenerateInvoice = async () => {
@@ -71,7 +80,7 @@ const OrderDetails = () => {
   };
 
   return (
-  <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
+    <div className="p-5 w-full min-h-screen overflow-x-hidden md:overflow-visible text-sm">
       <div className="xy-center font-semibold">
         <div>
           <h1 className="font-bold text-2xl">Orders Details</h1>

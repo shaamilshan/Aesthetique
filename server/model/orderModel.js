@@ -119,7 +119,7 @@ const OrderSchema = new Schema(
     },
     trackingId: {
       type: String,
-      default:""
+      default: ""
     },
     status: {
       type: String,
@@ -187,6 +187,10 @@ const OrderSchema = new Schema(
     },
     couponType: {
       type: String,
+    },
+    isRead: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

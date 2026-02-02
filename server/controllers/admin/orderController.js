@@ -160,11 +160,11 @@ const getOrders = async (req, res) => {
 const getManagerOrders = async (req, res) => {
   try {
     console.log(req.params.id);
-    
+
     const orders = await managerOrderModel.find({ managerId: req.params.id });
     console.log("orders");
     console.log(orders);
-    
+
     const totalAvailableOrders = orders.length;
 
     res.status(200).json({ orders, totalAvailableOrders });
@@ -178,14 +178,14 @@ const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     console.log(req.body);
-    
+
     let find = {};
     if (mongoose.Types.ObjectId.isValid(id)) {
       find._id = id;
     } else {
       find.orderId = id;
     }
-    const { status, description, date, paymentStatus,trackingId } = req.body;
+    const { status, description, date, paymentStatus, trackingId } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw Error("Invalid ID!!!");
@@ -321,55 +321,55 @@ const updateOrderStatus = async (req, res) => {
 const generateOrderInvoice = async (req, res) => {
   try {
 
-//     const Recipient = require("mailersend").Recipient;
-// const EmailParams = require("mailersend").EmailParams;
-// const MailerSend = require("mailersend");
+    //     const Recipient = require("mailersend").Recipient;
+    // const EmailParams = require("mailersend").EmailParams;
+    // const MailerSend = require("mailersend");
 
-// const mailersend = new MailerSend({
-//   apiKey: "mlsn.8f84babf8e239be21d64fa2fecbac1b427eec82d1e3fb9f8d7b7a584d387e26b",
-// });
+    // const mailersend = new MailerSend({
+    //   apiKey: "mlsn.8f84babf8e239be21d64fa2fecbac1b427eec82d1e3fb9f8d7b7a584d387e26b",
+    // });
 
-// const recipients = [new Recipient("govindhans10@gmail.com", "Govind")];
+    // const recipients = [new Recipient("govindhans10@gmail.com", "Govind")];
 
-// const emailParams = new EmailParams()
-//   .setFrom("info@domain.com")
-//   .setFromName("Your Name")
-//   .setRecipients(recipients)
-//   .setSubject("Subject")
-//   .setHtml("Greetings from the team, you got this message through MailerSend.")
-//   .setText("Greetings from the team, you got this message through MailerSend.");
+    // const emailParams = new EmailParams()
+    //   .setFrom("info@domain.com")
+    //   .setFromName("Your Name")
+    //   .setRecipients(recipients)
+    //   .setSubject("Subject")
+    //   .setHtml("Greetings from the team, you got this message through MailerSend.")
+    //   .setText("Greetings from the team, you got this message through MailerSend.");
 
-// mailersend.send(emailParams);
+    // mailersend.send(emailParams);
 
-//     var nodemailer = require("nodemailer");
+    //     var nodemailer = require("nodemailer");
 
-    
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.mailersend.net",
-//   port: 587,
-//   secure: false, // true for port 465, false for other ports
-//   auth: {
-//     user: "MS_R5fALu@trial-v69oxl5nxddl785k.mlsender.net",
-//     pass: "oPcQ1mNZ7tHAVwnu",
-//   },
-// });
 
-// // async..await is not allowed in global scope, must use a wrapper
-// async function main() {
-//   // send mail with defined transport object
-//   const info = await transporter.sendMail({
-//     from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
-//     to: "govindhans10@gmail.com", // list of receivers
-//     subject: "Hello ✔", // Subject line
-//     text: "Hello world?", // plain text body
-//     html: "<b>Hello world?</b>", // html body
-//   });
+    // const transporter = nodemailer.createTransport({
+    //   host: "smtp.mailersend.net",
+    //   port: 587,
+    //   secure: false, // true for port 465, false for other ports
+    //   auth: {
+    //     user: "MS_R5fALu@trial-v69oxl5nxddl785k.mlsender.net",
+    //     pass: "oPcQ1mNZ7tHAVwnu",
+    //   },
+    // });
 
-//   console.log("Message sent: %s", info.messageId);
-//   // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
-// }
+    // // async..await is not allowed in global scope, must use a wrapper
+    // async function main() {
+    //   // send mail with defined transport object
+    //   const info = await transporter.sendMail({
+    //     from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
+    //     to: "govindhans10@gmail.com", // list of receivers
+    //     subject: "Hello ✔", // Subject line
+    //     text: "Hello world?", // plain text body
+    //     html: "<b>Hello world?</b>", // html body
+    //   });
 
-// main().catch(console.error);
+    //   console.log("Message sent: %s", info.messageId);
+    //   // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
+    // }
+
+    // main().catch(console.error);
 
     // var mailOptions = {
     //   from: "manavalanrockz24@gmail.com",
@@ -405,7 +405,7 @@ const generateOrderInvoice = async (req, res) => {
     res.status(200).send(pdfBuffer);
   } catch (error) {
     console.log(error);
-    
+
     res.status(400).json({ error: error.message, err: "err" });
   }
 };
@@ -455,6 +455,50 @@ const clearOrder = async (req, res) => {
   }
 };
 
+// Get count of unread orders (for super admin notification badge)
+const getUnreadOrderCount = async (req, res) => {
+  try {
+    // Count orders where isRead is false OR isRead field doesn't exist (for existing orders)
+    const count = await Order.countDocuments({
+      $or: [
+        { isRead: false },
+        { isRead: { $exists: false } }
+      ]
+    });
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Mark an order as read when admin opens it
+const markOrderAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    let find = {};
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      find._id = id;
+    } else {
+      find.orderId = id;
+    }
+
+    const order = await Order.findOneAndUpdate(
+      find,
+      { $set: { isRead: true } },
+      { new: true }
+    );
+
+    if (!order) {
+      throw Error("No Such Order");
+    }
+
+    res.status(200).json({ success: true, order });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getOrders,
   getManagerOrders,
@@ -464,4 +508,6 @@ module.exports = {
   updateOrderStatus,
   getOrder,
   generateOrderInvoice,
+  getUnreadOrderCount,
+  markOrderAsRead,
 };

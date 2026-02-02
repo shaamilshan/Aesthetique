@@ -47,9 +47,10 @@ const generateInvoicePDF = async (order) => {
 
       // Header for the PDF - professional layout with logo, company name and contact
       const contactInfo = {
-        email: "bmaesthetique@gmail.com",
-        phone: "+91 12345 12345",
-        addressLine: `Coimbatore, Tamil Nadu\nOpposite Amirtha School`,
+        email: "help.bmaesthetique@gmail.com",
+        phone: "7539995287",
+        gstin: "33AAMCB7228C1ZW",
+        addressLine: "2nd floor, No-16, Alex Square,\nopposite to Amirtha School, Ettimadai,\nCoimbatore, Tamil Nadu\nPIN CODE - 641112",
       };
 
       // Prefer the client-side logo used in the navbar, else fall back to server public logo
@@ -101,34 +102,36 @@ const generateInvoicePDF = async (order) => {
       // Company name / left header (logo already placed at left)
       doc
         .fillColor("#222222")
-        .fontSize(18)
+        .fontSize(14)
         .font("Helvetica-Bold")
-        .text("BM Aesthetique Inc.", 140, 50);
+        .text("BEST MED AESTHETIQUE PRIVATE LIMITED", 140, 50, { width: 200 });
 
       // Contact details on the right (explicitly right-aligned)
       doc
         .fontSize(9)
         .font("Helvetica")
         .fillColor("#444444")
-        .text(contactInfo.email, 350, 50, { align: "right", width: 210 })
-        .text(contactInfo.phone, 350, 66, { align: "right", width: 210 })
-        .text(contactInfo.addressLine, 350, 82, { align: "right", width: 210 });
+        .text("BEST MED AESTHETIQUE PVT LTD", 350, 50, { align: "right", width: 210 })
+        .text(contactInfo.addressLine, 350, 62, { align: "right", width: 210 })
+        .text(`GSTIN NO: ${contactInfo.gstin}`, 350, 110, { align: "right", width: 210 })
+        .text(`PH NO : ${contactInfo.phone}`, 350, 123, { align: "right", width: 210 })
+        .text(contactInfo.email, 350, 136, { align: "right", width: 210 });
 
-      // Draw a subtle separator under header
-      doc.moveTo(50, 125).lineTo(560, 125).lineWidth(0.5).strokeColor("#e6e6e6").stroke();
+      // Draw a subtle separator under header (moved down to accommodate info)
+      doc.moveTo(50, 155).lineTo(560, 155).lineWidth(0.5).strokeColor("#e6e6e6").stroke();
 
       // Invoice title
-      doc.fontSize(20).font("Helvetica-Bold").fillColor("#111111").text("INVOICE", 50, 138);
+      doc.fontSize(20).font("Helvetica-Bold").fillColor("#111111").text("TAX INVOICE", 50, 170);
 
       // Order meta lines below the invoice heading (no outline)
-      const metaTop = 170;
+      const metaTop = 205;
       doc.fillColor("#000").fontSize(10).font("Helvetica");
-      doc.text(`Order ID: ${order?.orderId ? order.orderId : order?._id || ""}`, 50, metaTop);
-      doc.text(`Date: ${order?.createdAt ? moment(new Date(order.createdAt)).format("DD/MM/YYYY") : ""}`, 50, metaTop + 16);
-      doc.text(`Payment: ${order?.paymentMode || ""}`, 50, metaTop + 32);
+      doc.text(`INVOICE NO : ${order?.orderId ? order.orderId : order?._id || ""}`, 50, metaTop);
+      doc.text(`INVOICE DATE : ${order?.createdAt ? moment(new Date(order.createdAt)).format("DD/MM/YYYY") : ""}`, 50, metaTop + 16);
+      doc.text(`PAYMENT MODE : ${order?.paymentMode || ""}`, 50, metaTop + 32);
 
-  // Billing / Shipping block (moved down to create clear gap from payment/meta)
-  const billTop = 230;
+      // Billing / Shipping block (moved down to create clear gap from payment/meta)
+      const billTop = 270;
       doc.fontSize(11).font("Helvetica-Bold").text("Bill To:", 50, billTop);
       doc.fontSize(10).font("Helvetica");
       const billName = (order?.address?.firstName || "") + " " + (order?.address?.lastName || "");
@@ -144,11 +147,10 @@ const generateInvoicePDF = async (order) => {
         doc.fontSize(9).fillColor("#555").text(order.notes, 50, billTop + 100, { width: 260 });
       }
 
-  // Products
-  let i;
-  // Compute table top dynamically so it doesn't overlap the billing/notes area.
-  // Leave at least 120px below the billing top; if notes exist give extra space.
-  const invoiceTableTop = Math.max(330, billTop + (order?.notes ? 160 : 120));
+      // Products
+      let i;
+      // Compute table top dynamically so it doesn't overlap the billing/notes area.
+      const invoiceTableTop = Math.max(370, billTop + (order?.notes ? 160 : 120));
 
       // Table Header
       generateTableRow(
@@ -156,13 +158,13 @@ const generateInvoicePDF = async (order) => {
         invoiceTableTop,
         "SL No",
         "Product Name",
-        "Price",
         "Quantity",
+        "Price",
         "Sub Total"
       );
 
-  // Table body
-  const products = Array.isArray(order?.products) ? order.products : [];
+      // Table body
+      const products = Array.isArray(order?.products) ? order.products : [];
       for (i = 0; i < products.length; i++) {
         const item = products[i];
         const position = invoiceTableTop + (i + 1) * 30;
@@ -172,8 +174,8 @@ const generateInvoicePDF = async (order) => {
           position,
           i + 1,
           item?.productId?.name || "",
-          item?.price ?? "",
           item?.quantity ?? "",
+          item?.price ?? "",
           (item?.price ?? 0) * (item?.quantity ?? 0)
         );
       }
@@ -187,7 +189,7 @@ const generateInvoicePDF = async (order) => {
       const duePosition = paidToDatePosition + 20;
       generateTableRowNoLine(doc, duePosition, "", "", "Total", "", order?.totalPrice ?? "");
 
-  // Totals are shown below the products table (no separate summary box)
+      // Totals are shown below the products table (no separate summary box)
 
       // Footer for the PDF
       doc

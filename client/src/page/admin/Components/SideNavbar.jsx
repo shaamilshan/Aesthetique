@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../../../assets/others/bm-logo.png";
-import { NavLink, useNavigate } from "react-router-dom";
-import { 
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import {
   Home,
   Package,
   Grid3X3,
@@ -18,12 +18,40 @@ import {
 import { Megaphone } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../redux/actions/userActions";
+import axios from "axios";
+import { URL } from "../../../Common/api";
 
 const SideNavbar = () => {
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [unreadOrderCount, setUnreadOrderCount] = useState(0);
+
+  // Fetch unread order count for super admin
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (user?.role === "superAdmin") {
+        try {
+          const res = await axios.get(`${URL}/admin/unread-orders-count`, {
+            withCredentials: true,
+          });
+          if (res.data) {
+            setUnreadOrderCount(res.data.count || 0);
+          }
+        } catch (error) {
+          console.error("Failed to fetch unread order count:", error);
+        }
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Refresh count every 30 seconds and when navigating back from order details
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [user, location.pathname]);
 
   const handleLogout = async () => {
     try {
@@ -48,21 +76,37 @@ const SideNavbar = () => {
     return user.permissions.some((p) => p.startsWith(key + ":"));
   };
 
+  const badgeStyle = {
+    backgroundColor: "#ef4444", // red-500
+    color: "white",
+    fontSize: "10px",
+    fontWeight: "bold",
+    borderRadius: "9999px",
+    minWidth: "18px",
+    height: "18px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "0 4px",
+    lineHeight: "1",
+    boxShadow: "0 0 0 2px white"
+  };
+
   return (
-  <div className={`bg-white h-full shrink-0 shadow-md transition-all duration-300 ${isExpanded ? 'w-56' : 'w-14'} flex flex-col`}>
-  <div className="p-3 flex-1 flex flex-col">
+    <div className={`bg-white h-full shrink-0 shadow-md transition-all duration-300 ${isExpanded ? 'w-56' : 'w-14'} flex flex-col`}>
+      <div className="p-3 flex-1 flex flex-col">
         {/* Header */}
-  <div className="mb-4">
+        <div className="mb-4">
           {/* Logo Section */}
           <div className={`flex items-center mb-2 ${isExpanded ? 'justify-start' : 'justify-center'}`}>
-            <img 
+            <img
               src={logo}
               alt="logo"
               className={`opacity-90 ${isExpanded ? 'w-12 h-12' : 'w-8 h-8'} object-contain`}
               style={{ display: "block" }}
             />
           </div>
-          
+
           {/* Title and Toggle Section */}
           {isExpanded ? (
             <div className="flex items-center justify-between mb-2">
@@ -87,21 +131,19 @@ const SideNavbar = () => {
             </div>
           )}
         </div>
-        
+
         {/* Navigation */}
         <nav className="space-y-1 flex-1">
           <NavLink
             to="/admin/"
             end
             className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
-                  : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                ? 'gap-3 px-4 py-2.5'
+                : 'justify-center px-2 py-3'
+              } ${isActive
+                ? "bg-gray-100 text-gray-900"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`
             }
             title={!isExpanded ? "Dashboard" : ""}
@@ -116,248 +158,258 @@ const SideNavbar = () => {
           </NavLink>
 
           {isVisible("products") && (
-          <NavLink
-            to="/admin/products"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/products"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "Products" : ""}
-          >
-            <Package size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Products</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Products
-              </div>
-            )}
-          </NavLink>
+                }`
+              }
+              title={!isExpanded ? "Products" : ""}
+            >
+              <Package size={20} className="flex-shrink-0" />
+              {isExpanded && <span>Products</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Products
+                </div>
+              )}
+            </NavLink>
           )}
 
           {isVisible("categories") && (
-          <NavLink
-            to="/admin/categories"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/categories"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "Categories" : ""}
-          >
-            <Grid3X3 size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Categories</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Categories
-              </div>
-            )}
-          </NavLink>
+                }`
+              }
+              title={!isExpanded ? "Categories" : ""}
+            >
+              <Grid3X3 size={20} className="flex-shrink-0" />
+              {isExpanded && <span>Categories</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Categories
+                </div>
+              )}
+            </NavLink>
           )}
 
           {isVisible("orders") && (
-          <NavLink
-            to="/admin/orders"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/orders"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "Orders" : ""}
-          >
-            <ShoppingBag size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Orders</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Orders
+                }`
+              }
+              title={!isExpanded ? "Orders" : ""}
+            >
+              <div className="relative">
+                <ShoppingBag size={20} className="flex-shrink-0" />
+                {!isExpanded && user?.role === "superAdmin" && unreadOrderCount > 0 && (
+                  <span
+                    style={{
+                      ...badgeStyle,
+                      position: "absolute",
+                      top: "-8px",
+                      right: "-8px",
+                    }}
+                    className="animate-pulse"
+                  >
+                    {unreadOrderCount > 99 ? "99+" : unreadOrderCount}
+                  </span>
+                )}
               </div>
-            )}
-          </NavLink>
+              {isExpanded && (
+                <span className="flex items-center justify-between w-full">
+                  <span>Orders</span>
+                  {user?.role === "superAdmin" && unreadOrderCount > 0 && (
+                    <span style={badgeStyle} className="animate-pulse">
+                      {unreadOrderCount > 99 ? "99+" : unreadOrderCount}
+                    </span>
+                  )}
+                </span>
+              )}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 flex items-center gap-2">
+                  Orders
+                  {user?.role === "superAdmin" && unreadOrderCount > 0 && (
+                    <span style={{ ...badgeStyle, boxShadow: "none", minWidth: "16px", height: "16px" }}>
+                      {unreadOrderCount > 99 ? "99+" : unreadOrderCount}
+                    </span>
+                  )}
+                </div>
+              )}
+            </NavLink>
           )}
 
           {isVisible("payments") && (
-          <NavLink
-            to="/admin/payments"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/payments"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "Payments" : ""}
-          >
-            <CreditCard size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Payments</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Payments
-              </div>
-            )}
-          </NavLink>
+                }`
+              }
+              title={!isExpanded ? "Payments" : ""}
+            >
+              <CreditCard size={20} className="flex-shrink-0" />
+              {isExpanded && <span>Payments</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Payments
+                </div>
+              )}
+            </NavLink>
           )}
 
           {isVisible("coupons") && (
-          <NavLink
-            to="/admin/coupon"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/coupon"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "Voucher Codes" : ""}
-          >
-            <Ticket size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Voucher Codes</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Voucher Codes
-              </div>
-            )}
-          </NavLink>
+                }`
+              }
+              title={!isExpanded ? "Voucher Codes" : ""}
+            >
+              <Ticket size={20} className="flex-shrink-0" />
+              {isExpanded && <span>Voucher Codes</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Voucher Codes
+                </div>
+              )}
+            </NavLink>
           )}
 
           {isVisible("users") && (
-          <NavLink
-            to="/admin/customers"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/customers"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "Users" : ""}
-          >
-            <Users size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Users</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Users
-              </div>
-            )}
-          </NavLink>
+                }`
+              }
+              title={!isExpanded ? "Users" : ""}
+            >
+              <Users size={20} className="flex-shrink-0" />
+              {isExpanded && <span>Users</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Users
+                </div>
+              )}
+            </NavLink>
           )}
 
           {isVisible("banners") && (
-          <NavLink
-            to="/admin/banner"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/banner"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "Banners" : ""}
-          >
-            <Image size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Banners</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Banners
-              </div>
-            )}
-          </NavLink>
+                }`
+              }
+              title={!isExpanded ? "Banners" : ""}
+            >
+              <Image size={20} className="flex-shrink-0" />
+              {isExpanded && <span>Banners</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Banners
+                </div>
+              )}
+            </NavLink>
           )}
 
           {isVisible("announcements") && (
-          <NavLink
-            to="/admin/announcement"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/announcement"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "Announcement" : ""}
-          >
-            <Megaphone size={20} className="flex-shrink-0" />
-            {isExpanded && <span>Announcement</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                Announcement
-              </div>
-            )}
-          </NavLink>
+                }`
+              }
+              title={!isExpanded ? "Announcement" : ""}
+            >
+              <Megaphone size={20} className="flex-shrink-0" />
+              {isExpanded && <span>Announcement</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Announcement
+                </div>
+              )}
+            </NavLink>
           )}
 
           {isVisible("faqs") && (
-          <NavLink
-            to="/admin/faqs"
-            className={({ isActive }) =>
-              `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${
-                isExpanded 
-                  ? 'gap-3 px-4 py-2.5' 
+            <NavLink
+              to="/admin/faqs"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
                   : 'justify-center px-2 py-3'
-              } ${
-                isActive 
-                  ? "bg-gray-100 text-gray-900" 
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`
-            }
-            title={!isExpanded ? "FAQs" : ""}
-          >
-            <HelpCircle size={20} className="flex-shrink-0" />
-            {isExpanded && <span>FAQs</span>}
-            {!isExpanded && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                FAQs
-              </div>
-            )}
-          </NavLink>
+                }`
+              }
+              title={!isExpanded ? "FAQs" : ""}
+            >
+              <HelpCircle size={20} className="flex-shrink-0" />
+              {isExpanded && <span>FAQs</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  FAQs
+                </div>
+              )}
+            </NavLink>
           )}
         </nav>
 
         {/* Bottom section with logout */}
         <div className="pt-3 border-t border-gray-200 mt-4">
           <button
-            className={`flex items-center rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900 w-full relative group ${
-              isExpanded 
-                ? 'gap-3 px-4 py-2.5' 
-                : 'justify-center px-2 py-3'
-            }`}
+            className={`flex items-center rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900 w-full relative group ${isExpanded
+              ? 'gap-3 px-4 py-2.5'
+              : 'justify-center px-2 py-3'
+              }`}
             onClick={handleLogout}
             title={!isExpanded ? "Logout" : ""}
           >
