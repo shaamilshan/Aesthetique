@@ -13,15 +13,15 @@ const CreateCustomerForm = ({ onClose }) => {
   // granular actions per feature
   const FEATURES = [
     { key: "dashboard", label: "Dashboard", actions: ["view"] },
-    { key: "products", label: "Products", actions: ["add", "edit", "delete"] },
-    { key: "categories", label: "Categories", actions: ["add", "edit", "delete"] },
+    { key: "products", label: "Products", actions: ["view", "add", "edit", "delete"] },
+    { key: "categories", label: "Categories", actions: ["view", "add", "edit", "delete"] },
     { key: "orders", label: "Orders", actions: ["view", "edit"] },
     { key: "payments", label: "Payments", actions: ["view", "clear"] },
-    { key: "coupons", label: "Voucher Codes", actions: ["add", "edit", "delete"] },
-    { key: "users", label: "Users", actions: ["add", "edit", "delete"] },
-    { key: "banners", label: "Banners", actions: ["add", "edit", "delete"] },
-    { key: "announcements", label: "Announcements", actions: ["add", "edit", "delete"] },
-    { key: "faqs", label: "FAQs", actions: ["add", "edit", "delete"] },
+    { key: "coupons", label: "Voucher Codes", actions: ["view", "add", "edit", "delete"] },
+    { key: "users", label: "Users", actions: ["view", "add", "edit", "delete"] },
+    { key: "banners", label: "Banners", actions: ["view", "add", "edit", "delete"] },
+    { key: "announcements", label: "Announcements", actions: ["view", "add", "edit", "delete"] },
+    { key: "faqs", label: "FAQs", actions: ["view", "add", "edit", "delete"] },
   ];
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [loading, setLoading] = useState(false);

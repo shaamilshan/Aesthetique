@@ -14,7 +14,7 @@ export default function ContactSection({ id }) {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
-    subject: '',
+    phone: '',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,8 +82,10 @@ export default function ContactSection({ id }) {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    if (!formData.subject.trim()) {
-      newErrors.subject = 'Subject is required';
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^[0-9+\-\s()]{7,20}$/.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
     }
 
     if (!formData.message.trim()) {
@@ -129,7 +131,7 @@ export default function ContactSection({ id }) {
       const templateParams = {
         full_name: formData.full_name,
         email: formData.email,
-        subject: formData.subject,
+        phone: formData.phone,
         message: formData.message,
         submitted_at: new Date().toLocaleString()
       };
@@ -152,7 +154,7 @@ export default function ContactSection({ id }) {
       setFormData({
         full_name: '',
         email: '',
-        subject: '',
+        phone: '',
         message: ''
       });
 
@@ -285,17 +287,17 @@ export default function ContactSection({ id }) {
                   </div>
                   <div>
                     <input
-                      type="text"
-                      name="subject"
-                      value={formData.subject}
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="Subject"
-                      className={`w-full bg-transparent border-b py-3 focus:outline-none ${errors.subject ? 'border-red-500' : 'border-gray-200'
+                      placeholder="Phone number"
+                      className={`w-full bg-transparent border-b py-3 focus:outline-none ${errors.phone ? 'border-red-500' : 'border-gray-200'
                         }`}
                       disabled={isSubmitting}
                     />
-                    {errors.subject && (
-                      <p className="text-red-500 text-xs mt-1">{errors.subject}</p>
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
                     )}
                   </div>
                   <div>
