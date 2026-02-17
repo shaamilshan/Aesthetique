@@ -207,7 +207,7 @@ export default function ContactSection({ id }) {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
                 We are always ready to help you and answer your <span className="font-serif italic">questions</span>
               </h1>
-              <p className="text-sm text-gray-500 mb-8 max-w-lg">reach out for product advice, product advice, or any questions about our sunscreen and serum range. We'll get back to you promptly.</p>
+              {/* <p className="text-sm text-gray-500 mb-8 max-w-lg">reach out for product advice, product advice, or any questions about our sunscreen and serum range. We'll get back to you promptly.</p> */}
 
               <div className="grid grid-cols-2 gap-6 text-sm text-gray-700">
                 <div>
