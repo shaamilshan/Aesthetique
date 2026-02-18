@@ -48,6 +48,12 @@ const AddProducts = () => {
   const [moreImageURL, setMoreImageURL] = useState([]);
   const [offer, setOffer] = useState(0);
 
+  // New fields: HSN Code, GST %, Batch No, Expiry Date
+  const [hsnCode, setHsnCode] = useState("");
+  const [gstPercent, setGstPercent] = useState("");
+  const [batchNo, setBatchNo] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+
   const [faqs, setFaqs] = useState([]);
   const [faqQuestion, setFaqQuestion] = useState("");
   const [faqAnswer, setFaqAnswer] = useState("");
@@ -134,6 +140,20 @@ const AddProducts = () => {
     }
     formData.append("offer", computedOffer);
     formData.append("status", status.toLowerCase());
+
+    // Append new fields: HSN Code, GST %, Batch No, Expiry Date
+    if (hsnCode.trim()) {
+      formData.append("hsnCode", hsnCode.trim());
+    }
+    if (gstPercent !== "" && gstPercent !== null && gstPercent !== undefined) {
+      formData.append("gstPercent", gstPercent);
+    }
+    if (batchNo.trim()) {
+      formData.append("batchNo", batchNo.trim());
+    }
+    if (expiryDate) {
+      formData.append("expiryDate", expiryDate);
+    }
 
     // Only append imageURL if a file is selected
     if (imageURL && imageURL instanceof File) {
@@ -477,6 +497,43 @@ const AddProducts = () => {
                 className="admin-input"
                 value={markup}
                 onChange={(e) => setMarkup(e.target.value)}
+              />
+            </div>
+            {/* Tax & Batch Information */}
+            <div className="admin-div">
+              <h1 className="font-bold">Tax & Batch Information</h1>
+              <p className="admin-label">HSN Code</p>
+              <input
+                type="text"
+                placeholder="Enter HSN code"
+                className="admin-input"
+                value={hsnCode}
+                onChange={(e) => setHsnCode(e.target.value)}
+              />
+              <p className="admin-label">GST %</p>
+              <input
+                type="number"
+                placeholder="Enter GST percentage"
+                className="admin-input"
+                min="0"
+                max="100"
+                value={gstPercent}
+                onChange={(e) => setGstPercent(e.target.value)}
+              />
+              <p className="admin-label">Batch No</p>
+              <input
+                type="text"
+                placeholder="Enter batch number"
+                className="admin-input"
+                value={batchNo}
+                onChange={(e) => setBatchNo(e.target.value)}
+              />
+              <p className="admin-label">Expiry Date</p>
+              <input
+                type="date"
+                className="admin-input"
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
               />
             </div>
             <div className="admin-div">

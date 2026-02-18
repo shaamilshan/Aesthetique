@@ -130,6 +130,30 @@ const productsSchema = new Schema(
         answer: { type: String, trim: true, default: "" },
       },
     ],
+    // HSN Code for tax classification
+    hsnCode: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    // GST percentage
+    gstPercent: {
+      type: Number,
+      default: 0,
+      min: [0, "GST percentage cannot be negative"],
+      max: [100, "GST percentage cannot exceed 100"],
+    },
+    // Batch number for inventory tracking
+    batchNo: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    // Expiry date for perishable products
+    expiryDate: {
+      type: Date,
+      default: null,
+    },
   },
   { 
     timestamps: true,

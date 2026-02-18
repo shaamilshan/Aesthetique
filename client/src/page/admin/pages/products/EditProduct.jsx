@@ -48,6 +48,10 @@ const EditProduct = () => {
     moreImageURL: [],
     offer: "",
     faqs: [],
+    hsnCode: "",
+    gstPercent: "",
+    batchNo: "",
+    expiryDate: "",
   });
 
   const [faqQuestion, setFaqQuestion] = useState("");
@@ -693,6 +697,47 @@ const EditProduct = () => {
                 className="admin-input"
                 value={fetchedData.offer || 0}
                 disabled
+              />
+            </div>
+            {/* Tax & Batch Information */}
+            <div className="admin-div">
+              <h1 className="font-bold">Tax & Batch Information</h1>
+              <p className="admin-label">HSN Code</p>
+              <input
+                type="text"
+                name="hsnCode"
+                placeholder="Enter HSN code"
+                className="admin-input"
+                value={fetchedData.hsnCode || ""}
+                onChange={handleInputChange}
+              />
+              <p className="admin-label">GST %</p>
+              <input
+                type="number"
+                name="gstPercent"
+                placeholder="Enter GST percentage"
+                className="admin-input"
+                min="0"
+                max="100"
+                value={fetchedData.gstPercent || ""}
+                onChange={handleInputChange}
+              />
+              <p className="admin-label">Batch No</p>
+              <input
+                type="text"
+                name="batchNo"
+                placeholder="Enter batch number"
+                className="admin-input"
+                value={fetchedData.batchNo || ""}
+                onChange={handleInputChange}
+              />
+              <p className="admin-label">Expiry Date</p>
+              <input
+                type="date"
+                name="expiryDate"
+                className="admin-input"
+                value={fetchedData.expiryDate ? fetchedData.expiryDate.substring(0, 10) : ""}
+                onChange={handleInputChange}
               />
             </div>
             <div className="admin-div">

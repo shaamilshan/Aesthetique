@@ -13,9 +13,11 @@ import CheckoutCartRow from "./components/CheckoutCartRow";
 import AddressCheckoutSession from "./components/AddressCheckoutSession";
 import TotalAndSubTotal from "./components/TotalAndSubTotal";
 import Loading from "../../components/Loading";
-import { clearCartOnOrderPlaced } from "../../redux/reducers/user/cartSlice";
+import { clearCartOnOrderPlaced, setShipping, calculateTotalPrice } from "../../redux/reducers/user/cartSlice";
 import CheckoutPaymentOption from "./components/CheckoutPaymentOption";
 import VoucherCodeSection from "./components/VoucherCodeSection";
+import { getShippingCharge } from "../../Common/shippingCharges";
+import { getCart } from "../../redux/actions/user/cartActions";
 
 const Checkout = () => {
   const dispatch = useDispatch();
@@ -26,6 +28,17 @@ const Checkout = () => {
   const { totalPrice, shipping, discount, tax, couponType } = useSelector(
     (state) => state.cart
   );
+  const { addresses } = useSelector((state) => state.address);
+
+  // Fetch cart on mount (in case user navigated directly to checkout)
+  useEffect(() => {
+    dispatch(getCart());
+  }, []);
+
+  // Recalculate total price whenever cart items change
+  useEffect(() => {
+    dispatch(calculateTotalPrice());
+  }, [cart]);
 
   let offer = 0;
 
@@ -40,6 +53,19 @@ const Checkout = () => {
 
   // Address Selection
   const [selectedAddress, setSelectedAddress] = useState("");
+
+  // Recalculate shipping charge whenever the selected address changes
+  useEffect(() => {
+    if (selectedAddress && addresses && addresses.length > 0) {
+      const addr = addresses.find((a) => a._id === selectedAddress);
+      if (addr && addr.pinCode) {
+        dispatch(setShipping(getShippingCharge(addr.pinCode)));
+      } else {
+        dispatch(setShipping(getShippingCharge(null)));
+      }
+    }
+  }, [selectedAddress, addresses]);
+
   // Payment Selection
   const [selectedPayment, setSelectedPayment] = useState(null);
   const handleSelectedPayment = (e) => {
@@ -238,6 +264,11 @@ const Checkout = () => {
 
     if (selectedPayment === "razorPay") {
       initiateRazorPayPayment();
+      return;
+    }
+
+    if (selectedPayment === "cashOnDelivery") {
+      saveOrderOnCashOnDelivery();
       return;
     }
 

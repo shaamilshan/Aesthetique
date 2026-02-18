@@ -12,6 +12,7 @@ const { generateInvoicePDF } = require("../Common/invoicePDFGenFunctions");
 const Counter = require("../../model/counterModel");
 const managerOrderModel = require("../../model/managerOrderModel");
 const { sendOrderPlacedMail, sendAdminOrderNotification } = require("../../util/mailFunction");
+const { getShippingCharge } = require("../../utils/shippingCharges");
 
 // // Just the function increment or decrement product count
 // const updateProductList = async (id, count) => {
@@ -136,9 +137,7 @@ const createOrder = async (req, res) => {
 
     const { address, paymentMode, notes } = req.body;
 
-    if (paymentMode === "cashOnDelivery") {
-      throw Error("Cash on Delivery is currently disabled. Please choose another payment method.");
-    }
+    // COD is now allowed – removed the previous block that threw an error for cashOnDelivery
 
     const addressData = await Address.findOne({ _id: address });
 
@@ -166,6 +165,10 @@ const createOrder = async (req, res) => {
       sumWithTax -= cart.discount;
     }
 
+    // Calculate shipping charge based on delivery pin code
+    const shippingCharge = getShippingCharge(addressData ? addressData.pinCode : null);
+    sumWithTax += shippingCharge;
+
     const products = cart.items.map((item) => ({
       productId: item.product._id,
       quantity: item.quantity,
@@ -180,6 +183,7 @@ const createOrder = async (req, res) => {
       address: addressData,
       products: products,
       subTotal: sum,
+      shipping: shippingCharge,
       // tax: parseInt(sum * 0.08),
       tax: 0, // No tax
       totalPrice: sumWithTax,
@@ -247,7 +251,7 @@ const createOrder = async (req, res) => {
     try {
       const populated = await Order.findById(order._id)
         .populate("user", { firstName: 1, lastName: 1, email: 1, phoneNumber: 1 })
-        .populate("products.productId", { name: 1, price: 1 });
+        .populate("products.productId", { name: 1, price: 1, gstPercent: 1, hsnCode: 1 });
       const userEmail = populated?.user?.email;
       const customerName = `${populated?.user?.firstName || ''} ${populated?.user?.lastName || ''}`.trim();
 
@@ -706,9 +710,7 @@ const buyNow = async (req, res) => {
   try {
     const { address, paymentMode, notes, quantity } = req.body;
 
-    if (paymentMode === "cashOnDelivery") {
-      throw Error("Cash on Delivery is currently disabled. Please choose another payment method.");
-    }
+    // COD is now allowed
 
     // User Id
     const token = req.cookies.user_token;
@@ -731,7 +733,6 @@ const buyNow = async (req, res) => {
     }
 
     const sum = product.price * quantity;
-    const sumWithTax = parseInt(sum);
     // const sumWithTax = parseInt(sum + sum * 0.08);
 
     // Request Body
@@ -740,6 +741,10 @@ const buyNow = async (req, res) => {
     if (!addressData) {
       throw Error("Address cannot be found");
     }
+
+    // Calculate shipping charge based on delivery pin code
+    const shippingCharge = getShippingCharge(addressData.pinCode);
+    const sumWithTax = parseInt(sum) + shippingCharge;
 
     let products = [];
 
@@ -756,6 +761,7 @@ const buyNow = async (req, res) => {
       address: addressData,
       products: products,
       subTotal: sum,
+      shipping: shippingCharge,
       // tax: parseInt(sum * 0.08),
       tax: 0, // No tax
       totalPrice: sumWithTax,
@@ -781,7 +787,7 @@ const buyNow = async (req, res) => {
     try {
       const populated = await Order.findById(order._id)
         .populate("user", { firstName: 1, lastName: 1, email: 1, phoneNumber: 1 })
-        .populate("products.productId", { name: 1, price: 1 });
+        .populate("products.productId", { name: 1, price: 1, gstPercent: 1, hsnCode: 1 });
       const userEmail = populated?.user?.email;
       const customerName = `${populated?.user?.firstName || ''} ${populated?.user?.lastName || ''}`.trim();
 

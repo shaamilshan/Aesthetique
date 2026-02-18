@@ -13,12 +13,14 @@ import Loading from "../../../components/Loading";
 // import OrderConfirmation from "../components/OrderConfirmation";
 import { emptyBuyNowStore } from "../../../redux/reducers/user/buyNowSlice";
 import CheckoutPaymentOption from "../components/CheckoutPaymentOption";
+import { getShippingCharge } from "@common/shippingCharges";
 
 const BuyNow = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { product, quantity } = useSelector((state) => state.buyNow);
+  const { addresses } = useSelector((state) => state.address);
 
   useEffect(() => {
     if (!product) {
@@ -29,7 +31,7 @@ const BuyNow = () => {
   let offer = 0;
   let couponType = "s";
   let totalPrice = product ? product.price : 0;
-  let shipping = 0;
+  const [shipping, setShipping] = useState(100);
   let tax = 0;
   // let tax = parseInt(totalPrice * 0.08);
   let discount = 0;
@@ -48,6 +50,19 @@ const BuyNow = () => {
 
   // Address Selection
   const [selectedAddress, setSelectedAddress] = useState("");
+
+  // Recalculate shipping charge based on selected address pin code
+  useEffect(() => {
+    if (selectedAddress && addresses && addresses.length > 0) {
+      const addr = addresses.find((a) => a._id === selectedAddress);
+      if (addr && addr.pinCode) {
+        setShipping(getShippingCharge(addr.pinCode));
+      } else {
+        setShipping(getShippingCharge(null));
+      }
+    }
+  }, [selectedAddress, addresses]);
+
   // Payment Selection
   const [selectedPayment, setSelectedPayment] = useState(null);
   const handleSelectedPayment = (e) => {
@@ -237,7 +252,10 @@ const BuyNow = () => {
       return;
     }
 
-    // Cash on Delivery removed
+    if (selectedPayment === "cashOnDelivery") {
+      saveOrderOnCashDeliveryOrMyWallet();
+      return;
+    }
 
     // If we reach here, payment method is invalid
     toast.error("Invalid payment method selected.");

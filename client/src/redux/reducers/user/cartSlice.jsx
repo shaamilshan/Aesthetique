@@ -39,6 +39,9 @@ const cartSlice = createSlice({
       state.tax = 0;
       state.totalPrice = sum;
     },
+    setShipping: (state, action) => {
+      state.shipping = action.payload;
+    },
     clearCartOnOrderPlaced: (state) => {
       state.loading = false;
       state.error = null;
@@ -191,6 +194,6 @@ const cartSlice = createSlice({
   },
 });
 
-export const { calculateTotalPrice, clearCartOnOrderPlaced } =
+export const { calculateTotalPrice, setShipping, clearCartOnOrderPlaced } =
   cartSlice.actions;
 export default cartSlice.reducer;

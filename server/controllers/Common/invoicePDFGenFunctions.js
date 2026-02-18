@@ -3,17 +3,18 @@ const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 
-// Table Row with Bottom Line
-function generateTableRow(doc, y, c1, c2, c3, c4, c5) {
-  c2 = (c2 || "").slice(0, 40);
+// Table Row with Bottom Line — 6 columns for GST invoice
+function generateTableRow(doc, y, c1, c2, c3, c4, c5, c6) {
+  c2 = (c2 || "").slice(0, 32);
 
   doc
-    .fontSize(10)
-    .text(c1, 50, y)
-    .text(c2, 100, y)
-    .text(c3, 280, y, { width: 90, align: "right" })
-    .text(c4, 370, y, { width: 90, align: "right" })
-    .text(c5, 0, y, { align: "right" })
+    .fontSize(8)
+    .text(c1, 50, y, { width: 25 })
+    .text(c2, 78, y, { width: 150 })
+    .text(c3, 230, y, { width: 60, align: "center" })
+    .text(c4, 295, y, { width: 40, align: "center" })
+    .text(c5, 340, y, { width: 55, align: "center" })
+    .text(c6, 395, y, { width: 115, align: "right" })
     .moveTo(50, y + 15)
     .lineTo(560, y + 15)
     .lineWidth(0.5)
@@ -21,17 +22,14 @@ function generateTableRow(doc, y, c1, c2, c3, c4, c5) {
     .stroke();
 }
 
-// Table row without bottom line
-function generateTableRowNoLine(doc, y, c1, c2, c3, c4, c5) {
-  c2 = (c2 || "").slice(0, 40);
-
+// Table row without bottom line — for summary rows (label + value aligned to table)
+function generateSummaryRow(doc, y, label, value, bold) {
+  if (bold) doc.font("Helvetica-Bold");
   doc
-    .fontSize(10)
-    .text(c1, 50, y)
-    .text(c2, 100, y)
-    .text(c3, 280, y, { width: 90, align: "right" })
-    .text(c4, 370, y, { width: 90, align: "right" })
-    .text(c5, 0, y, { align: "right" });
+    .fontSize(8)
+    .text(label, 340, y, { width: 100, align: "right" })
+    .text(value, 445, y, { width: 65, align: "right" });
+  if (bold) doc.font("Helvetica");
 }
 
 // Generating Invoice for customers
@@ -126,12 +124,17 @@ const generateInvoicePDF = async (order) => {
       // Order meta lines below the invoice heading (no outline)
       const metaTop = 205;
       doc.fillColor("#000").fontSize(10).font("Helvetica");
-      doc.text(`INVOICE NO : ${order?.orderId ? order.orderId : order?._id || ""}`, 50, metaTop);
-      doc.text(`INVOICE DATE : ${order?.createdAt ? moment(new Date(order.createdAt)).format("DD/MM/YYYY") : ""}`, 50, metaTop + 16);
-      doc.text(`PAYMENT MODE : ${order?.paymentMode || ""}`, 50, metaTop + 32);
+      const orderNum = order?.orderId ? order.orderId : order?._id || "";
+      doc.text(`INVOICE NO : INV-${orderNum}`, 50, metaTop);
+      doc.text(`ORDER NO : ${orderNum}`, 50, metaTop + 16);
+      doc.text(`INVOICE DATE : ${order?.createdAt ? moment(new Date(order.createdAt)).format("DD/MM/YYYY") : ""}`, 50, metaTop + 32);
+      // Format payment mode for display
+      const paymentModeLabels = { cashOnDelivery: "Cash on Delivery", razorPay: "Razorpay", myWallet: "Wallet" };
+      const paymentLabel = paymentModeLabels[order?.paymentMode] || order?.paymentMode || "";
+      doc.text(`PAYMENT MODE : ${paymentLabel}`, 50, metaTop + 48);
 
       // Billing / Shipping block (moved down to create clear gap from payment/meta)
-      const billTop = 270;
+      const billTop = 285;
       doc.fontSize(11).font("Helvetica-Bold").text("Bill To:", 50, billTop);
       doc.fontSize(10).font("Helvetica");
       const billName = (order?.address?.firstName || "") + " " + (order?.address?.lastName || "");
@@ -152,42 +155,79 @@ const generateInvoicePDF = async (order) => {
       // Compute table top dynamically so it doesn't overlap the billing/notes area.
       const invoiceTableTop = Math.max(370, billTop + (order?.notes ? 160 : 120));
 
-      // Table Header
+      // Table Header — 6 columns for GST invoice
       generateTableRow(
         doc,
         invoiceTableTop,
-        "SL No",
-        "Product Name",
-        "Quantity",
-        "Price",
-        "Sub Total"
+        "#",
+        "Product",
+        "HSN",
+        "Qty",
+        "GST %",
+        "Amount"
       );
 
-      // Table body
+      // Table body — reverse-calculate GST from inclusive price
       const products = Array.isArray(order?.products) ? order.products : [];
+      let totalTaxableAmount = 0;
+      let totalGstAmount = 0;
+
       for (i = 0; i < products.length; i++) {
         const item = products[i];
         const position = invoiceTableTop + (i + 1) * 30;
 
+        const unitPrice = Number(item?.price) || 0;
+        const qty = Number(item?.quantity) || 0;
+        const lineTotal = unitPrice * qty;
+
+        // Get GST % and HSN from the populated product reference
+        const gstPercent = Number(item?.productId?.gstPercent) || 0;
+        const hsnCode = item?.productId?.hsnCode || "";
+
+        // Reverse-calculate: price is GST-inclusive
+        // Base (taxable) = lineTotal / (1 + gstPercent/100)
+        let taxableAmt = lineTotal;
+        let gstAmt = 0;
+        if (gstPercent > 0) {
+          taxableAmt = lineTotal / (1 + gstPercent / 100);
+          gstAmt = lineTotal - taxableAmt;
+        }
+
+        totalTaxableAmount += taxableAmt;
+        totalGstAmount += gstAmt;
+
         generateTableRow(
           doc,
           position,
-          i + 1,
+          String(i + 1),
           item?.productId?.name || "",
-          item?.quantity ?? "",
-          item?.price ?? "",
-          (item?.price ?? 0) * (item?.quantity ?? 0)
+          hsnCode,
+          String(qty),
+          gstPercent > 0 ? `${gstPercent}%` : "-",
+          lineTotal.toFixed(2)
         );
       }
 
+      // Summary rows
       const subtotalPosition = invoiceTableTop + (i + 1) * 30;
-      generateTableRowNoLine(doc, subtotalPosition, "", "", "Subtotal", "", order?.subTotal ?? "");
+      generateSummaryRow(doc, subtotalPosition, "Subtotal", `Rs. ${(order?.subTotal ?? 0).toFixed(2)}`);
 
-      const paidToDatePosition = subtotalPosition + 20;
-      generateTableRowNoLine(doc, paidToDatePosition, "", "", "Tax", "", order?.tax ?? "");
+      // GST total row
+      const gstPosition = subtotalPosition + 18;
+      generateSummaryRow(doc, gstPosition, "Total GST", `Rs. ${totalGstAmount.toFixed(2)}`);
 
-      const duePosition = paidToDatePosition + 20;
-      generateTableRowNoLine(doc, duePosition, "", "", "Total", "", order?.totalPrice ?? "");
+      // Shipping row
+      const shippingPosition = gstPosition + 18;
+      const shippingAmt = Number(order?.shipping) || 0;
+      generateSummaryRow(doc, shippingPosition, "Shipping", shippingAmt > 0 ? `Rs. ${shippingAmt.toFixed(2)}` : "Free");
+
+      // Grand total (same as order.totalPrice — includes product prices + shipping)
+      const totalPosition = shippingPosition + 22;
+      generateSummaryRow(doc, totalPosition, "Total", `Rs. ${(order?.totalPrice ?? 0).toFixed(2)}`, true);
+
+      // GST note explaining that product prices are inclusive of GST
+      const notePosition = totalPosition + 30;
+      doc.fontSize(8).fillColor("#666").text("* Product prices are inclusive of GST.", 50, notePosition, { width: 510 });
 
       // Totals are shown below the products table (no separate summary box)
 
