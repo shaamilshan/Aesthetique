@@ -9,8 +9,9 @@ import Modal from "../../../components/Modal";
 import ConfirmModal from "../../../components/ConfirmModal";
 import AddressEdit from "./AddressEdit";
 import { useDispatch, useSelector } from "react-redux";
+import { MapPin, Edit3 } from "lucide-react";
 
-const AddressCheckoutSession = ({ selectedAddress, setSelectedAddress }) => {
+const AddressCheckoutSession = ({ selectedAddress, setSelectedAddress, guestAddress, setGuestAddress }) => {
   const dispatch = useDispatch();
 
   const { addresses, loading, error } = useSelector((state) => state.address);
@@ -59,6 +60,78 @@ const AddressCheckoutSession = ({ selectedAddress, setSelectedAddress }) => {
     setEditAddressModal(!editAddressModal);
   };
 
+  // ── Guest flow ──────────────────────────────────────────────────
+  if (!user) {
+    return (
+      <>
+        {createAddress && (
+          <Modal
+            tab={
+              <Address
+                closeToggle={toggleAddress}
+                onSave={(addr) => {
+                  setGuestAddress(addr);
+                  // Also set selectedAddress so placeOrder validation passes
+                  setSelectedAddress("guest");
+                }}
+              />
+            }
+          />
+        )}
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Delivery Address</h1>
+            <p className="text-sm text-gray-500 mt-1">Enter the address where you'd like your order delivered.</p>
+          </div>
+        </div>
+
+        {guestAddress ? (
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 ring-2 ring-black">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <MapPin className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <span className="font-semibold text-gray-900">
+                    {guestAddress.firstName} {guestAddress.lastName}
+                  </span>
+                </div>
+                <div className="ml-11">
+                  <p className="text-gray-700 leading-relaxed">{guestAddress.address}</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {guestAddress.city}{guestAddress.regionState && `, ${guestAddress.regionState}`} - {guestAddress.pinCode}
+                  </p>
+                  {guestAddress.phoneNumber && (
+                    <p className="text-sm text-gray-500 mt-1">Phone: {guestAddress.phoneNumber}</p>
+                  )}
+                  {guestAddress.email && (
+                    <p className="text-sm text-gray-500 mt-1">Email: {guestAddress.email}</p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={toggleAddress}
+                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                title="Change Address"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg p-8 border border-dashed border-gray-200 text-center">
+            <p className="text-gray-600 mb-4">Please add a delivery address.</p>
+            <button onClick={toggleAddress} className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-900 transition-colors">
+              Add Address
+            </button>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // ── Logged-in user flow ─────────────────────────────────────────
   return (
     <>
       {createAddress && (

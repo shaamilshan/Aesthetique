@@ -42,7 +42,6 @@ const AddressSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: User,
-    required: true,
   },
 });
 
@@ -115,7 +114,13 @@ const OrderSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: User,
-      required: true,
+      // Not required — guest orders won't have a user
+    },
+    guestEmail: {
+      type: String,
+    },
+    guestPhone: {
+      type: String,
     },
     trackingId: {
       type: String,

@@ -5,6 +5,8 @@ const { getPublicSetting } = require("../controllers/global/settingController");
 const { getCategories } = require("../controllers/global/collectionController");
 const { getIphone } = require("../controllers/global/iPhoneController");
 const { getActiveAnnouncements, getMarqueeAnnouncements } = require("../controllers/admin/announcementController");
+const { createGuestOrder, guestVerifyPayment } = require("../controllers/public/guestOrderController");
+const { createRazerPayOrder, getKey } = require("../controllers/user/paymentController");
 
 const router = express.Router();
 
@@ -24,5 +26,13 @@ router.get('/setting/:key', getPublicSetting);
 // Public announcements
 router.get('/announcements', getActiveAnnouncements);
 router.get('/setting/marquee', getMarqueeAnnouncements);
+
+// Guest checkout
+router.post('/guest-order', createGuestOrder);
+router.post('/guest-razor-verify', guestVerifyPayment);
+
+// Razorpay (available to guests too)
+router.post('/razor-order', createRazerPayOrder);
+router.get('/razor-key', getKey);
 
 module.exports = router;

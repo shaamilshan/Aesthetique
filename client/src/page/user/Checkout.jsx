@@ -23,14 +23,7 @@ const Checkout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Redirect guests to login — checkout requires authentication
   const { user } = useSelector((state) => state.user);
-  useEffect(() => {
-    if (!user) {
-      toast.error("Please login to proceed to checkout");
-      navigate("/login");
-    }
-  }, [user, navigate]);
 
   // Cart from Redux
   const { cart, loading, error } = useSelector((state) => state.cart);
@@ -59,13 +52,17 @@ const Checkout = () => {
 
   const finalTotal = totalPrice + shipping + tax - offer;
 
-
-  // Address Selection
+  // Address Selection (for logged-in users this is an _id; for guests it is the string "guest")
   const [selectedAddress, setSelectedAddress] = useState("");
+  // Guest address object
+  const [guestAddress, setGuestAddress] = useState(null);
 
   // Recalculate shipping charge whenever the selected address changes
   useEffect(() => {
-    if (selectedAddress && addresses && addresses.length > 0) {
+    if (!user && guestAddress) {
+      // Guest flow: use the inline address object
+      dispatch(setShipping(getShippingCharge(guestAddress.pinCode || null)));
+    } else if (selectedAddress && addresses && addresses.length > 0) {
       const addr = addresses.find((a) => a._id === selectedAddress);
       if (addr && addr.pinCode) {
         dispatch(setShipping(getShippingCharge(addr.pinCode)));
@@ -73,7 +70,7 @@ const Checkout = () => {
         dispatch(setShipping(getShippingCharge(null)));
       }
     }
-  }, [selectedAddress, addresses]);
+  }, [selectedAddress, addresses, guestAddress, user]);
 
   // Payment Selection
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -90,7 +87,64 @@ const Checkout = () => {
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [orderData, setOrderData] = useState({});
 
-  // Cash on Delivery order
+  // ── Helper: build guest order items from localStorage cart ──
+  const buildGuestItems = () => {
+    return (cart || []).map((item) => ({
+      productId: item.product?._id || item.product,
+      quantity: item.quantity,
+      attributes: item.attributes || {},
+    }));
+  };
+
+  // ── Guest order placement (COD) ──
+  const placeGuestOrder = async (paymentMode, razorpayResponse) => {
+    setOrderPlacedLoading(true);
+    try {
+      const items = buildGuestItems();
+      const body = {
+        items,
+        address: guestAddress,
+        paymentMode,
+        notes: additionalNotes,
+        guestEmail: guestAddress?.email || "",
+        guestPhone: guestAddress?.phoneNumber || "",
+      };
+
+      const orderResponse = await axios.post(`${URL}/public/guest-order`, body, config);
+      const { order } = orderResponse.data;
+
+      // If Razorpay, verify payment
+      if (paymentMode === "razorPay" && razorpayResponse) {
+        await axios.post(
+          `${URL}/public/guest-razor-verify`,
+          { ...razorpayResponse, order: order._id },
+          config
+        );
+      }
+
+      const formattedOrderData = {
+        orderId: order.orderId || order._id,
+        _id: order._id,
+        totalPrice: order.totalPrice.toFixed(2),
+        deliveryDate: order.deliveryDate,
+      };
+
+      toast.success("Order Placed Successfully!");
+      dispatch(clearCartOnOrderPlaced());
+      localStorage.removeItem("guest_cart");
+      try { window.dispatchEvent(new Event("guest_cart_updated")); } catch (e) {}
+
+      setOrderData(formattedOrderData);
+      setOrderConfirmed(true);
+      setOrderPlacedLoading(false);
+    } catch (error) {
+      console.error("Guest order error:", error);
+      toast.error(error.response?.data?.error || "Something went wrong. Please try again.");
+      setOrderPlacedLoading(false);
+    }
+  };
+
+  // ── Logged-in: Cash on Delivery order ──
   const saveOrderOnCashOnDelivery = async () => {
     setOrderPlacedLoading(true);
 
@@ -107,7 +161,6 @@ const Checkout = () => {
 
       const { order } = orderResponse.data;
 
-      // Format order data for the confirmation page
       const formattedOrderData = {
         orderId: order.orderId || order._id,
         _id: order._id,
@@ -115,32 +168,24 @@ const Checkout = () => {
         deliveryDate: order.deliveryDate,
       };
 
-      // Updating user side
       toast.success("Order Placed Successfully!");
       dispatch(clearCartOnOrderPlaced());
 
-      // Show confirmation UI
       setOrderData(formattedOrderData);
       setOrderConfirmed(true);
       setOrderPlacedLoading(false);
     } catch (error) {
       console.error("Order placement error:", error);
-      const errorMessage =
-        error.response?.data?.error ||
-        "Something went wrong. Please try again.";
-      toast.error(errorMessage);
+      toast.error(error.response?.data?.error || "Something went wrong. Please try again.");
       setOrderPlacedLoading(false);
     }
   };
 
-
-  // Razor Pay payment
-  // Saving the order to db
+  // ── Logged-in: Razor Pay — save order after payment ──
   const saveOrder = async (response) => {
     setOrderPlacedLoading(true);
 
     try {
-      // Make the first POST request to create the order
       const orderResponse = await axios.post(
         `${URL}/user/order`,
         {
@@ -153,14 +198,12 @@ const Checkout = () => {
 
       const { order } = orderResponse.data;
 
-      // Make the second POST request to verify payment with Razorpay and save that to database
       await axios.post(
         `${URL}/user/razor-verify`,
         { ...response, order: order._id },
         config
       );
 
-      // Format order data for the confirmation page
       const formattedOrderData = {
         orderId: order.orderId || order._id,
         _id: order._id,
@@ -168,82 +211,74 @@ const Checkout = () => {
         deliveryDate: order.deliveryDate,
       };
 
-      // Updating user side
       toast.success("Order Placed");
       dispatch(clearCartOnOrderPlaced());
 
-      // Show confirmation UI
       setOrderData(formattedOrderData);
       setOrderConfirmed(true);
       setOrderPlacedLoading(false);
-
     } catch (error) {
-      // Error Handling
       console.error("Order placement error:", error);
-      const errorMessage =
-        error.response?.data?.error ||
-        "Something went wrong. Please try again.";
-      toast.error(errorMessage);
+      toast.error(error.response?.data?.error || "Something went wrong. Please try again.");
       setOrderPlacedLoading(false);
     }
   };
 
-  // Initiating razor pay payment method or window
+  // ── Initiate Razorpay payment ──
   const initiateRazorPayPayment = async () => {
     try {
-      // Getting razor-pay secret key
+      // Use public endpoints for guests, user endpoints for logged-in
+      const keyUrl = user ? `${URL}/user/razor-key` : `${URL}/public/razor-key`;
+      const orderUrl = user ? `${URL}/user/razor-order` : `${URL}/public/razor-order`;
+
       const {
         data: { key },
-      } = await axios.get(`${URL}/user/razor-key`, config);
+      } = await axios.get(keyUrl, config);
 
-      // making razor-pay order
       const {
         data: { order },
-      } = await axios.post(
-        `${URL}/user/razor-order`,
-        { amount: parseInt(finalTotal * 100) },
-        config
-      );
+      } = await axios.post(orderUrl, { amount: parseInt(finalTotal * 100) }, config);
 
-      // setting razor pay configurations
+      const prefillName = user
+        ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+        : guestAddress
+          ? `${guestAddress.firstName || ""} ${guestAddress.lastName || ""}`.trim()
+          : "";
+      const prefillEmail = user?.email || guestAddress?.email || "";
+      const prefillContact = user?.phoneNumber || guestAddress?.phoneNumber || "";
+
       let options = {
         key: key,
         amount: parseInt(finalTotal * 100),
         currency: "INR",
         name: "BM AESTHETIQUE",
-        description: "Test Transaction",
-        // No logo passed to Razorpay (intentionally left blank to avoid PNA/CORS issues)
+        description: "Order Payment",
         order_id: order.id,
         handler: function (response) {
-          saveOrder(response);
+          if (user) {
+            saveOrder(response);
+          } else {
+            placeGuestOrder("razorPay", response);
+          }
         },
         prefill: {
-          name: "Gaurav Kumar",
-          email: "gaurav.kumar@example.com",
-          contact: "9000090000",
+          name: prefillName,
+          email: prefillEmail,
+          contact: prefillContact,
         },
         notes: {
-          address: "Razor pay Corporate Office",
+          address: "BM Aesthetique",
         },
         theme: {
           color: "#2b2b30",
         },
       };
 
-      // enabling razor-pay payment screen
       const razor = new window.Razorpay(options);
-
       razor.open();
 
-      // If failed toast it.
       razor.on("payment.failed", function (response) {
-        toast.error(response.error.code);
-        toast.error(response.error.description);
-        toast.error(response.error.source);
-        toast.error(response.error.step);
-        toast.error(response.error.reason);
-        toast.error(response.error.metadata.order_id);
-        toast.error(response.error.metadata.payment_id);
+        toast.error(response.error.description || "Payment failed");
         setOrderPlacedLoading(false);
       });
     } catch (error) {
@@ -253,23 +288,27 @@ const Checkout = () => {
     }
   };
 
-  // Order placing
+  // ── Place order button handler ──
   const placeOrder = async () => {
-    // Validating before placing an order
     if (cart.length === 0) {
       toast.error("Add product to cart");
       return;
     }
-    if (!selectedAddress) {
+
+    // Address validation
+    if (!user && !guestAddress) {
+      toast.error("Please add a delivery address");
+      return;
+    }
+    if (user && !selectedAddress) {
       toast.error("Delivery address not found");
       return;
     }
+
     if (!selectedPayment) {
       toast.error("Please select a payment mode");
       return;
     }
-
-    // Wallet payment removed from checkout flow
 
     if (selectedPayment === "razorPay") {
       initiateRazorPayPayment();
@@ -277,15 +316,16 @@ const Checkout = () => {
     }
 
     if (selectedPayment === "cashOnDelivery") {
-      saveOrderOnCashOnDelivery();
+      if (user) {
+        saveOrderOnCashOnDelivery();
+      } else {
+        placeGuestOrder("cashOnDelivery");
+      }
       return;
     }
 
     toast.error("Invalid payment method selected.");
   };
-
-  console.log("Current orderConfirmed state:", orderConfirmed); // Debug logging
-  console.log("Current orderData:", orderData); // Debug logging
 
   if (orderConfirmed && orderData) {
     return (
@@ -307,14 +347,16 @@ const Checkout = () => {
               <h3 className="text-lg font-semibold mb-2">Order Details</h3>
               <p>Order ID: {orderData.orderId}</p>
               <p>Order Total: ₹{orderData.totalPrice}</p>
-              <p>
-                <Link
-                  to={`/dashboard/order-history/detail/${orderData._id}`}
-                  className="flex items-center justify-center gap-2 text-sm py-2 text-blue-500 hover:underline"
-                >
-                  View Details <BsArrowRight />
-                </Link>
-              </p>
+              {user && (
+                <p>
+                  <Link
+                    to={`/dashboard/order-history/detail/${orderData._id}`}
+                    className="flex items-center justify-center gap-2 text-sm py-2 text-blue-500 hover:underline"
+                  >
+                    View Details <BsArrowRight />
+                  </Link>
+                </p>
+              )}
             </div>
           </div>
           <Link to="/" className="text-blue-500 hover:underline">
@@ -343,6 +385,8 @@ const Checkout = () => {
                   <AddressCheckoutSession
                     selectedAddress={selectedAddress}
                     setSelectedAddress={setSelectedAddress}
+                    guestAddress={guestAddress}
+                    setGuestAddress={setGuestAddress}
                   />
                 </div>
 
@@ -354,22 +398,20 @@ const Checkout = () => {
                   />
                 </div>
               </div>
-
-              {/* Voucher moved to order summary sidebar for easier access during review */}
-
-              {/* Additional Notes moved below to span full container width on large screens */}
             </main>
 
             {/* Order Summary Session */}
             <aside className="w-full lg:w-96 mt-6 lg:mt-0">
               <div className="bg-white shadow sticky top-28 rounded-lg p-6 border border-gray-100">
-                {/* Voucher section placed above order summary for quick access */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
-                  <div className="bg-white">
-                    <VoucherCodeSection />
+                {/* Voucher section — only for logged-in users (server needs auth for coupons) */}
+                {user && (
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
+                    <div className="bg-white">
+                      <VoucherCodeSection />
+                    </div>
                   </div>
-                </div>
+                )}
                 <h3 className="font-semibold text-lg mb-3">Order Summary</h3>
                 <div className="divide-y divide-gray-100 space-y-3 mb-3">
                   <div className="pt-1 pb-3">
