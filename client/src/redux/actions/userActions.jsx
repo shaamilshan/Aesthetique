@@ -27,6 +27,9 @@ export const getUserDataFirst = createAsyncThunk(
       const { data } = await axios.get(`${URL}/user/`, config);
       return data;
     } catch (error) {
+      // Cookie expired / invalid → clear the stale localStorage token so the
+      // app treats this visitor as a guest on subsequent checks.
+      localStorage.removeItem("token");
       return handleError(error, rejectWithValue);
     }
   }

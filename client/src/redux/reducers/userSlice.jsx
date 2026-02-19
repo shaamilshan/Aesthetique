@@ -73,7 +73,9 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.user = payload;
-        localStorage.setItem("token", payload.token); // 👈 store the token here if not already
+        // Store a flag so we know to re-fetch user data on next page load.
+        // The actual auth uses httpOnly cookies; this is just a client-side hint.
+        localStorage.setItem("token", payload.token || "authenticated");
       })
       
       .addCase(loginUser.rejected, (state, { payload }) => {
@@ -89,6 +91,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.user = payload;
+        localStorage.setItem("token", "authenticated");
       })
       .addCase(googleLoginOrSignUp.rejected, (state, { payload }) => {
         state.loading = false;
@@ -104,6 +107,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.user = payload;
+        localStorage.setItem("token", "authenticated");
       })
       .addCase(signUpUser.rejected, (state, { payload }) => {
         state.loading = false;

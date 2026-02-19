@@ -23,6 +23,15 @@ const Checkout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Redirect guests to login — checkout requires authentication
+  const { user } = useSelector((state) => state.user);
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please login to proceed to checkout");
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
   // Cart from Redux
   const { cart, loading, error } = useSelector((state) => state.cart);
   const { totalPrice, shipping, discount, tax, couponType } = useSelector(

@@ -91,6 +91,7 @@ const ProductDetails = () => {
           arr.push({ product, quantity: count, attributes: {} });
         }
         localStorage.setItem("guest_cart", JSON.stringify(arr));
+        try { window.dispatchEvent(new Event('guest_cart_updated')); } catch (e) {}
         toast.success("Added to cart");
         setCartLoading(false);
         return;
