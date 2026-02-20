@@ -9,7 +9,7 @@ const paymentSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: User,
-      required: true,
+      // Not required — guest orders won't have a user
     },
     order: {
       type: Schema.Types.ObjectId,

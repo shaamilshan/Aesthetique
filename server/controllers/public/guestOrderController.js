@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const uuid = require("uuid");
 const Order = require("../../model/orderModel");
 const Products = require("../../model/productModel");
 const Counter = require("../../model/counterModel");
@@ -149,6 +150,16 @@ const createGuestOrder = async (req, res) => {
 
     const order = await Order.create(orderData);
 
+    // Create payment record for guest order (COD — Razorpay payments are recorded in guestVerifyPayment)
+    if (paymentMode === "cashOnDelivery") {
+      await Payment.create({
+        order: order._id,
+        payment_id: `cod_${uuid.v4()}`,
+        status: "success",
+        paymentMode: "cashOnDelivery",
+      });
+    }
+
     // Send confirmation emails (non-blocking)
     try {
       const populated = await Order.findById(order._id)
@@ -223,9 +234,10 @@ const guestVerifyPayment = async (req, res) => {
       throw new Error("Invalid Signature");
     }
 
-    const Payment = require("../../model/paymentModel");
     await Payment.create({
-      ...req.body,
+      order: order,
+      razorpay_order_id,
+      razorpay_signature,
       payment_id: razorpay_payment_id,
       status: "success",
       paymentMode: "razorPay",
