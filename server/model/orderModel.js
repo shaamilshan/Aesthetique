@@ -111,6 +111,9 @@ const OrderSchema = new Schema(
       type: Number,
       unique: true,
     },
+    invoiceNumber: {
+      type: String,
+    },
     user: {
       type: Schema.Types.ObjectId,
       ref: User,
@@ -201,16 +204,16 @@ const OrderSchema = new Schema(
   { timestamps: true }
 );
 
-// Order ID generation
+// Order ID generation + Invoice Number (B2C/XXX/YY-YY)
 OrderSchema.pre("save", async function (next) {
   if (!this.isNew) {
     return next();
   }
 
   try {
+    // ── orderId (numeric, sequential, never resets) ──
     const counter = await Counter.findOne({ model: "Order", field: "orderId" });
 
-    // Checking if order counter already exist
     if (counter) {
       this.orderId = counter.count + 1;
       counter.count += 1;
@@ -219,6 +222,37 @@ OrderSchema.pre("save", async function (next) {
       await Counter.create({ model: "Order", field: "orderId" });
       this.orderId = 1000;
     }
+
+    // ── invoiceNumber — B2C/XXX/YY-YY (resets every April 1) ──
+    const now = new Date();
+    const month = now.getMonth(); // 0-indexed (0 = Jan, 3 = Apr)
+    const year = now.getFullYear();
+    // Financial year starts April 1
+    // If month >= 3 (April+), FY = year – (year+1), e.g. 2025-26
+    // If month < 3 (Jan-Mar), FY = (year-1) – year, e.g. 2025-26 for Jan 2026
+    const fyStart = month >= 3 ? year : year - 1;
+    const fyEnd = fyStart + 1;
+    const fyLabel = `${String(fyStart).slice(-2)}-${String(fyEnd).slice(-2)}`; // e.g. "25-26"
+    const counterKey = `Invoice_FY_${fyLabel}`; // unique per financial year
+
+    let invCounter = await Counter.findOne({ model: counterKey, field: "invoiceSeq" });
+
+    let seq;
+    if (invCounter) {
+      seq = invCounter.count + 1;
+      invCounter.count = seq;
+      await invCounter.save();
+    } else {
+      // First invoice of this financial year — start at 1
+      seq = 1;
+      await Counter.create({ model: counterKey, field: "invoiceSeq", count: 1 });
+    }
+
+    // Pad sequence to 3 digits (001, 002, … 999, 1000+)
+    const seqStr = String(seq).padStart(3, "0");
+    // FY 25-26 uses prefix "B2C", from FY 26-27 onwards use "BMC"
+    const prefix = fyStart >= 2026 ? "BMC" : "B2C";
+    this.invoiceNumber = `${prefix}/${seqStr}/${fyLabel}`;
 
     return next();
   } catch (error) {

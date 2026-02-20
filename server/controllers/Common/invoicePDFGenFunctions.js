@@ -125,7 +125,8 @@ const generateInvoicePDF = async (order) => {
       const metaTop = 205;
       doc.fillColor("#000").fontSize(10).font("Helvetica");
       const orderNum = order?.orderId ? order.orderId : order?._id || "";
-      doc.text(`INVOICE NO : INV-${orderNum}`, 50, metaTop);
+      const invoiceNum = order?.invoiceNumber || `INV-${orderNum}`;
+      doc.text(`INVOICE NO : ${invoiceNum}`, 50, metaTop);
       doc.text(`ORDER NO : ${orderNum}`, 50, metaTop + 16);
       doc.text(`INVOICE DATE : ${order?.createdAt ? moment(new Date(order.createdAt)).format("DD/MM/YYYY") : ""}`, 50, metaTop + 32);
       // Format payment mode for display
