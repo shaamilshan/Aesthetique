@@ -234,12 +234,25 @@ const generateInvoicePDF = async (order) => {
       // Footer for the PDF
       doc
         .fontSize(10)
+        .fillColor("#000000")
         .text(
           "Payment has been received. Thank you for your business.",
           50,
           700,
           { align: "center", width: 500 }
         );
+
+      // Computer-generated notice just below the footer with 60% opacity
+      doc
+        .fontSize(8)
+        .opacity(0.6)
+        .text(
+          "This is a Computer Generated Invoice",
+          50,
+          718,
+          { align: "center", width: 500 }
+        )
+        .opacity(1); // reset opacity
 
       // End the document
       doc.end();
