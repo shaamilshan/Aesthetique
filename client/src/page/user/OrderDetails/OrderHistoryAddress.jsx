@@ -1,6 +1,7 @@
 import React from "react";
 
 const OrderHistoryAddress = ({ title, address }) => {
+  if (!address) return null;
   return (
     <div className="border-b lg:border-b-0 lg:border-r p-5 lg:w-1/3">
       <h1 className="text-xl">{title}</h1>

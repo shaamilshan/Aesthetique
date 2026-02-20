@@ -54,7 +54,7 @@ const OrderTableRow = ({ item, index, toggleUpdateModal, classes }) => {
         {date.format(new Date(item.createdAt), "MMM DD YYYY")}
       </td>
       <td className={`admin-table-row ${!isRead ? "font-bold text-gray-900" : "text-gray-400 font-normal"}`}>
-        {item.user.firstName} {item.user.lastName}
+        {item.user ? `${item.user.firstName} ${item.user.lastName}` : (item.guestEmail || "Guest")}
       </td>
       <td className={`admin-table-row ${!isRead ? "font-bold text-gray-900" : "text-gray-400 font-normal"}`}>
         {item.totalPrice}₹

@@ -13,7 +13,7 @@ const ReviewRow = ({ review }) => {
         </div>
         <div>
           <h1>
-            {review.user.firstName} {review.user.lastName} •{" "}
+            {review.user?.firstName || "Guest"} {review.user?.lastName || ""} •{" "}
             <span className="text-gray-500 capitalize">
               {timeAgo(review.createdAt)}
             </span>

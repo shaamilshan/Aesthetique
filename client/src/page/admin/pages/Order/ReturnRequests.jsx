@@ -221,7 +221,7 @@ const ReturnRequests = () => {
                         {date.format(new Date(item.createdAt), "MMM DD YYYY")}
                       </td>
                       <td className="admin-table-row">
-                        {item.user.firstName} {item.user.lastName}
+                        {item.user ? `${item.user.firstName} ${item.user.lastName}` : (item.guestEmail || "Guest")}
                       </td>
                       <td className="admin-table-row">{item.totalPrice}₹</td>
                       <td className="admin-table-row capitalize">
