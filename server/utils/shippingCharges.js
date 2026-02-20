@@ -3,24 +3,24 @@
  *
  * | State        | Pin prefix(es)   | Charge (₹) |
  * |-------------|------------------|-----------|
- * | Kerala       | 67, 68, 69       | 70        |
- * | Tamil Nadu   | 60–66            | 90        |
- * | Karnataka    | 56–59            | 100       |
- * | Andhra       | 50–53            | 100       |
- * | Telangana    | 50               | 100       |
- * | Goa          | 403              | 100       |
- * | Others       | —                | 100       |
+ * | Kerala       | 67, 68, 69       | 99        |
+ * | Tamil Nadu   | 60–66            | 99        |
+ * | Karnataka    | 56–59            | 99        |
+ * | Andhra       | 50–53            | 99        |
+ * | Telangana    | 50               | 99        |
+ * | Goa          | 403              | 99        |
+ * | Others       | —                | 299       |
  */
 
 const SHIPPING_RULES = [
-  { prefixes: ["403"], charge: 100 },          // Goa
-  { prefixes: ["67", "68", "69"], charge: 70 }, // Kerala
-  { prefixes: ["60", "61", "62", "63", "64", "65", "66"], charge: 90 }, // Tamil Nadu
-  { prefixes: ["56", "57", "58", "59"], charge: 100 }, // Karnataka
-  { prefixes: ["50", "51", "52", "53"], charge: 100 }, // Andhra + Telangana
+  { prefixes: ["403"], charge: 99 },          // Goa
+  { prefixes: ["67", "68", "69"], charge: 99 }, // Kerala
+  { prefixes: ["60", "61", "62", "63", "64", "65", "66"], charge: 99 }, // Tamil Nadu
+  { prefixes: ["56", "57", "58", "59"], charge: 99 }, // Karnataka
+  { prefixes: ["50", "51", "52", "53"], charge: 99 }, // Andhra + Telangana
 ];
 
-const DEFAULT_CHARGE = 100;
+const DEFAULT_CHARGE = 299;
 
 /**
  * Get shipping charge for a given pin code.
