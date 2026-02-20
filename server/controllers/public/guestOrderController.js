@@ -150,16 +150,6 @@ const createGuestOrder = async (req, res) => {
 
     const order = await Order.create(orderData);
 
-    // Create payment record for guest order (COD — Razorpay payments are recorded in guestVerifyPayment)
-    if (paymentMode === "cashOnDelivery") {
-      await Payment.create({
-        order: order._id,
-        payment_id: `cod_${uuid.v4()}`,
-        status: "success",
-        paymentMode: "cashOnDelivery",
-      });
-    }
-
     // Send confirmation emails (non-blocking)
     try {
       const populated = await Order.findById(order._id)
