@@ -3,8 +3,8 @@ const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 
-// Table Row with Bottom Line — 6 columns for GST invoice
-function generateTableRow(doc, y, c1, c2, c3, c4, c5, c6) {
+// Table Row with Bottom Line — 7 columns for GST invoice
+function generateTableRow(doc, y, c1, c2, c3, c4, c5, c6, c7) {
   c2 = (c2 || "").slice(0, 32);
 
   doc
@@ -13,8 +13,9 @@ function generateTableRow(doc, y, c1, c2, c3, c4, c5, c6) {
     .text(c2, 78, y, { width: 150 })
     .text(c3, 230, y, { width: 60, align: "center" })
     .text(c4, 295, y, { width: 40, align: "center" })
-    .text(c5, 340, y, { width: 55, align: "center" })
-    .text(c6, 395, y, { width: 115, align: "right" })
+    .text(c5, 340, y, { width: 50, align: "center" })
+    .text(c6, 395, y, { width: 80, align: "right" })
+    .text(c7, 480, y, { width: 80, align: "right" })
     .moveTo(50, y + 15)
     .lineTo(560, y + 15)
     .lineWidth(0.5)
@@ -27,8 +28,8 @@ function generateSummaryRow(doc, y, label, value, bold) {
   if (bold) doc.font("Helvetica-Bold");
   doc
     .fontSize(8)
-    .text(label, 340, y, { width: 100, align: "right" })
-    .text(value, 445, y, { width: 65, align: "right" });
+    .text(label, 395, y, { width: 85, align: "right" })
+    .text(value, 480, y, { width: 80, align: "right" });
   if (bold) doc.font("Helvetica");
 }
 
@@ -156,7 +157,7 @@ const generateInvoicePDF = async (order) => {
       // Compute table top dynamically so it doesn't overlap the billing/notes area.
       const invoiceTableTop = Math.max(370, billTop + (order?.notes ? 160 : 120));
 
-      // Table Header — 6 columns for GST invoice
+      // Table Header — 7 columns for GST invoice
       generateTableRow(
         doc,
         invoiceTableTop,
@@ -165,6 +166,7 @@ const generateInvoicePDF = async (order) => {
         "HSN",
         "Qty",
         "GST %",
+        "Taxable Amt",
         "Amount"
       );
 
@@ -205,6 +207,7 @@ const generateInvoicePDF = async (order) => {
           hsnCode,
           String(qty),
           gstPercent > 0 ? `${gstPercent}%` : "-",
+          taxableAmt.toFixed(2),
           lineTotal.toFixed(2)
         );
       }
@@ -213,8 +216,12 @@ const generateInvoicePDF = async (order) => {
       const subtotalPosition = invoiceTableTop + (i + 1) * 30;
       generateSummaryRow(doc, subtotalPosition, "Subtotal", `Rs. ${(order?.subTotal ?? 0).toFixed(2)}`);
 
-      // GST total row
-      const gstPosition = subtotalPosition + 18;
+      // Taxable Amount row
+      const taxablePosition = subtotalPosition + 18;
+      generateSummaryRow(doc, taxablePosition, "Taxable Amount", `Rs. ${totalTaxableAmount.toFixed(2)}`);
+
+      // GST total row (adjusted position)
+      const gstPosition = taxablePosition + 18;
       generateSummaryRow(doc, gstPosition, "Total GST", `Rs. ${totalGstAmount.toFixed(2)}`);
 
       // Shipping row

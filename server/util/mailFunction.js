@@ -763,6 +763,347 @@ const sendAdminOrderNotification = async (adminEmail, data = {}) => {
   console.log('Admin order notification sent:', mailResponse);
 };
 
+const sendOrderCancelledMail = async (email, cancellationData) => {
+  const {
+    customerName,
+    orderNumber,
+    productName,
+    cancellationDate,
+    products,
+  } = cancellationData;
+
+  const mailResponse = await mailSender(
+    email,
+    "Order Cancellation Notification",
+    `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Order Cancellation</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                  margin: 0;
+                  padding: 0;
+              }
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  background-color: #ffffff;
+                  padding: 40px;
+                  border-radius: 10px;
+                  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+              }
+              .header {
+                  background-color: #e74c3c;
+                  color: #ffffff;
+                  padding: 10px 20px;
+                  border-radius: 5px;
+                  text-align: center;
+              }
+              .content {
+                  margin-top: 30px;
+                  font-size: 18px;
+                  color: #333;
+                  text-align: left;
+              }
+              .footer {
+                  margin-top: 30px;
+                  font-size: 14px;
+                  color: #555;
+                  text-align: center;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Order Cancellation</h1>
+              </div>
+              <div class="content">
+                  <p>Dear ${escapeHtml(customerName)},</p>
+                  <p>We regret to inform you that your order <strong>#${escapeHtml(orderNumber)}</strong> has been cancelled as of ${escapeHtml(cancellationDate)}.</p>
+                  <p>Order Details:</p>
+                  <ul>
+                      ${products
+                        .map(
+                          (p) => `<li>${escapeHtml(p.name)} - Quantity: ${p.quantity}, Price: Rs. ${p.price}</li>`
+                        )
+                        .join("")}
+                  </ul>
+                  <p>If you have any questions, please contact our support team.</p>
+              </div>
+              <div class="footer">
+                  <p>Best regards,</p>
+                  <p>TrendKart</p>
+                  <p>&copy; 2024 TrendKart. All rights reserved.</p>
+              </div>
+          </div>
+      </body>
+      </html>`
+  );
+
+  console.log("Cancellation email sent successfully: ", mailResponse);
+};
+
+const sendReturnRequestMail = async (email, returnData) => {
+  const {
+    customerName,
+    orderNumber,
+    productName,
+    reasonForReturn,
+    returnDate,
+  } = returnData;
+
+  const mailResponse = await mailSender(
+    email,
+    "Return Request Confirmation",
+    `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Return Request Confirmation</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                  margin: 0;
+                  padding: 0;
+              }
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  background-color: #ffffff;
+                  padding: 40px;
+                  border-radius: 10px;
+                  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+              }
+              .header {
+                  background-color: #3498db;
+                  color: #ffffff;
+                  padding: 10px 20px;
+                  border-radius: 5px;
+                  text-align: center;
+              }
+              .content {
+                  margin-top: 30px;
+                  font-size: 18px;
+                  color: #333;
+                  text-align: left;
+              }
+              .footer {
+                  margin-top: 30px;
+                  font-size: 14px;
+                  color: #555;
+                  text-align: center;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Return Request Confirmation</h1>
+              </div>
+              <div class="content">
+                  <p>Dear ${escapeHtml(customerName)},</p>
+                  <p>This is to confirm that your return request has been received. Please find the details of the product below:</p>
+                  <p><strong>Return Details:</strong></p>
+                  <ul>
+                      <li><strong>Order Number:</strong> ${escapeHtml(orderNumber)}</li>
+                      <li><strong>Product Description:</strong> ${escapeHtml(productName)}</li>
+                      <li><strong>Reason for Return:</strong> ${escapeHtml(reasonForReturn)}</li>
+                      <li><strong>Return Request Date:</strong> ${escapeHtml(returnDate)}</li>
+                  </ul>
+                  <p>Kindly ensure that the product is returned in its original condition, along with all packaging and accessories. Once we receive and inspect the item, the refund/replacement will be processed according to our return policy.</p>
+                  <p>If you need any assistance regarding the return process, please feel free to contact us.</p>
+              </div>
+              <div class="footer">
+                  <p>Thank you for your cooperation.</p>
+                  <p>Sincerely,</p>
+                  <p>[Your Full Name]</p>
+                  <p>[Your Designation]</p>
+                  <p>[Company Name]</p>
+                  <p>[Contact Details]</p>
+              </div>
+          </div>
+      </body>
+      </html>`
+  );
+
+  console.log("Return request email sent successfully: ", mailResponse);
+};
+
+const sendAdminOrderCancelledMail = async (email, cancellationData) => {
+  const {
+    adminName,
+    orderNumber,
+    customerName,
+    productName,
+    cancellationDate,
+    reason,
+  } = cancellationData;
+
+  const mailResponse = await mailSender(
+    email,
+    "Order Cancellation Notification (Admin)",
+    `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Order Cancellation</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                  margin: 0;
+                  padding: 0;
+              }
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  background-color: #ffffff;
+                  padding: 40px;
+                  border-radius: 10px;
+                  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+              }
+              .header {
+                  background-color: #e74c3c;
+                  color: #ffffff;
+                  padding: 10px 20px;
+                  border-radius: 5px;
+                  text-align: center;
+              }
+              .content {
+                  margin-top: 30px;
+                  font-size: 18px;
+                  color: #333;
+                  text-align: left;
+              }
+              .footer {
+                  margin-top: 30px;
+                  font-size: 14px;
+                  color: #555;
+                  text-align: center;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Order Cancellation Notification</h1>
+              </div>
+              <div class="content">
+                  <p>Dear ${escapeHtml(adminName)},</p>
+                  <p>The following order has been cancelled:</p>
+                  <ul>
+                      <li><strong>Order Number:</strong> ${escapeHtml(orderNumber)}</li>
+                      <li><strong>Customer Name:</strong> ${escapeHtml(customerName)}</li>
+                      <li><strong>Product Description:</strong> ${escapeHtml(productName)}</li>
+                      <li><strong>Reason for Cancellation:</strong> ${escapeHtml(reason)}</li>
+                      <li><strong>Cancellation Date:</strong> ${escapeHtml(cancellationDate)}</li>
+                  </ul>
+                  <p>Please take the necessary actions as per the cancellation policy.</p>
+              </div>
+              <div class="footer">
+                  <p>Thank you,</p>
+                  <p>TrendKart System</p>
+              </div>
+          </div>
+      </body>
+      </html>`
+  );
+
+  console.log("Admin cancellation email sent successfully: ", mailResponse);
+};
+
+const sendAdminReturnRequestMail = async (email, returnData) => {
+  const {
+    adminName,
+    orderNumber,
+    customerName,
+    productName,
+    reasonForReturn,
+    returnDate,
+  } = returnData;
+
+  const mailResponse = await mailSender(
+    email,
+    "Return Request Notification (Admin)",
+    `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Return Request</title>
+          <style>
+              body {
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+                  margin: 0;
+                  padding: 0;
+              }
+              .container {
+                  max-width: 600px;
+                  margin: 0 auto;
+                  background-color: #ffffff;
+                  padding: 40px;
+                  border-radius: 10px;
+                  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+              }
+              .header {
+                  background-color: #3498db;
+                  color: #ffffff;
+                  padding: 10px 20px;
+                  border-radius: 5px;
+                  text-align: center;
+              }
+              .content {
+                  margin-top: 30px;
+                  font-size: 18px;
+                  color: #333;
+                  text-align: left;
+              }
+              .footer {
+                  margin-top: 30px;
+                  font-size: 14px;
+                  color: #555;
+                  text-align: center;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Return Request Notification</h1>
+              </div>
+              <div class="content">
+                  <p>Dear ${escapeHtml(adminName)},</p>
+                  <p>The following return request has been received:</p>
+                  <ul>
+                      <li><strong>Order Number:</strong> ${escapeHtml(orderNumber)}</li>
+                      <li><strong>Customer Name:</strong> ${escapeHtml(customerName)}</li>
+                      <li><strong>Product Description:</strong> ${escapeHtml(productName)}</li>
+                      <li><strong>Reason for Return:</strong> ${escapeHtml(reasonForReturn)}</li>
+                      <li><strong>Return Request Date:</strong> ${escapeHtml(returnDate)}</li>
+                  </ul>
+                  <p>Please review the request and take the necessary actions.</p>
+              </div>
+              <div class="footer">
+                  <p>Thank you,</p>
+                  <p>TrendKart System</p>
+              </div>
+          </div>
+      </body>
+      </html>`
+  );
+
+  console.log("Admin return request email sent successfully: ", mailResponse);
+};
+
 module.exports = {
   sendOTPMail,
   passwordChangedMail,
@@ -773,6 +1114,10 @@ module.exports = {
   sendOrderDeliveredMail,
   sendOrderPlacedMail,
   sendAdminOrderNotification,
+  sendOrderCancelledMail,
+  sendReturnRequestMail,
+  sendAdminOrderCancelledMail,
+  sendAdminReturnRequestMail,
 };
 
 // NOTE: add sendOrderPlacedMail for order creation notifications

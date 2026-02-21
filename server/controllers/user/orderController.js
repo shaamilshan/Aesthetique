@@ -11,7 +11,7 @@ const Coupon = require("../../model/couponModel");
 const { generateInvoicePDF } = require("../Common/invoicePDFGenFunctions");
 const Counter = require("../../model/counterModel");
 const managerOrderModel = require("../../model/managerOrderModel");
-const { sendOrderPlacedMail, sendAdminOrderNotification } = require("../../util/mailFunction");
+const { sendOrderPlacedMail, sendAdminOrderNotification, sendOrderCancelledMail, sendReturnRequestMail, sendAdminOrderCancelledMail, sendAdminReturnRequestMail } = require("../../util/mailFunction");
 const { getShippingCharge } = require("../../utils/shippingCharges");
 
 // // Just the function increment or decrement product count
@@ -500,6 +500,52 @@ const cancelOrder = async (req, res) => {
       { new: true }
     );
 
+    // Send cancellation email
+    try {
+      const recipient = orderDetails?.user?.email;
+      const customerName = `${orderDetails?.user?.firstName || ''} ${orderDetails?.user?.lastName || ''}`.trim();
+      const productsForMail = (orderDetails?.products || []).map((p) => ({
+        name: p.productId?.name || '',
+        quantity: p.quantity,
+        price: p.price,
+      }));
+
+      if (recipient) {
+        await sendOrderCancelledMail(recipient, {
+          customerName,
+          orderNumber: orderDetails?.orderId || orderDetails?._id,
+          productName: productsForMail[0]?.name || '',
+          cancellationDate: new Date().toISOString(),
+          products: productsForMail,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to send cancellation email', err);
+    }
+
+    // Determine admin email dynamically based on role
+    const adminEmail = req.user?.email; // Assuming req.user contains the logged-in user's details
+    const adminName = req.user?.role === 'superadmin' ? 'Super Admin' : 'Admin';
+
+    if (!adminEmail) {
+      console.error('Admin email not found. Cannot send admin notification.');
+      return;
+    }
+
+    // Send admin order notification
+    try {
+      await sendAdminOrderCancelledMail(adminEmail, {
+        adminName,
+        orderNumber: orderDetails?.orderId || orderDetails?._id,
+        customerName: `${orderDetails?.user?.firstName || ''} ${orderDetails?.user?.lastName || ''}`.trim(),
+        productName: orderDetails?.products?.[0]?.productId?.name || '',
+        cancellationDate: new Date().toISOString(),
+        reason,
+      });
+    } catch (err) {
+      console.error('Failed to send admin cancellation email', err);
+    }
+
     if (order.paymentMode !== "cashOnDelivery") {
       const token = req.cookies.user_token;
 
@@ -638,6 +684,42 @@ const requestReturn = async (req, res) => {
       },
       { new: true }
     );
+
+    // Send return request email
+    try {
+      const recipient = order?.user?.email;
+      const customerName = `${order?.user?.firstName || ''} ${order?.user?.lastName || ''}`.trim();
+      const productName = order?.products?.[0]?.productId?.name || '';
+
+      if (recipient) {
+        await sendReturnRequestMail(recipient, {
+          customerName,
+          orderNumber: order?.orderId || order?._id,
+          productName,
+          reasonForReturn: reason,
+          returnDate: new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to send return request email', err);
+    }
+
+    // Send admin return request email
+    try {
+      const adminEmail = req.user?.email; // Assuming req.user contains the logged-in user's details
+      const adminName = req.user?.role === 'superadmin' ? 'Super Admin' : 'Admin';
+
+      await sendAdminReturnRequestMail(adminEmail, {
+        adminName,
+        orderNumber: order?.orderId || order?._id,
+        customerName: `${order?.user?.firstName || ''} ${order?.user?.lastName || ''}`.trim(),
+        productName: order?.products?.[0]?.productId?.name || '',
+        reasonForReturn: reason,
+        returnDate: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('Failed to send admin return request email', err);
+    }
 
     res.status(200).json({ order: updated });
   } catch (error) {
