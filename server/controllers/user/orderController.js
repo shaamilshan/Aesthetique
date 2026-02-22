@@ -166,7 +166,7 @@ const createOrder = async (req, res) => {
     }
 
     // Calculate shipping charge based on delivery pin code
-    const shippingCharge = getShippingCharge(addressData ? addressData.pinCode : null);
+    const shippingCharge = getShippingCharge(addressData ? addressData.pinCode : null, sum);
     sumWithTax += shippingCharge;
 
     const products = cart.items.map((item) => ({
@@ -827,7 +827,7 @@ const buyNow = async (req, res) => {
     }
 
     // Calculate shipping charge based on delivery pin code
-    const shippingCharge = getShippingCharge(addressData.pinCode);
+    const shippingCharge = getShippingCharge(addressData.pinCode, sum);
     const sumWithTax = parseInt(sum) + shippingCharge;
 
     let products = [];

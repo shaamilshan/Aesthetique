@@ -56,9 +56,9 @@ const BuyNow = () => {
     if (selectedAddress && addresses && addresses.length > 0) {
       const addr = addresses.find((a) => a._id === selectedAddress);
       if (addr && addr.pinCode) {
-        setShipping(getShippingCharge(addr.pinCode));
+        setShipping(getShippingCharge(addr.pinCode, totalPrice));
       } else {
-        setShipping(getShippingCharge(null));
+        setShipping(getShippingCharge(null, totalPrice));
       }
     }
   }, [selectedAddress, addresses]);

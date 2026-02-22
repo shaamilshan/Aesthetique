@@ -2,7 +2,7 @@
  * Shipping charge lookup based on pin code prefix.
  *
  * | State        | Pin prefix(es)   | Charge (₹) |
- * |-------------|------------------|-----------|
+ * |-------------|------------------|-----------| 
  * | Kerala       | 67, 68, 69       | 99        |
  * | Tamil Nadu   | 60–66            | 99        |
  * | Karnataka    | 56–59            | 99        |
@@ -10,7 +10,11 @@
  * | Telangana    | 50               | 99        |
  * | Goa          | 403              | 99        |
  * | Others       | —                | 299       |
+ *
+ * Free shipping applies when order total >= ₹1399.
  */
+
+export const FREE_SHIPPING_THRESHOLD = 1399;
 
 // Rules are checked top-down; first match wins.
 // More-specific prefixes (3-digit) come first.
@@ -25,11 +29,15 @@ const SHIPPING_RULES = [
 const DEFAULT_CHARGE = 299;
 
 /**
- * Get shipping charge for a given pin code.
+ * Get shipping charge for a given pin code and order total.
  * @param {string|number} pinCode - The delivery pin code.
- * @returns {number} Shipping charge in ₹.
+ * @param {number} [orderTotal=0] - The order subtotal before shipping (₹).
+ * @returns {number} Shipping charge in ₹ (0 if free shipping applies).
  */
-export function getShippingCharge(pinCode) {
+export function getShippingCharge(pinCode, orderTotal = 0) {
+  // Free shipping for orders at or above the threshold
+  if (Number(orderTotal) >= FREE_SHIPPING_THRESHOLD) return 0;
+
   if (!pinCode) return DEFAULT_CHARGE;
 
   const pin = String(pinCode).trim();

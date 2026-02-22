@@ -96,7 +96,7 @@ const createGuestOrder = async (req, res) => {
     }
 
     // Calculate shipping
-    const shippingCharge = getShippingCharge(address.pinCode || null);
+    const shippingCharge = getShippingCharge(address.pinCode || null, sum);
     const totalPrice = sum + shippingCharge;
 
     // Build order data (no user field for guest)

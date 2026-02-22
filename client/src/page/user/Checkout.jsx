@@ -61,13 +61,13 @@ const Checkout = () => {
   useEffect(() => {
     if (!user && guestAddress) {
       // Guest flow: use the inline address object
-      dispatch(setShipping(getShippingCharge(guestAddress.pinCode || null)));
+      dispatch(setShipping(getShippingCharge(guestAddress.pinCode || null, totalPrice)));
     } else if (selectedAddress && addresses && addresses.length > 0) {
       const addr = addresses.find((a) => a._id === selectedAddress);
       if (addr && addr.pinCode) {
-        dispatch(setShipping(getShippingCharge(addr.pinCode)));
+        dispatch(setShipping(getShippingCharge(addr.pinCode, totalPrice)));
       } else {
-        dispatch(setShipping(getShippingCharge(null)));
+        dispatch(setShipping(getShippingCharge(null, totalPrice)));
       }
     }
   }, [selectedAddress, addresses, guestAddress, user]);
@@ -132,7 +132,7 @@ const Checkout = () => {
       toast.success("Order Placed Successfully!");
       dispatch(clearCartOnOrderPlaced());
       localStorage.removeItem("guest_cart");
-      try { window.dispatchEvent(new Event("guest_cart_updated")); } catch (e) {}
+      try { window.dispatchEvent(new Event("guest_cart_updated")); } catch (e) { }
 
       setOrderData(formattedOrderData);
       setOrderConfirmed(true);
