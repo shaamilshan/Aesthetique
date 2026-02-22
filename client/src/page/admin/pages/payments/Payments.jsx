@@ -149,11 +149,12 @@ const Payments = () => {
                     >
                       <td className="admin-table-row">{adjustedIndex}</td>
                       <td className="admin-table-row flex items-center gap-2">
-                        <p className="line-clamp-1 mb-1 font-semibold">
-                        {item.user
-              ? `${item.user.firstName} ${item.user.lastName}`
-              : "Unknown User"}
-               {/* {item.user.firstName} {item.user.lastName} */}
+                                                <p className="line-clamp-1 mb-1 font-semibold">
+                          {item.user
+                            ? `${item.user.firstName} ${item.user.lastName || ''}`.trim()
+                            : item.order?.address?.firstName
+                            ? `${item.order.address.firstName} ${item.order.address.lastName || ''}`.trim() + ' (Guest)'
+                            : item.order?.guestEmail || 'Guest'}
                         </p>
                       </td>
                       <td className="admin-table-row">
