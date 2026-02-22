@@ -24,7 +24,7 @@ const Register = () => {
 
   const [loadingLocal, setLoadingLocal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
 
   // const registerTestimonials = [
   //   {
@@ -46,11 +46,10 @@ const Register = () => {
 
   useEffect(() => {
     if (user) {
-      // After signup, redirect admins to admin dashboard, others to coming soon
       if (user.role === "admin" || user.role === "superAdmin") {
         navigate("/admin/");
       } else {
-        navigate("/coming-soon");
+        navigate("/");
       }
     }
     return () => {
@@ -70,7 +69,7 @@ const Register = () => {
     password: Yup.string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters long"),
-    
+
   });
 
   // ...existing code...
@@ -194,7 +193,7 @@ const Register = () => {
           <div className="hidden lg:block lg:w-1/2 relative bg-gray-100">
             <img src={SignUpBG} alt="auth" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/30"></div>
-          
+
           </div>
         </div>
       </div>

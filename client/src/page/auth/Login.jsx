@@ -53,11 +53,10 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      // Redirect admins to admin dashboard, others to the coming soon landing
       if (user.role === "admin" || user.role === "superAdmin") {
         navigate("/admin/");
       } else {
-        navigate("/coming-soon");
+        navigate("/");
       }
     }
     return () => {
@@ -168,7 +167,7 @@ const Login = () => {
           <div className="hidden lg:block lg:w-1/2 relative bg-gray-100">
             <img src={LoginImg} alt="auth" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/30"></div>
-           
+
           </div>
         </div>
       </div>
