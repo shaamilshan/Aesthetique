@@ -550,7 +550,7 @@ const sendOrderShippedMail = async (email, data = {}, attachments = []) => {
           <p class="muted">${escapeHtml(address) || 'Address not available'}</p>
           <p style="margin-top:8px"><strong>Product</strong>: ${escapeHtml(productName) || 'Item'}</p>
         </div>
-        ${trackingLink ? `<p>Track your shipment: <a href="${escapeAttr(trackingLink)}" target="_blank" rel="noopener" class="cta">View tracking</a></p>` : '<p class="muted">No tracking link available.</p>'}
+        ${trackingLink ? `<p><strong>Tracking ID:</strong> <span style="font-family:monospace;background:#f3f4f6;padding:2px 6px;border-radius:4px;">${escapeHtml(trackingLink)}</span></p>` : '<p class="muted">No tracking ID available.</p>'}
         <p class="muted">If you have any questions, reply to this email or contact our support at <strong>help.bmaesthetique@gmail.com</strong>.</p>
         <div class="footer">Warm regards,<br/>BM Aesthetique</div>
       </div>
@@ -665,6 +665,7 @@ const sendOrderPlacedMail = async (email, data = {}, attachments = []) => {
           <p><strong>Summary</strong></p>
           <p class="muted">Product: ${escapeHtml(productName) || 'Multiple items'}</p>
           <p class="muted">Total: ₹${escapeHtml(String(totalPrice)) || 'N/A'}</p>
+          ${data.address ? `<p style="margin-top:10px"><strong>Shipping Address</strong></p><p class="muted">${escapeHtml(data.address)}</p>` : ''}
         </div>
         <p class="muted">If you have any questions, reply to this email or contact our support at <strong>help.bmaesthetique@gmail.com</strong>.</p>
         <div class="footer">Warm regards,<br/>BM Aesthetique</div>
@@ -828,10 +829,10 @@ const sendOrderCancelledMail = async (email, cancellationData) => {
                   <p>Order Details:</p>
                   <ul>
                       ${products
-                        .map(
-                          (p) => `<li>${escapeHtml(p.name)} - Quantity: ${p.quantity}, Price: Rs. ${p.price}</li>`
-                        )
-                        .join("")}
+      .map(
+        (p) => `<li>${escapeHtml(p.name)} - Quantity: ${p.quantity}, Price: Rs. ${p.price}</li>`
+      )
+      .join("")}
                   </ul>
                   <p>If you have any questions, please contact our support team.</p>
               </div>

@@ -250,11 +250,16 @@ const updateOrderStatus = async (req, res) => {
     }
 
     const order = await Order.findOne(find, {
-      address: 0,
       products: { $slice: 1 },
     })
       .populate("user", { firstName: 1, lastName: 1, email: 1 })
       .populate("products.productId", { imageURL: 1, name: 1 });
+
+    // Build a formatted address string for emails
+    const addrObj = order?.address;
+    const addressString = addrObj
+      ? `${addrObj.firstName || ''} ${addrObj.lastName || ''}, ${addrObj.address || ''}, ${addrObj.city || ''}, ${addrObj.regionState || ''}, ${addrObj.country || ''} - ${addrObj.pinCode || ''}. Ph: ${addrObj.phoneNumber || ''}`
+      : '';
 
     // Send notification emails based on status change (non-blocking)
     try {
@@ -266,7 +271,7 @@ const updateOrderStatus = async (req, res) => {
           recipient,
           {
             customerName,
-            address: order?.address || '',
+            address: addressString,
             trackingLink: order?.trackingId || '',
             productName: order?.products && order.products[0] ? order.products[0].productId?.name : '',
             orderId: order?.orderId || order?._id,
@@ -286,7 +291,7 @@ const updateOrderStatus = async (req, res) => {
               customerName,
               orderNumber: order?.orderId || order?._id,
               productName: order?.products && order.products[0] ? order.products[0].productId?.name : '',
-              address: order?.address || '',
+              address: addressString,
               deliveryDate: new Date().toISOString(),
               products: productsForMail,
             },
@@ -300,7 +305,7 @@ const updateOrderStatus = async (req, res) => {
               customerName,
               orderNumber: order?.orderId || order?._id,
               productName: order?.products && order.products[0] ? order.products[0].productId?.name : '',
-              address: order?.address || '',
+              address: addressString,
               deliveryDate: new Date().toISOString(),
               products: productsForMail,
             }

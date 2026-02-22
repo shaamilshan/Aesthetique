@@ -288,6 +288,7 @@ const createOrder = async (req, res) => {
               orderNumber,
               totalPrice,
               products: productsForMail,
+              address: addressString,
             },
             [{ filename: `invoice_${orderNumber}.pdf`, content: pdfBuffer }]
           ).catch((err) => console.error('Failed to send order-placed email', err));
@@ -299,6 +300,7 @@ const createOrder = async (req, res) => {
             orderNumber,
             totalPrice,
             products: productsForMail,
+            address: addressString,
           }).catch((err) => console.error('Failed to send order-placed email (no attach)', err));
         }
       }
@@ -904,6 +906,7 @@ const buyNow = async (req, res) => {
               orderNumber,
               totalPrice,
               products: productsForMail,
+              address: addressString,
             },
             [{ filename: `invoice_${orderNumber}.pdf`, content: pdfBuffer }]
           ).catch((err) => console.error('Failed to send order-placed email', err));
@@ -914,6 +917,7 @@ const buyNow = async (req, res) => {
             orderNumber,
             totalPrice,
             products: productsForMail,
+            address: addressString,
           }).catch((err) => console.error('Failed to send order-placed email (no attach)', err));
         }
       }

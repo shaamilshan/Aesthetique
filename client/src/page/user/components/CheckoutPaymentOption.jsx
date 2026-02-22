@@ -31,7 +31,7 @@ const CheckoutPaymentOption = ({ selectedPayment, handleSelectedPayment }) => {
           </div>
         </label>
 
-        {/* Cash on Delivery Option — hidden for now */}
+        {/* Cash on Delivery Option */}
         {/* <label className="cursor-pointer">
           <div className={`border p-4 rounded-lg hover:shadow-md transition-shadow flex items-start gap-3 ${selectedPayment === 'cashOnDelivery' ? 'ring-2 ring-black' : ''}`}>
             <div className="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-md border">
