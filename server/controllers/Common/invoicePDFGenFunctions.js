@@ -166,8 +166,8 @@ const generateInvoicePDF = async (order) => {
         "HSN",
         "Qty",
         "GST %",
-        "Taxable Amt",
-        "Amount"
+        "Rate",
+        "Taxable Amount"
       );
 
       // Table body — reverse-calculate GST from inclusive price
@@ -207,14 +207,14 @@ const generateInvoicePDF = async (order) => {
           hsnCode,
           String(qty),
           gstPercent > 0 ? `${gstPercent}%` : "-",
-          taxableAmt.toFixed(2),
-          lineTotal.toFixed(2)
+          (unitPrice / (1 + gstPercent / 100)).toFixed(2),
+          taxableAmt.toFixed(2)
         );
       }
 
       // Summary rows
       const subtotalPosition = invoiceTableTop + (i + 1) * 30;
-      generateSummaryRow(doc, subtotalPosition, "Subtotal", `Rs. ${(order?.subTotal ?? 0).toFixed(2)}`);
+      generateSummaryRow(doc, subtotalPosition, "MRP", `Rs. ${(order?.subTotal ?? 0).toFixed(2)}`);
 
       // Taxable Amount row
       const taxablePosition = subtotalPosition + 18;
@@ -244,7 +244,7 @@ const generateInvoicePDF = async (order) => {
         .fontSize(10)
         .fillColor("#000000")
         .text(
-          "Payment has been received. Thank you for your business.",
+          "Payment has been received. Thank you for your Order.",
           50,
           700,
           { align: "center", width: 500 }
