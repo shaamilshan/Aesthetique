@@ -59,7 +59,7 @@ const OrderTableRow = ({ item, index, toggleUpdateModal, classes }) => {
       <td className={`admin-table-row ${!isRead ? "font-bold text-gray-900" : "text-gray-400 font-normal"}`}>
         {item.totalPrice}₹
       </td>
-      <td className={`admin-table-row ${!isRead ? "font-bold text-gray-900" : "text-gray-400 font-normal"}`}>
+      <td className={`admi{/* n-table-row ${!isRead ? "font-bold text-gray-900" : "text-gray-400 font-normal"}`}>
         {date.format(new Date(item.deliveryDate), "MMM DD YYYY")}
       </td>
       <td className={`admin-table-row capitalize ${!isRead ? "" : "opacity-60"}`}>
@@ -75,7 +75,9 @@ const OrderTableRow = ({ item, index, toggleUpdateModal, classes }) => {
                 id: item._id,
                 status: item.status,
                 paymentMode: item.paymentMode,
-                deliveryDate: item.createdAt,
+                deliveryDate: item.deliveryDate,
+                orderDate: item.createdAt,
+                trackingId: item.trackingId,
               });
             }}
           >

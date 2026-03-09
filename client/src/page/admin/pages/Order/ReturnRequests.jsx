@@ -147,6 +147,7 @@ const ReturnRequests = () => {
               "return approved",
               "return rejected",
               "pickup completed",
+              "returned",
             ]}
             handleClick={handleFilter}
           />
@@ -258,6 +259,7 @@ const ReturnRequests = () => {
                                 id: item._id,
                                 status: item.status,
                                 deliveryDate: item.deliveryDate,
+                                orderDate: item.createdAt,
                               });
                             }}
                           >

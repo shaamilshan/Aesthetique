@@ -196,9 +196,16 @@ const updateOrderStatus = async (req, res) => {
       "statusHistory.status": status,
     });
 
+    const parsedDeliveryDate = date ? new Date(date) : null;
+    const isValidDeliveryDate = parsedDeliveryDate instanceof Date && !isNaN(parsedDeliveryDate.getTime());
+
+    const statusHistoryDate =
+      status === "delivered" && isValidDeliveryDate ? parsedDeliveryDate : new Date();
+
     let updateOptions = {
       $set: {
         status,
+        ...(isValidDeliveryDate ? { deliveryDate: parsedDeliveryDate } : {}),
       },
     };
     let updateOptionstrack = {
@@ -213,7 +220,7 @@ const updateOrderStatus = async (req, res) => {
           status,
           description,
           trackingId,
-          date: new Date(date),
+          date: statusHistoryDate,
         },
       };
     }

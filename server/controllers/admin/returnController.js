@@ -10,6 +10,7 @@ function isValidStatus(status) {
     "return approved",
     "return rejected",
     "pickup completed",
+    "returned",
   ];
 
   return validStatusValues.includes(status);
@@ -76,6 +77,7 @@ const getReturnOrders = async (req, res) => {
           "return approved",
           "return rejected",
           "pickup completed",
+          "returned",
         ],
       };
     }

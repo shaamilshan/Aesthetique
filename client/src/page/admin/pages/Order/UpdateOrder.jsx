@@ -10,20 +10,18 @@ import {
 } from "../../../../Common/functions";
 
 const UpdateOrder = ({ toggleModal, data }) => {
-  const { id, status, paymentMode, deliveryDate,trackingId } = data;
-  console.log("data");
-  console.log(data);
+  const { id, status, paymentMode, deliveryDate, orderDate, trackingId } = data;
   
   const dispatch = useDispatch();
   const todayDate = getTodayOnwardDateForInput();
-  // compute a safe min date: only use deliveryDate when it's a valid date <= today
-  const rawOrderDate = deliveryDate ? getPassedDateOnwardDateForInput(deliveryDate) : "";
-  const minDate = rawOrderDate && rawOrderDate <= todayDate ? rawOrderDate : "";
+  const deliveryDateInput = deliveryDate ? getPassedDateOnwardDateForInput(deliveryDate) : "";
+  // For expected delivery, default to today when saved value is missing/past.
+  const initialExpectedDate = deliveryDateInput && deliveryDateInput >= todayDate ? deliveryDateInput : todayDate;
 
   const initialValues = {
     status: status,
-    // default date to today so validation passes and admins don't always need to pick a date
-    date: todayDate,
+    // This date represents the expected delivery date shown in Orders table.
+    date: initialExpectedDate,
     description: "",
     paymentStatus: "",
     trackingId: trackingId || "",
@@ -116,12 +114,14 @@ const UpdateOrder = ({ toggleModal, data }) => {
               </div>
 
               <div>
-                <label className="text-sm mb-1 block">Date</label>
+                <label className="text-sm mb-1 block">
+                  {values.status === "delivered" ? "Delivered Date" : "Expected Delivery Date"}
+                </label>
                 <Field
                   type="date"
                   name="date"
-                  min={minDate || undefined}
-                  max={todayDate}
+                  min={values.status === "delivered" ? undefined : todayDate}
+                  max={values.status === "delivered" ? todayDate : undefined}
                   className="px-3 py-2 w-full bg-gray-100 rounded border"
                 />
                 <ErrorMessage name="date" component="div" className="text-red-600 text-xs mt-1" />

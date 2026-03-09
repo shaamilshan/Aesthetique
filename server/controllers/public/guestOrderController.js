@@ -66,6 +66,10 @@ const createGuestOrder = async (req, res) => {
       throw new Error("Payment mode is required");
     }
 
+    if (paymentMode === "cashOnDelivery") {
+      throw new Error("Cash on Delivery is currently unavailable.");
+    }
+
     // Validate and build products array
     let sum = 0;
     let totalQuantity = 0;

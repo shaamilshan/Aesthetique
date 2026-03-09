@@ -253,7 +253,7 @@ const BuyNow = () => {
     }
 
     if (selectedPayment === "cashOnDelivery") {
-      saveOrderOnCashDeliveryOrMyWallet();
+      toast.error("Cash on Delivery is currently unavailable.");
       return;
     }
 

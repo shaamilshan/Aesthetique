@@ -137,7 +137,9 @@ const createOrder = async (req, res) => {
 
     const { address, paymentMode, notes } = req.body;
 
-    // COD is now allowed – removed the previous block that threw an error for cashOnDelivery
+    if (paymentMode === "cashOnDelivery") {
+      return res.status(400).json({ error: "Cash on Delivery is currently unavailable." });
+    }
 
     const addressData = await Address.findOne({ _id: address });
 
@@ -794,7 +796,9 @@ const buyNow = async (req, res) => {
   try {
     const { address, paymentMode, notes, quantity } = req.body;
 
-    // COD is now allowed
+    if (paymentMode === "cashOnDelivery") {
+      return res.status(400).json({ error: "Cash on Delivery is currently unavailable." });
+    }
 
     // User Id
     const token = req.cookies.user_token;

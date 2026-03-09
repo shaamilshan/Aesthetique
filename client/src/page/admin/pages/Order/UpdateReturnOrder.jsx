@@ -10,15 +10,14 @@ import {
 } from "../../../../Common/functions";
 
 const UpdateReturnOrder = ({ toggleModal, data }) => {
-  const { id, status } = data;
+  const { id, status, orderDate } = data;
   const dispatch = useDispatch();
-  const orderDate = getPassedDateOnwardDateForInput(data.deliveryDate);
-  console.log(data);
   const todayDate = getTodayOnwardDateForInput();
+  const minDate = orderDate ? getPassedDateOnwardDateForInput(orderDate) : undefined;
 
   const initialValues = {
     status: status,
-    date: "",
+    date: todayDate,
     description: "",
     refund: "",
     reason: "",
@@ -91,11 +90,11 @@ const UpdateReturnOrder = ({ toggleModal, data }) => {
               />
             </div>
             <div className="py-2">
-              <p>Date</p>
+              <p>Status Date</p>
               <Field
                 type="date"
                 name="date"
-                min={orderDate}
+                min={minDate}
                 max={todayDate}
                 className="px-5 py-2 w-full bg-gray-300 rounded-lg"
               />

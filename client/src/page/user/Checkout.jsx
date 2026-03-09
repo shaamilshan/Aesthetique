@@ -316,11 +316,7 @@ const Checkout = () => {
     }
 
     if (selectedPayment === "cashOnDelivery") {
-      if (user) {
-        saveOrderOnCashOnDelivery();
-      } else {
-        placeGuestOrder("cashOnDelivery");
-      }
+      toast.error("Cash on Delivery is currently unavailable.");
       return;
     }
 
