@@ -250,9 +250,8 @@ OrderSchema.pre("save", async function (next) {
 
     // Pad sequence to 3 digits (001, 002, … 999, 1000+)
     const seqStr = String(seq).padStart(3, "0");
-    // FY 25-26 uses prefix "B2C", from FY 26-27 onwards use "BMC"
-    const prefix = fyStart >= 2026 ? "BMC" : "B2C";
-    this.invoiceNumber = `${prefix}/${seqStr}/${fyLabel}`;
+    const prefix = "BMCW";
+    this.invoiceNumber = `${prefix}/${fyLabel}/${seqStr}`;
 
     return next();
   } catch (error) {

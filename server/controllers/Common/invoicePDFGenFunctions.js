@@ -3,21 +3,23 @@ const moment = require("moment");
 const fs = require("fs");
 const path = require("path");
 
-// Table Row with Bottom Line — 7 columns for GST invoice
-function generateTableRow(doc, y, c1, c2, c3, c4, c5, c6, c7) {
-  c2 = (c2 || "").slice(0, 32);
+// Table Row with Bottom Line — 9 columns for GST invoice + Batch/Expiry
+function generateTableRow(doc, y, c1, c2, c3, c4, c5, c6, c7, c8, c9) {
+  c2 = (c2 || "").slice(0, 24);
 
   doc
-    .fontSize(8)
-    .text(c1, 50, y, { width: 25 })
-    .text(c2, 78, y, { width: 150 })
-    .text(c3, 230, y, { width: 60, align: "center" })
-    .text(c4, 295, y, { width: 40, align: "center" })
-    .text(c5, 340, y, { width: 50, align: "center" })
-    .text(c6, 395, y, { width: 80, align: "right" })
-    .text(c7, 480, y, { width: 80, align: "right" })
+    .fontSize(7) // Slightly smaller font to fit more columns
+    .text(c1, 50, y, { width: 20 })
+    .text(c2, 70, y, { width: 110 })
+    .text(c3, 180, y, { width: 45, align: "center" })
+    .text(c4, 225, y, { width: 45, align: "center" })
+    .text(c5, 275, y, { width: 50, align: "center" })
+    .text(c6, 325, y, { width: 30, align: "center" })
+    .text(c7, 355, y, { width: 35, align: "center" })
+    .text(c8, 395, y, { width: 70, align: "right" })
+    .text(c9, 465, y, { width: 75, align: "right" })
     .moveTo(50, y + 15)
-    .lineTo(560, y + 15)
+    .lineTo(540, y + 15)
     .lineWidth(0.5)
     .strokeColor("#ccc")
     .stroke();
@@ -157,17 +159,19 @@ const generateInvoicePDF = async (order) => {
       // Compute table top dynamically so it doesn't overlap the billing/notes area.
       const invoiceTableTop = Math.max(370, billTop + (order?.notes ? 160 : 120));
 
-      // Table Header — 7 columns for GST invoice
+      // Table Header — 9 columns for GST invoice + Batch/Expiry
       generateTableRow(
         doc,
         invoiceTableTop,
         "#",
         "Product",
+        "Batch",
+        "Exp.",
         "HSN",
         "Qty",
         "GST %",
         "Rate",
-        "Taxable Amount"
+        "Taxable"
       );
 
       // Table body — reverse-calculate GST from inclusive price
@@ -199,11 +203,16 @@ const generateInvoicePDF = async (order) => {
         totalTaxableAmount += taxableAmt;
         totalGstAmount += gstAmt;
 
+        const batchNo = item?.productId?.batchNo || "-";
+        const expiryDate = item?.productId?.expiryDate ? moment(new Date(item.productId.expiryDate)).format("MM/YYYY") : "-";
+
         generateTableRow(
           doc,
           position,
           String(i + 1),
           item?.productId?.name || "",
+          batchNo,
+          expiryDate,
           hsnCode,
           String(qty),
           gstPercent > 0 ? `${gstPercent}%` : "-",

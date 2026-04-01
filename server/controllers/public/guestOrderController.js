@@ -157,7 +157,7 @@ const createGuestOrder = async (req, res) => {
     // Send confirmation emails (non-blocking)
     try {
       const populated = await Order.findById(order._id)
-        .populate("products.productId", { name: 1, price: 1, gstPercent: 1, hsnCode: 1 });
+        .populate("products.productId", { name: 1, price: 1, gstPercent: 1, hsnCode: 1, batchNo: 1, expiryDate: 1 });
 
       const customerEmail = orderData.guestEmail;
       const customerName = `${address.firstName} ${address.lastName || ""}`.trim();
