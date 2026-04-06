@@ -251,7 +251,7 @@ OrderSchema.pre("save", async function (next) {
     // Pad sequence to 3 digits (001, 002, … 999, 1000+)
     const seqStr = String(seq).padStart(3, "0");
     const prefix = "BMCW";
-    this.invoiceNumber = `${prefix}/${fyLabel}/${seqStr}`;
+    this.invoiceNumber = `${prefix}/${seqStr}/${fyLabel}`;
 
     return next();
   } catch (error) {
