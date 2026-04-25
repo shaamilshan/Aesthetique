@@ -10,7 +10,7 @@ import ReturnRequestsButtonInOrders from "./ReturnRequestsButtonInOrders";
 import ExportModal from "../../Components/ExportModal/ExportModal";
 import OrderTableRow from "../../Components/OrderTableRow";
 import JustLoading from "../../../../components/JustLoading";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import SearchBar from "../../../../components/SearchBar";
 import Pagination from "../../../../components/Pagination";
 import RangeDatePicker from "../../../../components/RangeDatePicker";
@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 
 const Orders = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { orders, loading, error, totalAvailableOrders } = useSelector(
     (state) => state.orders
@@ -130,6 +131,12 @@ const Orders = () => {
             <BreadCrumbs list={["Dashboard", "Orders"]} />
           </div>
           <div className="flex flex-wrap gap-3">
+            <button
+              className="admin-button-fl w-full md:w-auto bg-black text-white hover:bg-gray-800"
+              onClick={() => navigate("/admin/order/create")}
+            >
+              + Create Order
+            </button>
             <button
               className="admin-button-fl w-full md:w-auto bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-black"
               onClick={toggleExportModal}

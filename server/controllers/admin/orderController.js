@@ -1,10 +1,117 @@
 const Order = require("../../model/orderModel");
 const mongoose = require("mongoose");
 const Payment = require("../../model/paymentModel");
+const Product = require("../../model/productModel");
 const uuid = require("uuid");
 const { generateInvoicePDF } = require("../Common/invoicePDFGenFunctions");
 const managerOrderModel = require("../../model/managerOrderModel");
-const { sendOrderShippedMail, sendOrderDeliveredMail } = require("../../util/mailFunction");
+const { sendOrderShippedMail, sendOrderDeliveredMail, sendOrderPlacedMail } = require("../../util/mailFunction");
+
+/**
+ * POST /api/admin/order/manual
+ * Create a manual order from admin panel
+ */
+const createManualOrder = async (req, res) => {
+  try {
+    const { 
+      customerInfo, 
+      address, 
+      products: selectedProducts, 
+      paymentMode, 
+      paymentStatus, 
+      notes,
+      shipping = 0 
+    } = req.body;
+
+    if (!selectedProducts || selectedProducts.length === 0) {
+      return res.status(400).json({ error: "Please select at least one product" });
+    }
+
+    // 1. Fetch product details and calculate totals
+    let products = [];
+    let subTotal = 0;
+    let totalQuantity = 0;
+
+    for (const p of selectedProducts) {
+      const product = await Product.findById(p.productId);
+      if (!product) throw new Error(`Product not found: ${p.productId}`);
+
+      const itemTotalPrice = product.price * p.quantity;
+      subTotal += itemTotalPrice;
+      totalQuantity += p.quantity;
+
+      products.push({
+        productId: product._id,
+        quantity: p.quantity,
+        price: product.price,
+        markup: product.markup || 0,
+        totalPrice: itemTotalPrice
+      });
+    }
+
+    const tax = 0; // Or calculate tax if needed
+    const totalPrice = subTotal + shipping + tax;
+
+    // 2. Create the order
+    const newOrder = new Order({
+      guestEmail: customerInfo.email,
+      guestPhone: customerInfo.phoneNumber,
+      address: {
+        ...address,
+        firstName: customerInfo.firstName,
+        lastName: customerInfo.lastName,
+        email: customerInfo.email,
+        phoneNumber: customerInfo.phoneNumber
+      },
+      status: "pending",
+      subTotal,
+      shipping,
+      tax,
+      totalPrice,
+      products,
+      paymentMode: paymentMode || "cashOnDelivery",
+      totalQuantity,
+      notes,
+      isRead: true // Admin created it, so no need for notification badge
+    });
+
+    const savedOrder = await newOrder.save();
+
+    // 3. Create Payment record
+    if (paymentStatus === "success") {
+      await Payment.create({
+        order: savedOrder._id,
+        payment_id: `manual_${uuid.v4()}`,
+        status: "success",
+        paymentMode: paymentMode || "cashOnDelivery",
+        amount: totalPrice
+      });
+    } else {
+      await Payment.create({
+        order: savedOrder._id,
+        status: "pending",
+        paymentMode: paymentMode || "cashOnDelivery",
+        amount: totalPrice
+      });
+    }
+
+    // 4. Send Confirmation Email (Optional but recommended)
+    if (customerInfo.email) {
+      sendOrderPlacedMail(customerInfo.email, {
+        customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
+        orderNumber: savedOrder.orderId,
+        productName: products.length > 1 ? "Multiple items" : (await Product.findById(products[0].productId)).name,
+        totalPrice: savedOrder.totalPrice,
+        address: `${address.address}, ${address.city}, ${address.regionState} - ${address.pinCode}`
+      }).catch(err => console.error("Manual order email failed:", err));
+    }
+
+    res.status(201).json({ success: true, order: savedOrder });
+  } catch (error) {
+    console.error("Manual order creation error:", error);
+    res.status(400).json({ error: error.message });
+  }
+};
 
 // Function checking if the passed status is valid or not. Ensuring redundant searches are avoided
 function isValidStatus(status) {
@@ -522,4 +629,5 @@ module.exports = {
   generateOrderInvoice,
   getUnreadOrderCount,
   markOrderAsRead,
+  createManualOrder,
 };

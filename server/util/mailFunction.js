@@ -667,6 +667,14 @@ const sendOrderPlacedMail = async (email, data = {}, attachments = []) => {
           <p class="muted">Total: ₹${escapeHtml(String(totalPrice)) || 'N/A'}</p>
           ${data.address ? `<p style="margin-top:10px"><strong>Shipping Address</strong></p><p class="muted">${escapeHtml(data.address)}</p>` : ''}
         </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${process.env.CLIENT_URL}/track-order/${orderNumber}" 
+             style="background-color: #000; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: 600; display: inline-block;">
+            View Your Order
+          </a>
+        </div>
+
         <p class="muted">If you have any questions, reply to this email or contact our support at <strong>help.bmaesthetique@gmail.com</strong>.</p>
         <div class="footer">Warm regards,<br/>BM Aesthetique</div>
       </div>

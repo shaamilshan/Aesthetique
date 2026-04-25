@@ -18,7 +18,7 @@ const InputType = ({ title, name, placeholder, optional }) => {
         placeholder={placeholder}
       />
       <ErrorMessage
-        className="text-sm text-red-500 mt-1 block"
+        className="text-xs text-red-600 mt-1 block font-medium"
         name={name}
         component="span"
       />

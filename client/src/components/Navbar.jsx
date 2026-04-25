@@ -321,8 +321,21 @@ const Navbar = ({ usercheck }) => {
 
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex gap-8">
-              {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => {
+              {["Home", "About", "Products", "Testimonials", "Contact", "Track Order"].map((item, index) => {
                 const targetId = item.toLowerCase().replace(/\s/g, "");
+                
+                if (item === "Track Order") {
+                  return (
+                    <Link
+                      key={index}
+                      to="/track-order"
+                      className="text-gray-700 hover:text-black text-sm font-medium transition-colors cursor-pointer"
+                    >
+                      {item}
+                    </Link>
+                  );
+                }
+
                 return (
                   <a
                     key={index}
@@ -457,8 +470,21 @@ const Navbar = ({ usercheck }) => {
 
             {/* Mobile Navigation Links */}
             <nav className="flex flex-col pt-2 gap-2">
-              {["Home", "About", "Products", "Testimonials", "Contact"].map((item, index) => {
+              {["Home", "About", "Products", "Testimonials", "Contact", "Track Order"].map((item, index) => {
                 const targetId = item.toLowerCase().replace(/\s/g, "");
+                
+                if (item === "Track Order") {
+                   return (
+                    <a
+                      key={index}
+                      onClick={() => { setMenuOpen(false); navigate('/track-order'); }}
+                      className="text-gray-700 hover:text-black text-lg font-medium cursor-pointer"
+                    >
+                      {item}
+                    </a>
+                  );
+                }
+
                 return (
                   <a
                     key={index}

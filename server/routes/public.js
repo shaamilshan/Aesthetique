@@ -8,6 +8,7 @@ const { getActiveAnnouncements, getMarqueeAnnouncements } = require("../controll
 const { createGuestOrder, guestVerifyPayment } = require("../controllers/public/guestOrderController");
 const { createRazerPayOrder, getKey } = require("../controllers/user/paymentController");
 const { razorpayWebhook } = require("../controllers/public/webhookController");
+const { getPublicOrder } = require("../controllers/public/orderController");
 
 const router = express.Router();
 
@@ -31,6 +32,9 @@ router.get('/setting/marquee', getMarqueeAnnouncements);
 // Guest checkout
 router.post('/guest-order', createGuestOrder);
 router.post('/guest-razor-verify', guestVerifyPayment);
+
+// Order tracking
+router.get('/order/:id', getPublicOrder);
 
 // Razorpay (available to guests too)
 router.post('/razor-order', createRazerPayOrder);

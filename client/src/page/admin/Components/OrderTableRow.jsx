@@ -15,7 +15,7 @@ const OrderTableRow = ({ item, index, toggleUpdateModal, classes }) => {
       className={`${classes} hover:bg-gray-100 transition-colors cursor-pointer ${!isRead ? "bg-blue-50/30" : "opacity-80"
         }`}
       onClick={() =>
-        navigate(`/admin/orders/detail/${item.orderId || item._id}`)
+        navigate(`/admin/order/${item.orderId || item._id}`)
       }
     >
       <td className={`admin-table-row ${!isRead ? "font-bold text-gray-900" : "text-gray-400 font-normal"}`}>

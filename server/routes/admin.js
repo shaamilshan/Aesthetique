@@ -37,6 +37,7 @@ const {
   generateOrderInvoice,
   getUnreadOrderCount,
   markOrderAsRead,
+  createManualOrder,
 } = require("../controllers/admin/orderController");
 const {
   generateOrderExcel,
@@ -133,6 +134,7 @@ router.get("/order-generate-excel", generateOrderExcel); // Generating Excel
 router.get("/order-generate-pdf", generateOrderPDF); // Generating PDF
 router.get("/order-generate-csv", generateOrderCSV); // Generating PDF
 router.get("/order-invoice/:id", generateOrderInvoice);
+router.post("/order/manual", createManualOrder);
 
 // Return Order controller functions mounting them to corresponding route
 router.get("/return-orders-count", getReturnCount);

@@ -39,6 +39,7 @@ import Addresses from "./page/user/profileDashboard/pages/addresses";
 import TrackOrder from "./page/user/profileDashboard/pages/trackOrder";
 import WishList from "./page/user/profileDashboard/pages/wishlist";
 import BuyNow from "./page/user/buyNow";
+import TrackOrderPublic from "./page/public/TrackOrder";
 
 // Admin
 import AdminDash from "./page/admin/Dashboard";
@@ -67,6 +68,7 @@ import EditCategory from "./page/admin/pages/categories/EditCategory";
 import Orders from "./page/admin/pages/Order/Orders";
 import OrderDetails from "./page/admin/pages/Order/OrderDetails";
 import ReturnRequests from "./page/admin/pages/Order/ReturnRequests";
+import CreateManualOrder from "./page/admin/pages/Order/CreateManualOrder";
 
 import Coupon from "./page/admin/pages/coupon/Coupon";
 import CreateCoupon from "./page/admin/pages/coupon/CreateCoupon";
@@ -166,6 +168,7 @@ function App() {
           {/* <Route path="/productnew" element={<SingleProduct2 />} /> */}
           <Route path="/product" element={<ProductDetails />} />
           <Route path="/home" element={<Dashboard />} />
+          <Route path="/track-order/:id?" element={<TrackOrderPublic />} />
 
           {/* Auth Pages */}
 
@@ -254,7 +257,8 @@ function AdminRoutes() {
         <Route path="categories/edit/:id" element={<EditCategory />} />
 
         <Route path="orders" element={<Orders />} />
-        <Route path="orders/detail/:id" element={<OrderDetails />} />
+        <Route path="order/create" element={<CreateManualOrder />} />
+        <Route path="order/:id" element={<OrderDetails />} />
         <Route path="orders/return-requests" element={<ReturnRequests />} />
         <Route
           path="orders/return-requests/detail/:id"
