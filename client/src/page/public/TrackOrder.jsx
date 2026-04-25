@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { URL } from "../../Common/api";
 import { config } from "../../Common/configurations";
+import { getImageUrl } from "../../Common/functions";
 import Loading from "../../components/Loading";
 import { TiTick } from "react-icons/ti";
 import { BsBoxSeam, BsTruck, BsCheck2Circle, BsXCircle } from "react-icons/bs";
@@ -163,7 +164,11 @@ const TrackOrder = () => {
                   <div key={idx} className="flex gap-4 items-center">
                     <div className="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
                       {item.productId?.imageURL?.[0] ? (
-                        <img src={item.productId.imageURL[0]} alt={item.productId.name} className="w-full h-full object-contain" />
+                        <img 
+                          src={getImageUrl(item.productId.imageURL, URL)} 
+                          alt={item.productId.name} 
+                          className="w-full h-full object-contain" 
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-300"><BsBoxSeam /></div>
                       )}
