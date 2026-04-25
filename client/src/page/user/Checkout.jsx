@@ -235,9 +235,19 @@ const Checkout = () => {
         data: { key },
       } = await axios.get(keyUrl, config);
 
+      const payload = {
+        address: user ? selectedAddress : guestAddress,
+        notes: additionalNotes,
+        paymentMode: "razorPay",
+        isGuest: !user,
+        guestEmail: guestAddress?.email || "",
+        guestPhone: guestAddress?.phoneNumber || "",
+        items: user ? null : buildGuestItems(),
+      };
+
       const {
         data: { order },
-      } = await axios.post(orderUrl, { amount: parseInt(finalTotal * 100) }, config);
+      } = await axios.post(orderUrl, { amount: parseInt(finalTotal * 100), payload }, config);
 
       const prefillName = user
         ? `${user.firstName || ""} ${user.lastName || ""}`.trim()

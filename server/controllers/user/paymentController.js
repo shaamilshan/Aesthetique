@@ -4,9 +4,11 @@ const Payment = require("../../model/paymentModel");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
+const PendingOrder = require("../../model/pendingOrderModel");
+
 const createRazerPayOrder = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, payload } = req.body;
     console.log(amount);
 
     // const instance = new RazorPay({
@@ -25,11 +27,31 @@ const createRazerPayOrder = async (req, res) => {
       receipt: crypto.randomBytes(10).toString("hex"),
     };
 
-    instance.orders.create(options, (error, order) => {
+    instance.orders.create(options, async (error, order) => {
       if (error) {
         console.log(error.toString());
         throw Error(error);
       }
+      
+      try {
+        let userId = null;
+        if (req.cookies && req.cookies.user_token) {
+          try {
+            const decoded = jwt.verify(req.cookies.user_token, process.env.SECRET);
+            userId = decoded._id;
+          } catch (err) {}
+        }
+
+        await PendingOrder.create({
+          razorpay_order_id: order.id,
+          isGuest: payload?.isGuest || false,
+          user: userId,
+          payload: payload,
+        });
+      } catch (dbError) {
+        console.error("Failed to create PendingOrder:", dbError);
+      }
+
       res.status(200).json({ order });
     });
   } catch (error) {

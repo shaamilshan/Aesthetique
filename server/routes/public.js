@@ -7,6 +7,7 @@ const { getIphone } = require("../controllers/global/iPhoneController");
 const { getActiveAnnouncements, getMarqueeAnnouncements } = require("../controllers/admin/announcementController");
 const { createGuestOrder, guestVerifyPayment } = require("../controllers/public/guestOrderController");
 const { createRazerPayOrder, getKey } = require("../controllers/user/paymentController");
+const { razorpayWebhook } = require("../controllers/public/webhookController");
 
 const router = express.Router();
 
@@ -34,5 +35,8 @@ router.post('/guest-razor-verify', guestVerifyPayment);
 // Razorpay (available to guests too)
 router.post('/razor-order', createRazerPayOrder);
 router.get('/razor-key', getKey);
+
+// Razorpay Webhook
+router.post('/webhook/razorpay', razorpayWebhook);
 
 module.exports = router;
