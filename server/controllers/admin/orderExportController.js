@@ -197,66 +197,93 @@ const generatePDF = async (orderData) => {
 
       // Headers
       // Keep only the requested fields in the PDF: Username, Status, Address, Total Price
-      // Define columns with label and key so we can show friendly headers and map data
+      // Define columns with label, key, and fixed widths to ensure they fit on A4 Landscape (841.89 wide, 741.89 usable)
       const columns = [
-        { label: "Name", key: "user.firstName" },
-        { label: "Email", key: "user.email" },
-        { label: "Status", key: "status" },
-        { label: "Address", key: "address.address" },
-        { label: "Price", key: "totalPrice" },
+        { label: "Name", key: "user.firstName", width: 120 },
+        { label: "Email", key: "user.email", width: 160 },
+        { label: "Status", key: "status", width: 80 },
+        { label: "Address", key: "address.address", width: 300 },
+        { label: "Price", key: "totalPrice", width: 80 },
       ];
-
-      // Calculate column widths based on labels and data (approximate pixel widths)
-      const columnCharWidths = columns.map((col) =>
-        Math.max(
-          col.label.length,
-          ...orderData.map((item) => String(item[col.key] || "").length)
-        )
-      );
-
-      // Convert character counts to approximate pixel widths and add padding
-      const pixelWidths = columnCharWidths.map((w) => w * 7 + 24); // ~7px per char + padding
-
-      // Add extra gap between Email (index 1) and Status (index 2)
-      const extraGapAfterEmail = 40;
 
       // Compute x positions for each column
       const startX = 50;
       const xPositions = [];
-      (function computeXPositions() {
-        let x = startX;
-        for (let i = 0; i < pixelWidths.length; i++) {
-          xPositions.push(x);
-          x += pixelWidths[i] + 12; // base padding between columns
-          if (i === 1) x += extraGapAfterEmail; // extra space after Email column
-        }
-      })();
+      let currentX = startX;
+      columns.forEach((col) => {
+        xPositions.push(currentX);
+        currentX += col.width;
+      });
 
-      // Table row with bottom line using computed x positions
-      const generateTableRow = (y, values) => {
+      // Table row generator handling multi-line text and tracking max height
+      const generateTableRow = (values, isHeader = false) => {
+        if (isHeader) {
+          doc.font("Helvetica-Bold");
+        } else {
+          doc.font("Helvetica");
+        }
+
+        // Measure row height before drawing to handle page breaks safely
+        let rowHeight = 0;
         values.forEach((value, index) => {
-          const x = xPositions[index] || (50 + index * 100);
-          doc.text(value, x, y);
-          if (index < values.length - 1) {
-            const nextX = xPositions[index + 1] || (50 + (index + 1) * 100);
-            doc.moveTo(nextX, y).lineTo(nextX, y + 15);
+          const colWidth = columns[index].width - 10;
+          const h = doc.heightOfString(value, { width: colWidth });
+          if (h > rowHeight) {
+            rowHeight = h;
           }
         });
+
+        // A4 Landscape height is 595.28. Bottom margin is 50. Usable bottom is ~545.
+        // If this row doesn't fit on the current page, add a new page.
+        if (doc.y + rowHeight > 540) {
+          doc.addPage();
+        }
+
+        const startY = doc.y;
+        let maxY = startY;
+
+        values.forEach((value, index) => {
+          const x = xPositions[index];
+          const colWidth = columns[index].width - 10; // 10px padding
+
+          // doc.text automatically wraps text if width is provided
+          doc.text(value, x, startY, {
+            width: colWidth,
+            align: "left",
+          });
+
+          // Track the tallest cell in the row
+          if (doc.y > maxY) {
+            maxY = doc.y;
+          }
+        });
+
+        // Set y to the tallest cell's y to avoid overlap in the next row
+        doc.y = maxY;
       };
 
-  // Print headers with styling (friendly labels)
-  generateTableRow(doc.y + 10, columns.map((c) => c.label));
+      // Print headers with styling (friendly labels)
+      generateTableRow(columns.map((c) => c.label), true);
 
-      doc.moveDown();
+      // Add a line under the headers
+      doc.moveTo(50, doc.y + 5).lineTo(790, doc.y + 5).lineWidth(1).strokeColor("#000").stroke();
+      doc.y += 15; // Move down below the line
 
       // Loop through orders and add content manually
       orderData.forEach((item) => {
         generateTableRow(
-          doc.y,
-          columns.map((col) => String(item[col.key] || ""))
+          columns.map((col) => {
+            const val = item[col.key];
+            return val !== null && val !== undefined ? String(val) : "";
+          }),
+          false
         );
 
-        doc.moveDown(); // Move down for the next row
+        doc.moveDown(0.5); // Add a small gap between rows
+        
+        // Add a subtle line under each row
+        doc.moveTo(50, doc.y).lineTo(790, doc.y).lineWidth(0.5).strokeColor("#ccc").stroke();
+        doc.y += 10;
       });
 
       // End the document
