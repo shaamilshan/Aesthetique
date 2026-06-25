@@ -293,59 +293,21 @@ const SingleProduct = () => {
     }
   };
   
-  const buyNow = async () => {
+  const buyNow = () => {
     if (!user) {
-      // Guest: add to guest_cart and navigate to cart
-      if (!validateAttributesSelection()) {
-        toast.error("Please select all required options");
-        return;
-      }
-      const raw = localStorage.getItem("guest_cart");
-      const arr = raw ? JSON.parse(raw) : [];
-      const idx = arr.findIndex((it) => (it.product?._id || it.product) === id);
-      if (idx >= 0) {
-        arr[idx].quantity = (arr[idx].quantity || 0) + count;
-      } else {
-        arr.push({ product: { ...product }, quantity: count, attributes: selectedAttributes });
-      }
-      localStorage.setItem("guest_cart", JSON.stringify(arr));
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      navigate("/cart");
-      // Notify other parts of the app (same-tab) that guest cart changed
-      try {
-        window.dispatchEvent(new Event('guest_cart_updated'));
-      } catch (e) {}
+      toast.error("Please login to continue");
+      navigate("/login");
       return;
     }
-  
+
     if (!validateAttributesSelection()) {
       toast.error("Please select all required options");
       return;
     }
-  
-    setCartLoading(true);
-    try {
-      await axios.post(
-        `${URL}/user/cart`,
-        {
-          product: id,
-          quantity: count,
-          attributes: selectedAttributes,
-        },
-        { ...config, withCredentials: true }
-      );
-    } catch (error) {
-      // Don't block buy-now navigation if cart sync fails; just inform.
-      toast.error(
-        error.response?.data?.error ||
-          error.response?.data?.message ||
-          "Failed to add to cart"
-      );
-    } finally {
-      setCartLoading(false);
-    }
+
+    dispatch(addToBuyNowStore({ product, count }));
     window.scrollTo({ top: 0, behavior: "smooth" });
-    navigate("/cart");
+    navigate("/buy-now");
   };
   
   

@@ -46,6 +46,11 @@ export default function Home2(props) {
         </MotionSection>
       </div>
 
+         {/* Full-width OurProducts section */}
+      <MotionSection className="w-full">
+        <OurProducts id="products" />
+      </MotionSection>
+
       <div className="max-w-screen-2xl mx-auto px-4">
         <MotionSection className="w-full">
           <AboutUs id="about" />
@@ -99,10 +104,7 @@ export default function Home2(props) {
         </MotionSection>
       )}
 
-      {/* Full-width OurProducts section */}
-      <MotionSection className="w-full">
-        <OurProducts id="products" />
-      </MotionSection>
+   
 
       {/* Banner 3 - Between Products and Contact */}
   {!loading && banners.banner3?.images && banners.banner3.images.length > 0 && (
