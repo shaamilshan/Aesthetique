@@ -294,14 +294,27 @@ const SingleProduct = () => {
   };
   
   const buyNow = () => {
-    if (!user) {
-      toast.error("Please login to continue");
-      navigate("/login");
+    if (!validateAttributesSelection()) {
+      toast.error("Please select all required options");
       return;
     }
 
-    if (!validateAttributesSelection()) {
-      toast.error("Please select all required options");
+    if (!user) {
+      // Guest: add to guest cart and go directly to checkout
+      const raw = localStorage.getItem("guest_cart");
+      const arr = raw ? JSON.parse(raw) : [];
+      const idx = arr.findIndex((it) => (it.product?._id || it.product) === id);
+      if (idx >= 0) {
+        arr[idx].quantity = count;
+      } else {
+        arr.push({ product: { ...product }, quantity: count, attributes: selectedAttributes });
+      }
+      localStorage.setItem("guest_cart", JSON.stringify(arr));
+      try {
+        window.dispatchEvent(new Event('guest_cart_updated'));
+      } catch (e) {}
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      navigate("/checkout");
       return;
     }
 
