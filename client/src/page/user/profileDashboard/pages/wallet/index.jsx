@@ -33,12 +33,14 @@ const Wallet = () => {
     setSearchParams(params.toString() ? "?" + params.toString() : "");
   };
 
+  const searchParamsString = searchParams.toString();
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const pageNum = params.get("page");
     setPage(parseInt(pageNum) || 1);
-    dispatch(getWallet(searchParams));
-  }, [searchParams]);
+    dispatch(getWallet(searchParamsString));
+  }, [searchParamsString]);
 
   return (
     <div className="w-full">

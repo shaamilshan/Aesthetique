@@ -147,6 +147,12 @@ const Orders = () => {
             <div className="w-full md:w-auto">
               <ReturnRequestsButtonInOrders />
             </div>
+            <button
+              className="admin-button-fl w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={() => navigate("pending")}
+            >
+              Non-Completed Orders
+            </button>
           </div>
         </div>
   <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center font-semibold gap-3 lg:gap-0">

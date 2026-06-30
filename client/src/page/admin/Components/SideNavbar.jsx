@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Ticket,
-  Image
+  Image,
+  Clock
 } from "lucide-react";
 import { Megaphone } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -253,6 +254,30 @@ const SideNavbar = () => {
                       {unreadOrderCount > 99 ? "99+" : unreadOrderCount}
                     </span>
                   )}
+                </div>
+              )}
+            </NavLink>
+          )}
+
+          {isVisible("orders") && (
+            <NavLink
+              to="/admin/orders/pending"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
+                  : 'justify-center px-2 py-3'
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`
+              }
+              title={!isExpanded ? "Non-Completed Orders" : ""}
+            >
+              <Clock size={20} className="flex-shrink-0 text-amber-600" />
+              {isExpanded && <span>Non-Completed Orders</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Non-Completed Orders
                 </div>
               )}
             </NavLink>

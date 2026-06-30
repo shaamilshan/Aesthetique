@@ -13,14 +13,16 @@ const RecentlyViewed = () => {
   );
   const dispatch = useDispatch();
 
+  const searchParamsString = searchParams.toString();
+
   useEffect(() => {
     // dispatch(getWishlist());
-    dispatch(getUserProducts(searchParams));
+    dispatch(getUserProducts(searchParamsString));
 
     // const params = new URLSearchParams(window.location.search);
     // const pageNumber = params.get("page");
     // setPage(parseInt(pageNumber || 1));
-  }, [searchParams]);
+  }, [searchParamsString]);
 
   return (
     <div className="my-12 mx-4">

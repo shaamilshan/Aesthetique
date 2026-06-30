@@ -6,6 +6,7 @@ const uuid = require("uuid");
 const { generateInvoicePDF } = require("../Common/invoicePDFGenFunctions");
 const managerOrderModel = require("../../model/managerOrderModel");
 const { sendOrderShippedMail, sendOrderDeliveredMail, sendOrderPlacedMail } = require("../../util/mailFunction");
+const PendingOrder = require("../../model/pendingOrderModel");
 
 /**
  * POST /api/admin/order/manual
@@ -618,6 +619,50 @@ const markOrderAsRead = async (req, res) => {
   }
 };
 
+const getPendingOrders = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search } = req.query;
+
+    let filter = {};
+    if (search) {
+      filter.$or = [
+        { razorpay_order_id: { $regex: new RegExp(search, "i") } },
+        { "payload.guestEmail": { $regex: new RegExp(search, "i") } },
+        { "payload.address.email": { $regex: new RegExp(search, "i") } },
+        { "payload.address.firstName": { $regex: new RegExp(search, "i") } },
+        { "payload.address.lastName": { $regex: new RegExp(search, "i") } }
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
+    const pendingOrders = await PendingOrder.find(filter)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate("user", { firstName: 1, lastName: 1, email: 1 })
+      .sort({ createdAt: -1 });
+
+    const totalAvailablePendingOrders = await PendingOrder.countDocuments(filter);
+
+    res.status(200).json({ pendingOrders, totalAvailablePendingOrders });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const deletePendingOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await PendingOrder.findByIdAndDelete(id);
+    if (!deleted) {
+      throw Error("No Such Pending Order");
+    }
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getOrders,
   getManagerOrders,
@@ -630,4 +675,6 @@ module.exports = {
   getUnreadOrderCount,
   markOrderAsRead,
   createManualOrder,
+  getPendingOrders,
+  deletePendingOrder,
 };

@@ -170,14 +170,16 @@ const Collections = () => {
     handleClick(filterType.toLowerCase(), value);
   };
 
+  const searchParamsString = searchParams.toString();
+
   useEffect(() => {
     dispatch(getWishlist());
-    dispatch(getUserProducts(searchParams));
+    dispatch(getUserProducts(searchParamsString));
 
     const params = new URLSearchParams(window.location.search);
     const pageNumber = params.get("page");
     setPage(parseInt(pageNumber || 1));
-  }, [searchParams, dispatch]);
+  }, [searchParamsString, dispatch]);
 
   // Clear all filters
   const clearFilters = () => {

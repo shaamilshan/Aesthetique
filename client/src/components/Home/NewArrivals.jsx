@@ -22,7 +22,7 @@ const NewArrivals = () => {
 
     dispatch(getUserProducts(""));
     // dispatch(getUserProducts(searchParams));
-  }, [searchParams, dispatch]);
+  }, [dispatch]);
 
   return (
    <div className="container mx-auto px-4 py-8" id="newArrival" data-aos="fade-up">

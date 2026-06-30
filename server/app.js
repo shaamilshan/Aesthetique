@@ -20,8 +20,8 @@ app.use(logger("dev"));
 // Setting up CORS
 const allowedOrigins = [
   "http://localhost:5173",
- "https://aesthetique.vercel.app",
- "https://www.bmaesthetique.com"
+  "https://aesthetique.vercel.app",
+  "https://www.bmaesthetique.com"
 ];
 
 const corsOptions = {
@@ -67,9 +67,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/manager", managerRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/super-admin", superAdminRoutes); 
+app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/public", publicRoutes);
- 
+
 // Public API for accessing images
 app.use("/api/img", express.static(__dirname + "/public/products/"));
 app.use("/api/off", express.static(__dirname + "/public/official/"));

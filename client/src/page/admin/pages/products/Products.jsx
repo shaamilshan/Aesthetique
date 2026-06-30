@@ -75,15 +75,17 @@ const Products = () => {
     setSearchParams(params);
   };
 
+  const searchParamsString = searchParams.toString();
+
   // Getting products details
   useEffect(() => {
     if (!skipInitialFetch) {
-      dispatch(getProducts(searchParams));
+      dispatch(getProducts(searchParamsString));
     }
     const params = new URLSearchParams(window.location.search);
     const pageNumber = params.get("page");
     setPage(parseInt(pageNumber || 1));
-  }, [searchParams]);
+  }, [searchParamsString, skipInitialFetch, dispatch]);
 
   return (
     <>

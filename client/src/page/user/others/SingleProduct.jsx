@@ -148,15 +148,17 @@ const SingleProduct = () => {
     }
   };
 
+  const searchParamsString = searchParams.toString();
+
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
 
-    dispatch(getUserProducts(searchParams));
+    dispatch(getUserProducts(searchParamsString));
     loadProduct();
-  }, [id, dispatch, searchParams]);
+  }, [id, dispatch, searchParamsString]);
 
   // Show bottom action bar only when scrolled down
   useEffect(() => {

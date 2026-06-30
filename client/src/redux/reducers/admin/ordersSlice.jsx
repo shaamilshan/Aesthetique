@@ -5,6 +5,8 @@ import {
   updateOrderStatus,
   getReturnOrders,
   updateReturnOrderStatus,
+  getPendingOrders,
+  deletePendingOrder,
 } from "../../actions/admin/ordersAction";
 import toast from "react-hot-toast";
 
@@ -15,6 +17,8 @@ const ordersSlice = createSlice({
     orders: [],
     error: null,
     totalAvailableOrders: null,
+    pendingOrders: [],
+    totalAvailablePendingOrders: null,
   },
   extraReducers: (builder) => {
     builder
@@ -100,6 +104,40 @@ const ordersSlice = createSlice({
       .addCase(updateReturnOrderStatus.rejected, (state, { payload }) => {
         state.loading = false;
         state.orders = null;
+        state.error = payload;
+      })
+
+      // Get Pending Orders
+      .addCase(getPendingOrders.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPendingOrders.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.error = null;
+        state.pendingOrders = payload.pendingOrders;
+        state.totalAvailablePendingOrders = payload.totalAvailablePendingOrders;
+      })
+      .addCase(getPendingOrders.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.pendingOrders = [];
+        state.error = payload;
+      })
+
+      // Delete Pending Order
+      .addCase(deletePendingOrder.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deletePendingOrder.fulfilled, (state, { payload, meta }) => {
+        state.loading = false;
+        state.error = null;
+        state.pendingOrders = state.pendingOrders.filter(
+          (item) => item._id !== meta.arg
+        );
+        state.totalAvailablePendingOrders = Math.max(0, state.totalAvailablePendingOrders - 1);
+        toast.success("Pending Order Deleted");
+      })
+      .addCase(deletePendingOrder.rejected, (state, { payload }) => {
+        state.loading = false;
         state.error = payload;
       });
   },

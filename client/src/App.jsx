@@ -69,6 +69,7 @@ import Orders from "./page/admin/pages/Order/Orders";
 import OrderDetails from "./page/admin/pages/Order/OrderDetails";
 import ReturnRequests from "./page/admin/pages/Order/ReturnRequests";
 import CreateManualOrder from "./page/admin/pages/Order/CreateManualOrder";
+import PendingOrders from "./page/admin/pages/Order/PendingOrders";
 
 import Coupon from "./page/admin/pages/coupon/Coupon";
 import CreateCoupon from "./page/admin/pages/coupon/CreateCoupon";
@@ -257,6 +258,7 @@ function AdminRoutes() {
         <Route path="categories/edit/:id" element={<EditCategory />} />
 
         <Route path="orders" element={<Orders />} />
+        <Route path="orders/pending" element={<PendingOrders />} />
         <Route path="order/create" element={<CreateManualOrder />} />
         <Route path="order/:id" element={<OrderDetails />} />
         <Route path="orders/return-requests" element={<ReturnRequests />} />

@@ -39,12 +39,14 @@ const OrderHistory = () => {
     setSearchParams(params.toString() ? "?" + params.toString() : "");
   };
 
+  const searchParamsString = searchParams.toString();
+
   useEffect(() => {
-    dispatch(getOrders(searchParams));
+    dispatch(getOrders(searchParamsString));
     const params = new URLSearchParams(window.location.search);
     const pageNum = params.get("page");
     setPage(parseInt(pageNum) || 1);
-  }, [searchParams]);
+  }, [searchParamsString]);
 
   return (
     <div className="w-full">

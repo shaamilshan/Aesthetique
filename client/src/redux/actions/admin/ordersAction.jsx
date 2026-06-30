@@ -85,3 +85,31 @@ export const updateReturnOrderStatus = createAsyncThunk(
     );
   }
 );
+
+// Get pending/non-completed orders
+export const getPendingOrders = createAsyncThunk(
+  "orders/getPendingOrders",
+  async (queries, { rejectWithValue }) => {
+    return commonReduxRequest(
+      "get",
+      `/admin/pending-orders${queries ? `?${queries}` : ``}`,
+      null,
+      appJson,
+      rejectWithValue
+    );
+  }
+);
+
+// Delete a pending order
+export const deletePendingOrder = createAsyncThunk(
+  "orders/deletePendingOrder",
+  async (id, { rejectWithValue }) => {
+    return commonReduxRequest(
+      "delete",
+      `/admin/pending-order/${id}`,
+      null,
+      appJson,
+      rejectWithValue
+    );
+  }
+);
