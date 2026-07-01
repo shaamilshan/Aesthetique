@@ -394,16 +394,6 @@ const SingleProduct = () => {
           {!isOutOfStock ? (
             <>
               <Button
-                onClick={buyNow}
-                variant="destructive"
-                size="lg"
-                disabled={cartLoading}
-                className="flex-1 h-12 bg-black hover:bg-gray-800 rounded-full border-none"
-              >
-                <Zap size={18} className="mr-2" />
-                Buy Now
-              </Button>
-              <Button
                 onClick={addToCart}
                 variant="outline"
                 size="lg"
@@ -412,6 +402,16 @@ const SingleProduct = () => {
               >
                 <ShoppingCart size={18} className="mr-2" />
                 Add to Cart
+              </Button>
+              <Button
+                onClick={buyNow}
+                variant="destructive"
+                size="lg"
+                disabled={cartLoading}
+                className="flex-1 h-12 bg-black hover:bg-gray-800 rounded-full border-none"
+              >
+                <Zap size={18} className="mr-2" />
+                Buy Now
               </Button>
             </>
           ) : (
@@ -603,16 +603,6 @@ const SingleProduct = () => {
     {!isOutOfStock ? (
       <>
         <Button
-          onClick={buyNow}
-          variant="destructive"
-          size="lg"
-          disabled={cartLoading}
-          className="flex-1 md:flex-none h-12 w-full md:w-auto bg-black hover:bg-gray-800 rounded-full border-none"
-        >
-          <Zap size={18} className="mr-2" />
-          Buy Now
-        </Button>
-        <Button
           onClick={addToCart}
           variant="outline"
           size="lg"
@@ -621,6 +611,16 @@ const SingleProduct = () => {
         >
           <ShoppingCart size={18} className="mr-2" />
           Add to Cart
+        </Button>
+        <Button
+          onClick={buyNow}
+          variant="destructive"
+          size="lg"
+          disabled={cartLoading}
+          className="flex-1 md:flex-none h-12 w-full md:w-auto bg-black hover:bg-gray-800 rounded-full border-none"
+        >
+          <Zap size={18} className="mr-2" />
+          Buy Now
         </Button>
       </>
     ) : (

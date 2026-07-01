@@ -145,7 +145,7 @@ router.get("/coupon-remove", removeCoupon);
 // Reviews
 router.get("/reviews/:id", readProductReviews);
 router.get("/review/:id", readProductReview);
-router.post("/review/:id", createNewReview);
+router.post("/review/:id", upload.array("images", 3), createNewReview);
 router.delete("/review/:id", deleteReview);
 router.patch("/review/:id", editReview);
 // Review on order details page
