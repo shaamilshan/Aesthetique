@@ -205,8 +205,8 @@ const PendingOrders = () => {
             <JustLoading size={10} />
           </div>
         ) : pendingOrders && pendingOrders.length > 0 ? (
-          <div className="overflow-x-scroll lg:overflow-hidden bg-white rounded-lg mt-5 border">
-            <table className="w-full min-w-max table-auto">
+          <div className="overflow-x-auto bg-white rounded-lg mt-5 border">
+            <table className="w-full table-auto">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="admin-table-head">No:</th>
@@ -215,6 +215,7 @@ const PendingOrders = () => {
                   <th className="admin-table-head">Email</th>
                   <th className="admin-table-head">Phone</th>
                   <th className="admin-table-head">Checkout Type</th>
+                  <th className="admin-table-head">Products</th>
                   <th className="admin-table-head">Created At</th>
                   <th className="admin-table-head">Action</th>
                 </tr>
@@ -234,12 +235,25 @@ const PendingOrders = () => {
                   return (
                     <tr key={item._id} className="hover:bg-gray-50 transition-colors">
                       <td className={classes}>{(page - 1) * 10 + index + 1}</td>
-                      <td className={`${classes} font-mono text-xs font-semibold text-gray-700`}>
+                      <td 
+                        className={`${classes} font-mono text-xs font-semibold text-gray-700 max-w-[130px] truncate`}
+                        title={item.razorpay_order_id}
+                      >
                         {item.razorpay_order_id}
                       </td>
-                      <td className={`${classes} font-semibold text-gray-900`}>{customerName}</td>
-                      <td className={classes}>{email}</td>
-                      <td className={classes}>{phone}</td>
+                      <td 
+                        className={`${classes} font-semibold text-gray-900 max-w-[120px] truncate`}
+                        title={customerName}
+                      >
+                        {customerName}
+                      </td>
+                      <td 
+                        className={`${classes} max-w-[150px] truncate`}
+                        title={email}
+                      >
+                        {email}
+                      </td>
+                      <td className={`${classes} whitespace-nowrap`}>{phone}</td>
                       <td className={classes}>
                         <span
                           className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -251,7 +265,32 @@ const PendingOrders = () => {
                           {item.isGuest ? "Guest" : "Registered"}
                         </span>
                       </td>
-                      <td className={classes}>{new Date(item.createdAt).toLocaleString()}</td>
+                      <td className={`${classes} max-w-[200px]`}>
+                        {item.payload?.items && item.payload.items.length > 0 ? (
+                          <div className="flex flex-col gap-1">
+                            {item.payload.items.map((prodItem, idx) => (
+                              <div
+                                key={idx}
+                                className="text-xs text-gray-700 font-medium truncate"
+                                title={`${prodItem.product?.name || "Product"} (x${prodItem.quantity})`}
+                              >
+                                {prodItem.product?.name || "Product"}{" "}
+                                <span className="text-gray-400 font-semibold">(x{prodItem.quantity})</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">No products</span>
+                        )}
+                      </td>
+                      <td className={`${classes} whitespace-nowrap`}>
+                        <div className="font-medium text-gray-900 text-xs">
+                          {new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                        <div className="text-[10px] text-gray-500">
+                          {new Date(item.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </td>
                       <td className={classes}>
                         <div className="flex gap-2">
                           <button

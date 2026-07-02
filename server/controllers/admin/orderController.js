@@ -636,11 +636,48 @@ const getPendingOrders = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    const pendingOrders = await PendingOrder.find(filter)
+    const pendingOrdersRaw = await PendingOrder.find(filter)
       .skip(skip)
       .limit(parseInt(limit))
       .populate("user", { firstName: 1, lastName: 1, email: 1 })
       .sort({ createdAt: -1 });
+
+    const productIds = [];
+    pendingOrdersRaw.forEach((order) => {
+      if (order.payload && order.payload.items && Array.isArray(order.payload.items)) {
+        order.payload.items.forEach((item) => {
+          if (item.productId && !productIds.includes(item.productId.toString())) {
+            productIds.push(item.productId.toString());
+          }
+        });
+      }
+    });
+
+    const products = await Product.find(
+      { _id: { $in: productIds } },
+      { name: 1, price: 1, markup: 1 }
+    );
+
+    const productMap = {};
+    products.forEach((p) => {
+      productMap[p._id.toString()] = p.toObject();
+    });
+
+    const pendingOrders = pendingOrdersRaw.map((orderDoc) => {
+      const order = orderDoc.toObject();
+      if (order.payload && order.payload.items && Array.isArray(order.payload.items)) {
+        order.payload.items = order.payload.items.map((item) => {
+          if (item.productId && productMap[item.productId.toString()]) {
+            return {
+              ...item,
+              product: productMap[item.productId.toString()],
+            };
+          }
+          return item;
+        });
+      }
+      return order;
+    });
 
     const totalAvailablePendingOrders = await PendingOrder.countDocuments(filter);
 
