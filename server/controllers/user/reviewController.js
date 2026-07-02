@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const Product = require("../../model/productModel");
 const Order = require("../../model/orderModel");
+const User = require("../../model/userModel");
 
 // Creating a new review for each product
 const createNewReview = async (req, res) => {
@@ -20,11 +21,16 @@ const createNewReview = async (req, res) => {
     }
 
     const { _id } = decoded;
-    const { product,rating, title, body } = req.body;
+    const { product, rating, title, body } = req.body;
 
     // Validate input fields
-    if (!product || !rating || !title || !body) {
+    if (!product || rating === undefined || !title || !body) {
       return res.status(400).json({ error: "Missing required review fields" });
+    }
+
+    const ratingNum = Number(rating);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+      return res.status(400).json({ error: "Rating must be between 1 and 5" });
     }
 
     // Verify product exists
@@ -33,11 +39,10 @@ const createNewReview = async (req, res) => {
       return res.status(404).json({ error: "Product not found." }); 
     }
 
- 
- 
-    // Additional validation for rating
-    if (rating < 1 || rating > 5) {
-      return res.status(400).json({ error: "Rating must be between 1 and 5" });
+    // Process files
+    let imagePaths = [];
+    if (req.files && req.files.length > 0) {
+      imagePaths = req.files.map(file => file.path || file.filename);
     }
 
     const existingReview = await Review.findOne({ 
@@ -45,25 +50,28 @@ const createNewReview = async (req, res) => {
       product 
     });
     
-
     let review;
     let isNewReview = false;
 
     if (existingReview) {
       // Update existing review
-      existingReview.rating = rating;
+      existingReview.rating = ratingNum;
       existingReview.title = title;
       existingReview.body = body;
       existingReview.isUpdated = true;
+      if (imagePaths.length > 0) {
+        existingReview.images = imagePaths;
+      }
       review = await existingReview.save();
     } else {
       // Create new review
       review = await Review.create({
         user: _id,
         product,
-        rating,
+        rating: ratingNum,
         title,
-        body
+        body,
+        images: imagePaths
       });
       
       isNewReview = true;
@@ -127,18 +135,32 @@ const readProductReviews = async (req, res) => {
       rating: review.rating,
       title: review.title,
       body: review.body,
+      images: review.images || [],
       createdAt: review.createdAt,
       isUpdated: review.isUpdated,
       user: {
+        _id: review.user._id,
         firstName: review.user.firstName,
         lastName: review.user.lastName,
         profileImgURL: review.user.profileImgURL
       }
     }));
 
+    let currentUserId = null;
+    const token = req.cookies.user_token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.SECRET);
+        currentUserId = decoded._id;
+      } catch (jwtError) {
+        // ignore invalid token
+      }
+    }
+
     res.status(200).json({ 
       reviews: reviewsResponse,
-      totalReviews: reviews.length
+      totalReviews: reviews.length,
+      currentUserId
     });
   } catch (error) {
     console.error("Error fetching product reviews:", error);
@@ -196,6 +218,7 @@ const readProductReview = async (req, res) => {
         rating: review.rating,
         title: review.title,
         body: review.body,
+        images: review.images || [],
         createdAt: review.createdAt,
         isUpdated: review.isUpdated,
         product: review.product
@@ -252,15 +275,55 @@ const deleteReview = async (req, res) => {
   try {
     const { id } = req.params;
 
- // if (!mongoose.Types.ObjectId.isValid(id)) {
-    //   throw Error("Invalid ID!!!");
-    // }
-
-    const review = await Review.findByIdAndDelete(id);
-
-    if (!review) {
-      throw Error("No review found");
+    // Check authorization token
+    const token = req.cookies.user_token;
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
     }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.SECRET);
+    } catch (e) {
+      return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    }
+
+    const currentUser = await User.findById(decoded._id);
+    if (!currentUser) {
+      return res.status(401).json({ error: "Unauthorized: User not found" });
+    }
+
+    const review = await Review.findById(id);
+    if (!review) {
+      return res.status(404).json({ error: "No review found" });
+    }
+
+    // Only allow deletion if it is the user's own review, or if they are superAdmin/admin
+    if (
+      review.user.toString() !== currentUser._id.toString() &&
+      currentUser.role !== "superAdmin" &&
+      currentUser.role !== "admin"
+    ) {
+      return res.status(403).json({ error: "Forbidden: You are not authorized to delete this review" });
+    }
+
+    const productId = review.product;
+
+    await Review.findByIdAndDelete(id);
+
+    // Recalculate product rating
+    const allReviews = await Review.find({ product: productId });
+    const totalRating = allReviews.reduce((sum, rev) => sum + rev.rating, 0);
+    const newRating = allReviews.length > 0 ? (totalRating / allReviews.length) : 0;
+
+    // Update product rating
+    await Product.findByIdAndUpdate(
+      productId,
+      { 
+        $set: { rating: newRating, numberOfReviews: allReviews.length }
+      },
+      { new: true }
+    );
 
     res.status(200).json({ review });
   } catch (error) {

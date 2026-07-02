@@ -40,6 +40,7 @@ const {
   createManualOrder,
   getPendingOrders,
   deletePendingOrder,
+  confirmPendingOrder,
 } = require("../controllers/admin/orderController");
 const {
   generateOrderExcel,
@@ -127,6 +128,7 @@ router.post("/category", requirePermission("categories:add"), (req, res, next) =
 // Order controller functions mounting them to corresponding route
 router.get("/pending-orders", getPendingOrders);
 router.delete("/pending-order/:id", deletePendingOrder);
+router.post("/confirm-pending-order/:id", confirmPendingOrder);
 router.get("/unread-orders-count", getUnreadOrderCount);
 router.patch("/order-mark-read/:id", markOrderAsRead);
 router.get("/orders", getOrders);

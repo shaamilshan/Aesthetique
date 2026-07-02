@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { renderStars } from "../../../Common/functions";
+import { renderStars, getImageUrl } from "../../../Common/functions";
 import axios from "axios";
-import { HiTrash } from "react-icons/hi";
+import { HiTrash, HiCamera, HiX, HiChevronLeft, HiChevronRight, HiLockClosed } from "react-icons/hi";
 import { URL } from "@/Common/api";
+import { useSelector } from "react-redux";
 const DescReview = ({ product: initialProduct, id }) => {
+  const { user } = useSelector((state) => state.user) || {};
   const [reviews, setReviews] = useState([]);
   const [ratingCount, setRatingCount] = useState(Array(5).fill(0));
   const [error, setError] = useState(null);
@@ -16,6 +18,68 @@ const DescReview = ({ product: initialProduct, id }) => {
   const [userHasReviewed, setUserHasReviewed] = useState(false);
   const [userReviewId, setUserReviewId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]); // [{ file: File, preview: string }]
+  const [lightbox, setLightbox] = useState({
+    isOpen: false,
+    images: [],
+    currentIndex: 0
+  });
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Check if total images exceeds 3
+    if (selectedImages.length + files.length > 3) {
+      setError("You can only upload up to 3 images.");
+      return;
+    }
+
+    const newImages = files.map(file => ({
+      file,
+      preview: window.URL.createObjectURL(file)
+    }));
+
+    setSelectedImages(prev => [...prev, ...newImages]);
+    setError(null);
+  };
+
+  const removeSelectedImage = (index) => {
+    window.URL.revokeObjectURL(selectedImages[index].preview);
+    setSelectedImages(prev => prev.filter((_, idx) => idx !== index));
+  };
+
+  const openLightbox = (imagesList, index) => {
+    setLightbox({
+      isOpen: true,
+      images: imagesList,
+      currentIndex: index
+    });
+  };
+
+  const closeLightbox = () => {
+    setLightbox({
+      isOpen: false,
+      images: [],
+      currentIndex: 0
+    });
+  };
+
+  const nextImage = (e) => {
+    e.stopPropagation();
+    setLightbox(prev => ({
+      ...prev,
+      currentIndex: (prev.currentIndex + 1) % prev.images.length
+    }));
+  };
+
+  const prevImage = (e) => {
+    e.stopPropagation();
+    setLightbox(prev => ({
+      ...prev,
+      currentIndex: (prev.currentIndex - 1 + prev.images.length) % prev.images.length
+    }));
+  };
 
   const URLapi = URL;
 
@@ -80,6 +144,12 @@ const DescReview = ({ product: initialProduct, id }) => {
 
   const handleAddReview = async (e) => {
     e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setShowLoginModal(true);
+      return;
+    }
   
     if (newReview.rating === 0) {
       setError("Please select a rating");
@@ -97,15 +167,25 @@ const DescReview = ({ product: initialProduct, id }) => {
     }
   
     try {
+      const formData = new FormData();
+      formData.append("product", id);
+      formData.append("rating", newReview.rating);
+      formData.append("title", newReview.title);
+      formData.append("body", newReview.body);
+      
+      selectedImages.forEach((img) => {
+        formData.append("images", img.file);
+      });
+
       const { data } = await axios.post(
         `${URLapi}/user/review/${product._id}`,
+        formData,
         {
-          product: id,
-          rating: newReview.rating,
-          title: newReview.title,
-          body: newReview.body,
-        },
-        { withCredentials: true }
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
       );
   
       const updatedReviews = [...reviews, {...data.review, isUserReview: true}];
@@ -114,6 +194,9 @@ const DescReview = ({ product: initialProduct, id }) => {
       setUserHasReviewed(true);
       setUserReviewId(data.review._id);
       setNewReview({ rating: 0, title: "", body: "" });
+      // Revoke the object URLs to avoid memory leak
+      selectedImages.forEach((img) => window.URL.revokeObjectURL(img.preview));
+      setSelectedImages([]);
       setError(null);
     } catch (error) {
       console.error("Error adding review:", error);
@@ -286,7 +369,7 @@ const DescReview = ({ product: initialProduct, id }) => {
                         )}
                       </div>
                       
-                      {review.isUserReview && (
+                      {(review.isUserReview || user?.role === "superAdmin") && (
                         <button
                           onClick={() => handleDeleteReview(review._id)}
                           disabled={isDeleting}
@@ -306,6 +389,23 @@ const DescReview = ({ product: initialProduct, id }) => {
                     <p className="text-gray-700 text-xs sm:text-base">
                       {review.body}
                     </p>
+                    {review.images && review.images.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {review.images.map((imgUrl, idx) => (
+                          <div 
+                            key={idx}
+                            onClick={() => openLightbox(review.images, idx)}
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-gray-200 cursor-pointer hover:opacity-90 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm bg-gray-50 flex items-center justify-center shrink-0"
+                          >
+                            <img 
+                              src={getImageUrl(imgUrl, URLapi)} 
+                              alt={`review-img-${idx}`} 
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))
               )}
@@ -365,19 +465,60 @@ const DescReview = ({ product: initialProduct, id }) => {
                   )}
 
                   <div>
-                    <label className="block mb-2 text-sm  sm:text-base text-gray-700">
+                    <label className="block mb-2 text-sm sm:text-base text-gray-700">
                       Your Review
                     </label>
-                    <textarea
-                      value={newReview.body}
-                      onChange={(e) =>
-                        setNewReview({ ...newReview, body: e.target.value })
-                      }
-                      className="w-full border border-gray-300 p-3 rounded-lg text-xs sm:text-sm focus:outline-none "
-                      rows="4"
-                      placeholder="Share your detailed experience..."
-                      required
-                    ></textarea>
+                    <div className="w-full border border-gray-300 rounded-lg overflow-hidden focus-within:border-gray-500 bg-white">
+                      <textarea
+                        value={newReview.body}
+                        onChange={(e) =>
+                          setNewReview({ ...newReview, body: e.target.value })
+                        }
+                        className="w-full p-3 text-xs sm:text-sm focus:outline-none resize-none block"
+                        rows="4"
+                        placeholder="Share your detailed experience..."
+                        required
+                      ></textarea>
+                      
+                      {/* Action bar on the bottom left inside/below the text box */}
+                      <div className="flex flex-col border-t border-gray-200 p-2 bg-gray-50">
+                        {/* Selected Previews */}
+                        {selectedImages.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {selectedImages.map((img, index) => (
+                              <div key={index} className="relative w-12 h-12 sm:w-16 sm:h-16 rounded overflow-hidden border border-gray-200 shadow-sm bg-white flex items-center justify-center">
+                                <img src={img.preview} alt={`preview-${index}`} className="object-cover w-full h-full" />
+                                <button
+                                  type="button"
+                                  onClick={() => removeSelectedImage(index)}
+                                  className="absolute top-0.5 right-0.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 shadow transition-colors"
+                                >
+                                  <HiX className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="flex items-center">
+                          {selectedImages.length < 3 ? (
+                            <label className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:border-red-500 hover:text-red-500 rounded-md text-gray-500 text-xs sm:text-sm transition-colors duration-200">
+                              <HiCamera className="w-4 h-4" />
+                              <span className="font-medium text-xs sm:text-sm">Add Photo ({selectedImages.length}/3)</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handleImageChange}
+                                className="hidden"
+                              />
+                            </label>
+                          ) : (
+                            <span className="text-[11px] sm:text-xs text-gray-400 font-medium">Max 3 photos added</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <button
@@ -398,6 +539,103 @@ const DescReview = ({ product: initialProduct, id }) => {
             )}
           </div>
       </div>
+
+      {/* Lightbox Modal */}
+      {lightbox.isOpen && lightbox.images.length > 0 && (
+        <div 
+          onClick={closeLightbox}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 transition-opacity duration-300"
+        >
+          <button 
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 p-2 z-50 bg-black/40 rounded-full hover:bg-black/60 transition-colors"
+          >
+            <HiX className="w-6 h-6 sm:w-8 sm:h-8" />
+          </button>
+
+          {lightbox.images.length > 1 && (
+            <button 
+              onClick={prevImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 p-2 z-50 bg-black/40 hover:bg-black/60 rounded-full transition-colors"
+            >
+              <HiChevronLeft className="w-8 h-8 sm:w-10 sm:h-10" />
+            </button>
+          )}
+
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-4xl max-h-[85vh] flex items-center justify-center"
+          >
+            <img 
+              src={getImageUrl(lightbox.images[lightbox.currentIndex], URLapi)} 
+              alt={`lightbox-${lightbox.currentIndex}`} 
+              className="object-contain max-w-full max-h-[80vh] rounded shadow-2xl animate-fade-in"
+            />
+            {/* Image Indicator */}
+            <div className="absolute bottom-[-35px] left-1/2 -translate-x-1/2 text-white/90 text-sm font-medium">
+              {lightbox.currentIndex + 1} / {lightbox.images.length}
+            </div>
+          </div>
+
+          {lightbox.images.length > 1 && (
+            <button 
+              onClick={nextImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 p-2 z-50 bg-black/40 hover:bg-black/60 rounded-full transition-colors"
+            >
+              <HiChevronRight className="w-8 h-8 sm:w-10 sm:h-10" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Login Prompt Modal */}
+      {showLoginModal && (
+        <div 
+          onClick={() => setShowLoginModal(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-sm w-full text-center relative border border-gray-100 transform scale-100 transition-all duration-300"
+          >
+            <button 
+              onClick={() => setShowLoginModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
+            >
+              <HiX className="w-5 h-5" />
+            </button>
+            <div className="flex justify-center mb-4">
+              <div className="bg-red-50 text-red-500 rounded-full p-3.5 shadow-inner animate-bounce">
+                <HiLockClosed className="w-8 h-8" />
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Login Required</h3>
+            <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+              To write a review and upload photos, you must be signed in to your account.
+            </p>
+            <div className="flex flex-col gap-3">
+              <a 
+                href="/login" 
+                className="w-full py-2.5 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-full shadow hover:shadow-md transition-all duration-200 text-sm animate-pulse"
+              >
+                Log In
+              </a>
+              <a 
+                href="/register" 
+                className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold border border-gray-300 rounded-full hover:border-gray-400 transition-all duration-200 text-sm"
+              >
+                Create Account
+              </a>
+              <button 
+                onClick={() => setShowLoginModal(false)}
+                className="w-full text-xs text-gray-400 hover:text-gray-500 transition-colors mt-1 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

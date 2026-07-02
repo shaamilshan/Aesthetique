@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPendingOrders, deletePendingOrder } from "../../../../redux/actions/admin/ordersAction";
+import { getPendingOrders, deletePendingOrder, confirmPendingOrder } from "../../../../redux/actions/admin/ordersAction";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import JustLoading from "../../../../components/JustLoading";
 import SearchBar from "../../../../components/SearchBar";
 import Pagination from "../../../../components/Pagination";
 import Modal from "../../../../components/Modal";
-import { AiOutlineClose, AiOutlineEye, AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineClose, AiOutlineEye, AiOutlineDelete, AiOutlineCheck } from "react-icons/ai";
 
 const PendingOrders = () => {
   const dispatch = useDispatch();
@@ -46,6 +46,13 @@ const PendingOrders = () => {
     }
   };
 
+  const handleConfirm = (id) => {
+    if (window.confirm("Are you sure you want to confirm this pending order? This will convert it to a regular order and record the payment.")) {
+      dispatch(confirmPendingOrder(id));
+      setDetailModal(false);
+    }
+  };
+
   const openDetails = (order) => {
     setSelectedOrder(order);
     setDetailModal(true);
@@ -56,7 +63,7 @@ const PendingOrders = () => {
       {detailModal && selectedOrder && (
         <Modal
           tab={
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6">
+            <div className="w-full">
               <div className="flex justify-between items-center border-b pb-4">
                 <h2 className="text-xl font-bold text-gray-900">Pending Order Details</h2>
                 <button
@@ -145,6 +152,21 @@ const PendingOrders = () => {
                   </div>
                 )}
               </div>
+              <div className="mt-6 pt-4 border-t flex justify-end gap-3">
+                <button
+                  onClick={() => setDetailModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => handleConfirm(selectedOrder._id)}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition-colors flex items-center gap-1.5"
+                >
+                  <AiOutlineCheck size={16} />
+                  Confirm Order
+                </button>
+              </div>
             </div>
           }
         />
@@ -183,8 +205,8 @@ const PendingOrders = () => {
             <JustLoading size={10} />
           </div>
         ) : pendingOrders && pendingOrders.length > 0 ? (
-          <div className="overflow-x-scroll lg:overflow-hidden bg-white rounded-lg mt-5 border">
-            <table className="w-full min-w-max table-auto">
+          <div className="overflow-x-auto bg-white rounded-lg mt-5 border">
+            <table className="w-full table-auto">
               <thead>
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="admin-table-head">No:</th>
@@ -193,6 +215,7 @@ const PendingOrders = () => {
                   <th className="admin-table-head">Email</th>
                   <th className="admin-table-head">Phone</th>
                   <th className="admin-table-head">Checkout Type</th>
+                  <th className="admin-table-head">Products</th>
                   <th className="admin-table-head">Created At</th>
                   <th className="admin-table-head">Action</th>
                 </tr>
@@ -212,12 +235,25 @@ const PendingOrders = () => {
                   return (
                     <tr key={item._id} className="hover:bg-gray-50 transition-colors">
                       <td className={classes}>{(page - 1) * 10 + index + 1}</td>
-                      <td className={`${classes} font-mono text-xs font-semibold text-gray-700`}>
+                      <td 
+                        className={`${classes} font-mono text-xs font-semibold text-gray-700 max-w-[130px] truncate`}
+                        title={item.razorpay_order_id}
+                      >
                         {item.razorpay_order_id}
                       </td>
-                      <td className={`${classes} font-semibold text-gray-900`}>{customerName}</td>
-                      <td className={classes}>{email}</td>
-                      <td className={classes}>{phone}</td>
+                      <td 
+                        className={`${classes} font-semibold text-gray-900 max-w-[120px] truncate`}
+                        title={customerName}
+                      >
+                        {customerName}
+                      </td>
+                      <td 
+                        className={`${classes} max-w-[150px] truncate`}
+                        title={email}
+                      >
+                        {email}
+                      </td>
+                      <td className={`${classes} whitespace-nowrap`}>{phone}</td>
                       <td className={classes}>
                         <span
                           className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -229,9 +265,41 @@ const PendingOrders = () => {
                           {item.isGuest ? "Guest" : "Registered"}
                         </span>
                       </td>
-                      <td className={classes}>{new Date(item.createdAt).toLocaleString()}</td>
+                      <td className={`${classes} max-w-[200px]`}>
+                        {item.payload?.items && item.payload.items.length > 0 ? (
+                          <div className="flex flex-col gap-1">
+                            {item.payload.items.map((prodItem, idx) => (
+                              <div
+                                key={idx}
+                                className="text-xs text-gray-700 font-medium truncate"
+                                title={`${prodItem.product?.name || "Product"} (x${prodItem.quantity})`}
+                              >
+                                {prodItem.product?.name || "Product"}{" "}
+                                <span className="text-gray-400 font-semibold">(x{prodItem.quantity})</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">No products</span>
+                        )}
+                      </td>
+                      <td className={`${classes} whitespace-nowrap`}>
+                        <div className="font-medium text-gray-900 text-xs">
+                          {new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                        <div className="text-[10px] text-gray-500">
+                          {new Date(item.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </td>
                       <td className={classes}>
                         <div className="flex gap-2">
+                          <button
+                            onClick={() => handleConfirm(item._id)}
+                            className="p-1.5 bg-green-50 hover:bg-green-100 rounded-lg text-green-600 hover:text-green-800 transition-colors"
+                            title="Confirm Order"
+                          >
+                            <AiOutlineCheck size={18} />
+                          </button>
                           <button
                             onClick={() => openDetails(item)}
                             className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 hover:text-gray-800 transition-colors"

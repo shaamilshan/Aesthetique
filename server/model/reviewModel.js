@@ -38,6 +38,10 @@ const reviewSchema = new Schema(
     isUpdated: {
       type: Boolean,
       default: false
+    },
+    images: {
+      type: [String],
+      default: []
     }
   },
   { 
