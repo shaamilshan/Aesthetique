@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPendingOrders, deletePendingOrder } from "../../../../redux/actions/admin/ordersAction";
+import { getPendingOrders, deletePendingOrder, confirmPendingOrder } from "../../../../redux/actions/admin/ordersAction";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import JustLoading from "../../../../components/JustLoading";
 import SearchBar from "../../../../components/SearchBar";
 import Pagination from "../../../../components/Pagination";
 import Modal from "../../../../components/Modal";
-import { AiOutlineClose, AiOutlineEye, AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineClose, AiOutlineEye, AiOutlineDelete, AiOutlineCheck } from "react-icons/ai";
 
 const PendingOrders = () => {
   const dispatch = useDispatch();
@@ -46,6 +46,13 @@ const PendingOrders = () => {
     }
   };
 
+  const handleConfirm = (id) => {
+    if (window.confirm("Are you sure you want to confirm this pending order? This will convert it to a regular order and record the payment.")) {
+      dispatch(confirmPendingOrder(id));
+      setDetailModal(false);
+    }
+  };
+
   const openDetails = (order) => {
     setSelectedOrder(order);
     setDetailModal(true);
@@ -56,7 +63,7 @@ const PendingOrders = () => {
       {detailModal && selectedOrder && (
         <Modal
           tab={
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6">
+            <div className="w-full">
               <div className="flex justify-between items-center border-b pb-4">
                 <h2 className="text-xl font-bold text-gray-900">Pending Order Details</h2>
                 <button
@@ -145,6 +152,21 @@ const PendingOrders = () => {
                   </div>
                 )}
               </div>
+              <div className="mt-6 pt-4 border-t flex justify-end gap-3">
+                <button
+                  onClick={() => setDetailModal(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => handleConfirm(selectedOrder._id)}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-xl transition-colors flex items-center gap-1.5"
+                >
+                  <AiOutlineCheck size={16} />
+                  Confirm Order
+                </button>
+              </div>
             </div>
           }
         />
@@ -232,6 +254,13 @@ const PendingOrders = () => {
                       <td className={classes}>{new Date(item.createdAt).toLocaleString()}</td>
                       <td className={classes}>
                         <div className="flex gap-2">
+                          <button
+                            onClick={() => handleConfirm(item._id)}
+                            className="p-1.5 bg-green-50 hover:bg-green-100 rounded-lg text-green-600 hover:text-green-800 transition-colors"
+                            title="Confirm Order"
+                          >
+                            <AiOutlineCheck size={18} />
+                          </button>
                           <button
                             onClick={() => openDetails(item)}
                             className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 hover:text-gray-800 transition-colors"

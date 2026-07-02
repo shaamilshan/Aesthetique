@@ -113,3 +113,17 @@ export const deletePendingOrder = createAsyncThunk(
     );
   }
 );
+
+// Confirm a pending order
+export const confirmPendingOrder = createAsyncThunk(
+  "orders/confirmPendingOrder",
+  async (id, { rejectWithValue }) => {
+    return commonReduxRequest(
+      "post",
+      `/admin/confirm-pending-order/${id}`,
+      null,
+      appJson,
+      rejectWithValue
+    );
+  }
+);

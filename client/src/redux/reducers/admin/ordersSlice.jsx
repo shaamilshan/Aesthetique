@@ -7,6 +7,7 @@ import {
   updateReturnOrderStatus,
   getPendingOrders,
   deletePendingOrder,
+  confirmPendingOrder,
 } from "../../actions/admin/ordersAction";
 import toast from "react-hot-toast";
 
@@ -139,6 +140,25 @@ const ordersSlice = createSlice({
       .addCase(deletePendingOrder.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload;
+      })
+
+      // Confirm Pending Order
+      .addCase(confirmPendingOrder.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(confirmPendingOrder.fulfilled, (state, { payload, meta }) => {
+        state.loading = false;
+        state.error = null;
+        state.pendingOrders = state.pendingOrders.filter(
+          (item) => item._id !== meta.arg
+        );
+        state.totalAvailablePendingOrders = Math.max(0, state.totalAvailablePendingOrders - 1);
+        toast.success("Pending Order Confirmed & Moved to Orders");
+      })
+      .addCase(confirmPendingOrder.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload;
+        toast.error(payload?.error || "Failed to confirm pending order");
       });
   },
 });

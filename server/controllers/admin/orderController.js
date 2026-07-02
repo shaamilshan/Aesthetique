@@ -663,6 +663,141 @@ const deletePendingOrder = async (req, res) => {
   }
 };
 
+const confirmPendingOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pendingOrder = await PendingOrder.findById(id);
+    if (!pendingOrder) {
+      return res.status(404).json({ error: "Pending order not found" });
+    }
+
+    const razorpay_order_id = pendingOrder.razorpay_order_id;
+
+    // Check if payment already processed
+    const existingPayment = await Payment.findOne({ razorpay_order_id });
+    if (existingPayment) {
+      await PendingOrder.findByIdAndDelete(id);
+      return res.status(400).json({ error: "This order has already been paid and processed." });
+    }
+
+    // Reconstruct user's cart in database if user is registered and cart is missing/empty
+    if (!pendingOrder.isGuest && pendingOrder.payload && pendingOrder.payload.items) {
+      const Cart = require("../../model/cartModel");
+      let userCart = await Cart.findOne({ user: pendingOrder.user });
+
+      // Build cart items array
+      const cartItems = pendingOrder.payload.items.map((item) => ({
+        product: item.productId,
+        quantity: item.quantity,
+        attributes: item.attributes || {},
+      }));
+
+      // Find the Coupon object ID if couponCode is provided in payload
+      let couponId = null;
+      if (pendingOrder.payload.couponCode) {
+        try {
+          const Coupon = require("../../model/couponModel");
+          const couponDoc = await Coupon.findOne({ code: pendingOrder.payload.couponCode });
+          if (couponDoc) {
+            couponId = couponDoc._id;
+          }
+        } catch (err) {
+          console.error("Failed to find coupon by code:", err);
+        }
+      }
+
+      if (!userCart) {
+        userCart = await Cart.create({
+          user: pendingOrder.user,
+          items: cartItems,
+          ...(couponId ? { coupon: couponId } : {}),
+          ...(pendingOrder.payload.couponCode ? { couponCode: pendingOrder.payload.couponCode } : {}),
+          ...(pendingOrder.payload.discount ? { discount: pendingOrder.payload.discount } : {}),
+          ...(pendingOrder.payload.couponType ? { type: pendingOrder.payload.couponType } : {}),
+        });
+      } else if (!userCart.items || userCart.items.length === 0) {
+        userCart.items = cartItems;
+        if (couponId) userCart.coupon = couponId;
+        if (pendingOrder.payload.couponCode) userCart.couponCode = pendingOrder.payload.couponCode;
+        if (pendingOrder.payload.discount) userCart.discount = pendingOrder.payload.discount;
+        if (pendingOrder.payload.couponType) userCart.type = pendingOrder.payload.couponType;
+        await userCart.save();
+      }
+    }
+
+    // Mock Express Request object
+    const mockReq = {
+      body: pendingOrder.payload,
+      cookies: {},
+      user: pendingOrder.user,
+    };
+
+    const jwt = require("jsonwebtoken");
+    if (pendingOrder.user) {
+      // Mock the JWT cookie so orderController can authenticate
+      const token = jwt.sign({ _id: pendingOrder.user }, process.env.SECRET);
+      mockReq.cookies.user_token = token;
+    }
+
+    let responseData = null;
+    let responseError = null;
+
+    // Mock Express Response object
+    const mockRes = {
+      status: function (code) {
+        this.statusCode = code;
+        return this;
+      },
+      json: function (data) {
+        if (this.statusCode === 200 || this.statusCode === 201) {
+          responseData = data;
+        } else {
+          responseError = data;
+        }
+      },
+    };
+
+    const { createOrder } = require("../user/orderController");
+    const { createGuestOrder } = require("../public/guestOrderController");
+
+    // Execute the actual order creation logic
+    if (pendingOrder.isGuest) {
+      await createGuestOrder(mockReq, mockRes);
+    } else {
+      await createOrder(mockReq, mockRes);
+    }
+
+    if (responseError) {
+      console.error("Manual Order Creation failed:", responseError);
+      return res.status(400).json({ error: responseError.error || "Order creation failed" });
+    }
+
+    if (!responseData || !responseData.order) {
+      return res.status(400).json({ error: "Order response did not contain order details" });
+    }
+
+    // Record the successful payment
+    const orderId = responseData.order._id;
+    await Payment.create({
+      order: orderId,
+      razorpay_order_id,
+      payment_id: `manual_confirm_${Date.now()}`,
+      status: "success",
+      paymentMode: "razorPay",
+      user: pendingOrder.user,
+    });
+
+    // Delete the pending order
+    await PendingOrder.findByIdAndDelete(id);
+
+    console.log(`Manually confirmed order and processed: ${orderId}`);
+    res.status(200).json({ success: true, order: responseData.order });
+  } catch (error) {
+    console.error("Confirm pending order error:", error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getOrders,
   getManagerOrders,
@@ -677,4 +812,5 @@ module.exports = {
   createManualOrder,
   getPendingOrders,
   deletePendingOrder,
+  confirmPendingOrder,
 };
