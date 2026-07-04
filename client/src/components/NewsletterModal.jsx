@@ -171,9 +171,6 @@ export default function NewsletterModal() {
             <h2 className="text-2xl font-extrabold tracking-widest text-gray-900 font-serif">
               AESTHETIQUE
             </h2>
-            <p className="text-[10px] tracking-[0.2em] text-gray-400 font-bold uppercase mt-1">
-              Canada's Premium Skincare
-            </p>
           </div>
 
           {/* Dynamic Content Area */}
