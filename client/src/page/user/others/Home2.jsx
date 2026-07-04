@@ -20,9 +20,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import useBanner from "@/hooks/useBanner";
 import { URL } from "@/Common/api";
 import { useState, useEffect } from "react";
-import { HiX } from "react-icons/hi";
 import toast from "react-hot-toast";
-import popupBg from "@/assets/others/about.jpg";
 
 function WhatsAppFloatingButton() {
   return (
@@ -41,35 +39,6 @@ function WhatsAppFloatingButton() {
 
 export default function Home2(props) {
   const { banners, loading, error } = useBanner();
-  const [showModal, setShowModal] = useState(false);
-  const [email, setEmail] = useState("");
-
-  useEffect(() => {
-    const lastClosed = localStorage.getItem("newsletter_popup_last_closed");
-    const now = Date.now();
-    
-    // Show if never closed before, or if 1 minute (1 * 60 * 1000 ms) has passed
-    if (!lastClosed || (now - parseInt(lastClosed, 10)) > 1 * 60 * 1000) {
-      const timer = setTimeout(() => {
-        setShowModal(true);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    localStorage.setItem("newsletter_popup_last_closed", Date.now().toString());
-  };
-
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (email) {
-      toast.success("Subscribed successfully!");
-      setShowModal(false);
-      localStorage.setItem("newsletter_popup_last_closed", Date.now().toString());
-    }
-  };
 
   return (
     <>
@@ -172,81 +141,6 @@ export default function Home2(props) {
       </div>
 
       <WhatsAppFloatingButton />
-
-      {/* Newsletter Popup Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-opacity duration-300">
-          <div className="relative bg-white rounded-xl overflow-hidden shadow-2xl max-w-3xl w-full flex flex-col md:flex-row min-h-[450px] border border-gray-100">
-            {/* Close Button */}
-            <button
-              onClick={handleCloseModal}
-              className="absolute top-4 right-4 z-10 text-gray-500 hover:text-black hover:scale-110 bg-white/80 rounded-full p-1.5 shadow-sm transition-all"
-            >
-              <HiX className="w-5 h-5" />
-            </button>
-
-            {/* Left Side: Newsletter Form */}
-            <div className="flex-1 p-8 sm:p-10 flex flex-col justify-center text-center md:text-left bg-white">
-              <div className="mb-6 text-center">
-                <h2 className="text-2xl font-semibold tracking-widest text-gray-800 uppercase font-serif">
-                  AESTHETIQUE
-                </h2>
-                <p className="text-[10px] tracking-widest text-gray-400 font-medium">
-                  CANADA'S BEAUTY STORE
-                </p>
-              </div>
-
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 text-center uppercase tracking-tight font-serif leading-tight">
-                WELCOME TO OUR WORLD OF BEAUTY
-              </h3>
-
-              <p className="text-gray-600 text-xs sm:text-sm text-center mb-4 leading-relaxed font-medium">
-                Sign up to the Aesthetique newsletter & receive <span className="font-bold text-red-500">2X the points</span> on your first purchase.
-              </p>
-
-              <div className="text-center mb-6 text-gray-500 text-[11px] sm:text-xs font-semibold flex flex-wrap justify-center gap-1">
-                <span>Exclusive offers</span>
-                <span>•</span>
-                <span>New Arrivals</span>
-                <span>•</span>
-                <span>Promotions</span>
-                <span>•</span>
-                <span>Beauty News</span>
-              </div>
-
-              <form onSubmit={handleSubscribe} className="space-y-3 w-full max-w-sm mx-auto">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email Address"
-                  required
-                  className="w-full border border-gray-300 rounded px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-black transition-colors"
-                />
-                <button
-                  type="submit"
-                  className="w-full bg-black hover:bg-gray-800 text-white font-bold py-2.5 rounded transition-all text-xs sm:text-sm uppercase tracking-widest shadow"
-                >
-                  SUBSCRIBE
-                </button>
-              </form>
-
-              <p className="text-[8px] text-gray-400 mt-4 leading-relaxed text-center">
-                By submitting your email address, you agree to receive marketing emails. You can withdraw your consent at any time. View our Privacy Policy.
-              </p>
-            </div>
-
-            {/* Right Side: Skincare Image */}
-            <div className="hidden md:block md:w-[45%] relative overflow-hidden bg-gray-50">
-              <img
-                src={popupBg}
-                alt="Skincare Products"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
