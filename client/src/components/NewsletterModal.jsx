@@ -51,13 +51,13 @@ export default function NewsletterModal() {
     location.pathname.startsWith("/admin") || 
     location.pathname.startsWith("/manager");
 
-  // Trigger modal display after a 3-second delay on mount
+  // Trigger modal display after a 1-second delay on mount
   useEffect(() => {
     if (isAdminOrManager) return;
 
     const modalTimer = setTimeout(() => {
       setShowModal(true);
-    }, 3000);
+    }, 1000);
 
     return () => clearTimeout(modalTimer);
   }, [isAdminOrManager]);
