@@ -23,7 +23,7 @@ const slides = [
     headline: "GLOW MORE, SAVE MORE",
     subtitle: "PREMIUM BEAUTY DEALS",
     description: "Experience professional-grade skincare. Subscribe to claim 15% savings on Hyaluronic Boost Serum and Golden Glow MS Sunscreen.",
-    features: ["Premium Ingredients", "Dermatologist Tested", "Free Shipping on Orders Over $50"],
+    features: ["Premium Ingredients", "Dermatologist Tested", "Free Shipping on Orders Over ₹1399"],
     badge: "Exclusive Promo"
   },
   {
@@ -149,7 +149,7 @@ export default function NewsletterModal() {
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4 backdrop-blur-md animate-fade-in">
       {/* Modal Container */}
       <div 
-        className="relative bg-white rounded-2xl overflow-hidden shadow-2xl max-w-4xl w-full flex flex-col md:flex-row min-h-[500px] border border-gray-100 transition-all duration-500 scale-95 md:scale-100"
+        className="relative bg-white rounded-2xl overflow-hidden shadow-2xl max-w-[950px] w-full flex flex-col md:flex-row md:h-[500px] border border-gray-100 transition-all duration-500 scale-95 md:scale-100"
         style={{
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.4)"
         }}
@@ -164,36 +164,33 @@ export default function NewsletterModal() {
         </button>
 
         {/* Left Column: Interactive Subscription Form */}
-        <div className="flex-[1.2] p-8 sm:p-12 flex flex-col justify-between text-left bg-white relative">
+        <div className="flex-1 md:max-w-[450px] p-6 sm:p-8 flex flex-col justify-between text-left bg-white relative">
           
           {/* Header branding */}
-          <div className="mb-6">
+          <div className="mb-4">
             <h2 className="text-2xl font-extrabold tracking-widest text-gray-900 font-serif">
-              AESTHETIQUE
+              BM AESTHETIQUE
             </h2>
           </div>
 
           {/* Dynamic Content Area */}
           <div className={`transition-all duration-300 transform flex-1 flex flex-col justify-center ${fadeText ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
             
-            <span className="inline-block bg-amber-100 text-amber-900 text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full uppercase mb-3 w-fit">
-              {slides[currentSlide].badge}
-            </span>
 
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 uppercase tracking-tight font-serif leading-tight mb-2">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 uppercase tracking-tight font-serif leading-tight mb-1.5">
               {slides[currentSlide].headline}
             </h3>
             
-            <h4 className="text-sm font-semibold text-amber-700 tracking-wide mb-4">
+            <h4 className="text-sm font-semibold text-amber-700 tracking-wide mb-2.5">
               {slides[currentSlide].subtitle}
             </h4>
 
-            <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-6">
+            <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-4">
               {slides[currentSlide].description}
             </p>
 
             {/* Micro-Features checklist */}
-            <ul className="space-y-2 mb-6">
+            <ul className="space-y-2 mb-4">
               {slides[currentSlide].features.map((feat, idx) => (
                 <li key={idx} className="flex items-center text-xs font-semibold text-gray-700">
                   <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -206,7 +203,7 @@ export default function NewsletterModal() {
           </div>
 
           {/* Subscription Input Form */}
-          <div className="mt-4">
+          <div className="mt-2">
             <form onSubmit={handleSubscribe} className="space-y-3 w-full">
               <div className="relative">
                 <input
@@ -244,13 +241,13 @@ export default function NewsletterModal() {
               </button>
             </form>
 
-            <p className="text-[9px] text-gray-400 mt-3.5 leading-relaxed text-center sm:text-left">
+            <p className="text-[9px] text-gray-400 mt-2.5 leading-relaxed text-center sm:text-left">
               By subscribing, you agree to receive marketing communications. Unsubscribe at any time. View our <a href="/return-policy" className="underline hover:text-black">Privacy & Policy</a>.
             </p>
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex justify-center md:justify-start gap-2.5 mt-6">
+          <div className="flex justify-center md:justify-start gap-2.5 mt-4">
             {slides.map((_, index) => (
               <button
                 key={index}
@@ -266,7 +263,7 @@ export default function NewsletterModal() {
         </div>
 
         {/* Right Column: Sliding Image Carousel Panel */}
-        <div className="hidden md:block md:w-[45%] relative overflow-hidden bg-zinc-50 border-l border-gray-100">
+        <div className="hidden md:block md:w-[500px] md:h-[500px] relative overflow-hidden bg-zinc-50 border-l border-gray-100 flex-shrink-0">
           <div 
             className="flex h-full w-full transition-transform duration-700 ease-in-out"
             style={{
@@ -276,7 +273,7 @@ export default function NewsletterModal() {
             {slides.map((slide, index) => (
               <div 
                 key={index} 
-                className="w-full h-full shrink-0 relative select-none"
+                className="w-[500px] h-[500px] shrink-0 relative select-none"
               >
                 <img
                   src={slide.image}
