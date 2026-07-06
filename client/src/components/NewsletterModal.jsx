@@ -23,7 +23,7 @@ const slides = [
     headline: "GLOW MORE, SAVE MORE",
     subtitle: "PREMIUM BEAUTY DEALS",
     description: "Experience professional-grade skincare. Subscribe to claim 15% savings on Hyaluronic Boost Serum and Golden Glow MS Sunscreen.",
-    features: ["Premium Ingredients", "Dermatologist Tested", "Free Shipping on Orders Over ₹1399"],
+    features: ["Premium Ingredients", "Dermatologist Tested"],
     badge: "Exclusive Promo"
   },
   {
