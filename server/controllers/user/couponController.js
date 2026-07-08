@@ -24,7 +24,7 @@ const applyCoupon = async (req, res) => {
     const currentDate = new Date();
 
     const coupon = await Coupon.findOne({
-      code,
+      code: { $regex: new RegExp(`^${code.trim()}$`, "i") },
       expirationDate: { $gt: currentDate },
     });
 
@@ -42,6 +42,15 @@ const applyCoupon = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(_id)) {
       throw Error("Invalid ID!!!");
+    }
+
+    // CHECK FOR FIRST ORDER ONLY COUPONS
+    if (coupon.isFirstOrder) {
+      const Order = require("../../model/orderModel");
+      const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
+      if (existingOrder) {
+        throw Error("This coupon is only valid for your first order!");
+      }
     }
 
     const cart = await Cart.findOne({ user: _id }).populate("items.product", {
@@ -67,7 +76,7 @@ const applyCoupon = async (req, res) => {
       {
         $set: {
           coupon: coupon._id,
-          couponCode: code,
+          couponCode: coupon.code,
           discount: coupon.value,
           type: coupon.type,
         },
@@ -81,7 +90,7 @@ const applyCoupon = async (req, res) => {
     res.status(200).json({
       discount: coupon.value,
       couponType: coupon.type,
-      couponCode: code,
+      couponCode: coupon.code,
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -117,8 +126,91 @@ const removeCoupon = async (req, res) => {
   }
 };
 
+const getFirstOrderCoupon = async (req, res) => {
+  try {
+    const token = req.cookies && req.cookies.user_token;
+    if (!token) {
+      return res.status(200).json({ coupon: null });
+    }
+
+    let _id;
+    try {
+      const decoded = jwt.verify(token, process.env.SECRET);
+      _id = decoded._id;
+    } catch (err) {
+      return res.status(200).json({ coupon: null });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      return res.status(200).json({ coupon: null });
+    }
+
+    const Order = require("../../model/orderModel");
+    const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
+
+    if (existingOrder) {
+      return res.status(200).json({ coupon: null });
+    }
+
+    const currentDate = new Date();
+    const coupon = await Coupon.findOne({
+      isFirstOrder: true,
+      isActive: true,
+      expirationDate: { $gt: currentDate },
+    });
+
+    return res.status(200).json({ coupon });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const checkCoupon = async (req, res) => {
+  try {
+    const { code, subTotal } = req.body;
+    const currentDate = new Date();
+    const coupon = await Coupon.findOne({
+      code: { $regex: new RegExp(`^${code.trim()}$`, "i") },
+      expirationDate: { $gt: currentDate },
+    });
+
+    if (!coupon) {
+      throw Error("Coupon not found!!");
+    }
+
+    if (coupon.used === coupon.maximumUses) {
+      throw Error("Coupon Usage Limit Reached");
+    }
+
+    const token = req.cookies.user_token;
+    const { _id } = jwt.verify(token, process.env.SECRET);
+
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      throw Error("Invalid ID!!!");
+    }
+
+    if (coupon.isFirstOrder) {
+      const Order = require("../../model/orderModel");
+      const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
+      if (existingOrder) {
+        throw Error("This coupon is only valid for your first order!");
+      }
+    }
+
+    if (subTotal < coupon.minimumPurchaseAmount) {
+      throw Error(`Coupon Minimum Purchase Amount of ₹${coupon.minimumPurchaseAmount} is not reached`);
+    }
+
+    res.status(200).json({ coupon });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getCoupons,
   applyCoupon,
   removeCoupon,
+  getFirstOrderCoupon,
+  checkCoupon,
 };

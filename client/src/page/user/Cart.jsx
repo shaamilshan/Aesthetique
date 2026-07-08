@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BiSearchAlt } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { URL } from "../../Common/api";
+import { config } from "../../Common/configurations";
+import { Sparkles } from "lucide-react";
 import {
   getCart,
   deleteEntireCart,
@@ -23,15 +27,34 @@ const Cart = () => {
   const { cart, loading, error, cartId, couponCode } = useSelector(
     (state) => state.cart
   );
+  const { user } = useSelector((state) => state.user);
   // Defensive fallback: ensure components never read `.length` of null
   const safeCart = cart || [];
 
   const [inputCouponCode, setInputCouponCode] = useState("");
+  const [firstOrderCoupon, setFirstOrderCoupon] = useState(null);
 
   // Fetching entire cart on page load
   useEffect(() => {
     dispatch(getCart());
   }, []);
+
+  // Fetching first order coupon if eligible
+  useEffect(() => {
+    const fetchFirstOrderCoupon = async () => {
+      try {
+        const { data } = await axios.get(`${URL}/user/first-order-coupon`, config);
+        if (data && data.coupon) {
+          setFirstOrderCoupon(data.coupon);
+        }
+      } catch (err) {
+        console.error("Error fetching first order coupon:", err);
+      }
+    };
+    if (user) {
+      fetchFirstOrderCoupon();
+    }
+  }, [user]);
 
   // Calculating the total with the data and updating it when ever there is a change
   useEffect(() => {
@@ -165,6 +188,24 @@ const Cart = () => {
                           Apply
                         </button>
                       </div>
+                      {firstOrderCoupon && !couponCode && (
+                        <div className="mt-3 p-3 bg-indigo-50 border border-dashed border-indigo-200 rounded-xl flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="text-indigo-600 flex-shrink-0" size={16} />
+                            <p className="text-xs font-semibold text-indigo-900">
+                              1st Order Gift: Use <span className="font-mono font-bold text-indigo-700">{firstOrderCoupon.code}</span>
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              dispatch(applyCoupon(firstOrderCoupon.code));
+                            }}
+                            className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-white border border-indigo-200 px-2.5 py-1 rounded-lg shadow-sm transition-all"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      )}
                       {couponCode && (
                         <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

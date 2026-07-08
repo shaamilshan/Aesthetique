@@ -13,7 +13,7 @@ const getCart = async (req, res) => {
       throw Error("Invalid ID!!!");
     }
 
-    const cart = await Cart.findOne({ user: _id })
+    let cart = await Cart.findOne({ user: _id })
       .populate("items.product", {
         name: 1,
         imageURL: 1,
@@ -21,6 +21,31 @@ const getCart = async (req, res) => {
         markup: 1,
       })
       .sort({ createdAt: -1 });
+
+    if (cart && cart.coupon) {
+      const Coupon = require("../../model/couponModel");
+      const appliedCoupon = await Coupon.findById(cart.coupon);
+      if (appliedCoupon && appliedCoupon.isFirstOrder) {
+        const Order = require("../../model/orderModel");
+        const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
+        if (existingOrder) {
+          cart.coupon = null;
+          cart.couponCode = null;
+          cart.discount = null;
+          cart.type = null;
+          await cart.save();
+          // Refetch populated cart to ensure we return the cleared state
+          cart = await Cart.findOne({ user: _id })
+            .populate("items.product", {
+              name: 1,
+              imageURL: 1,
+              price: 1,
+              markup: 1,
+            })
+            .sort({ createdAt: -1 });
+        }
+      }
+    }
 
     res.status(200).json({ cart });
   } catch (error) {

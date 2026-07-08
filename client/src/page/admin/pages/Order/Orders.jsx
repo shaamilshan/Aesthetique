@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FiDownload } from "react-icons/fi";
+import { AiOutlineClockCircle } from "react-icons/ai";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import { useSelector, useDispatch } from "react-redux";
 import Modal from "../../../../components/Modal";
@@ -136,6 +137,13 @@ const Orders = () => {
               onClick={() => navigate("/admin/order/create")}
             >
               + Create Order
+            </button>
+            <button
+              className="admin-button-fl w-full md:w-auto bg-black text-white hover:bg-gray-800 flex items-center gap-1.5"
+              onClick={() => navigate("/admin/orders/pending")}
+            >
+              <AiOutlineClockCircle />
+              Non-Completed Orders
             </button>
             <button
               className="admin-button-fl w-full md:w-auto bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-black"

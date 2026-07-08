@@ -40,11 +40,17 @@ const couponSchema = new Schema(
     },
     expirationDate: {
       type: Date,
-      required: true,
+      required: function() {
+        return !this.isFirstOrder;
+      },
     },
     isActive: {
       type: Boolean,
       default: true,
+    },
+    isFirstOrder: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
