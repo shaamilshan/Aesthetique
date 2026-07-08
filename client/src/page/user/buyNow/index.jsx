@@ -15,12 +15,20 @@ import { emptyBuyNowStore } from "../../../redux/reducers/user/buyNowSlice";
 import CheckoutPaymentOption from "../components/CheckoutPaymentOption";
 import { getShippingCharge } from "@common/shippingCharges";
 
+import { Sparkles, X } from "lucide-react";
+
 const BuyNow = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { product, quantity } = useSelector((state) => state.buyNow);
   const { addresses } = useSelector((state) => state.address);
+  const { user } = useSelector((state) => state.user);
+
+  const [inputCouponCode, setInputCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [applyingLocal, setApplyingLocal] = useState(false);
+  const [firstOrderCoupon, setFirstOrderCoupon] = useState(null);
 
   useEffect(() => {
     if (!product) {
@@ -28,22 +36,24 @@ const BuyNow = () => {
     }
   }, []);
 
-  let offer = 0;
-  let couponType = "s";
-  let totalPrice = product ? product.price : 0;
-  const [shipping, setShipping] = useState(100);
+  let totalPrice = product ? product.price * quantity : 0;
+  const [shipping, setShipping] = useState(null);
   let tax = 0;
-  // let tax = parseInt(totalPrice * 0.08);
-  let discount = 0;
-  // let couponCode = "o";
 
-  if (couponType === "percentage") {
-    offer = (totalPrice * discount) / 100;
-  } else {
-    offer = discount;
+  let offer = 0;
+  let couponType = appliedCoupon ? appliedCoupon.type : "";
+  let discount = appliedCoupon ? appliedCoupon.value : 0;
+  let couponCodeApplied = appliedCoupon ? appliedCoupon.code : "";
+
+  if (appliedCoupon) {
+    if (couponType === "percentage") {
+      offer = (totalPrice * discount) / 100;
+    } else {
+      offer = discount;
+    }
   }
 
-  const finalTotal = totalPrice + shipping + tax - offer;
+  const finalTotal = totalPrice + (shipping || 0) + tax - offer;
 
   // Wallet balance
   const [walletBalance, setWalletBalance] = useState(0);
@@ -62,6 +72,62 @@ const BuyNow = () => {
       }
     }
   }, [selectedAddress, addresses]);
+
+  // Fetching first order coupon if eligible
+  useEffect(() => {
+    const fetchFirstOrderCoupon = async () => {
+      try {
+        const { data } = await axios.get(`${URL}/user/first-order-coupon`, config);
+        if (data && data.coupon) {
+          setFirstOrderCoupon(data.coupon);
+        }
+      } catch (err) {
+        console.error("Error fetching first order coupon:", err);
+      }
+    };
+    if (user) {
+      fetchFirstOrderCoupon();
+    }
+  }, [user]);
+
+  const handleApplyCouponCode = async (code) => {
+    if (!code || code.trim() === "") return;
+    setApplyingLocal(true);
+    try {
+      const { data } = await axios.post(
+        `${URL}/user/coupon-check`,
+        { code: code.trim(), subTotal: totalPrice },
+        config
+      );
+      setAppliedCoupon(data.coupon);
+      setInputCouponCode(data.coupon.code);
+      window.dispatchEvent(new CustomEvent("buy-now-coupon-applied", { detail: data.coupon.code }));
+      toast.success("Promo code applied successfully!");
+    } catch (err) {
+      toast.error(err.response?.data?.error || err.message);
+    } finally {
+      setApplyingLocal(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setInputCouponCode("");
+    window.dispatchEvent(new CustomEvent("buy-now-coupon-applied", { detail: "" }));
+    toast.success("Promo code removed.");
+  };
+
+  // Listen to custom event from the global promo card
+  useEffect(() => {
+    const handleApplyEvent = (e) => {
+      const code = e.detail;
+      handleApplyCouponCode(code);
+    };
+    window.addEventListener("apply-buy-now-coupon", handleApplyEvent);
+    return () => {
+      window.removeEventListener("apply-buy-now-coupon", handleApplyEvent);
+    };
+  }, [totalPrice]);
 
   // Payment Selection
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -94,6 +160,7 @@ const BuyNow = () => {
           address: selectedAddress,
           paymentMode: selectedPayment,
           quantity,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         },
         config
       );
@@ -130,6 +197,7 @@ const BuyNow = () => {
           address: selectedAddress,
           paymentMode: selectedPayment,
           quantity: 1,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         },
         config
       );
@@ -311,7 +379,15 @@ const BuyNow = () => {
                 <div className="cart-total-li">
                   <p className="cart-total-li-first">Shipping</p>
                   <p className="cart-total-li-second">
-                    {shipping === 0 ? "Free" : shipping}
+                    {selectedAddress ? (
+                      shipping === 0 ? (
+                        <span className="text-green-600 font-semibold">Free</span>
+                      ) : (
+                        `${shipping}₹`
+                      )
+                    ) : (
+                      <span className="text-gray-400 text-xs italic font-normal">Calculating...</span>
+                    )}
                   </p>
                 </div>
                 <div className="cart-total-li">
@@ -321,33 +397,73 @@ const BuyNow = () => {
                 <div className="cart-total-li">
                   <p className="cart-total-li-first">Discount</p>
                   <p className="cart-total-li-second">
-                    {discount}
-                    {discount !== ""
+                    {offer > 0
                       ? couponType === "percentage"
-                        ? `% Off (${offer}₹)`
-                        : "₹ Off"
+                        ? `${discount}% Off (${offer}₹)`
+                        : `${offer}₹ Off`
                       : "0₹"}
                   </p>
                 </div>
 
-                {/*  {couponCode !== "" && (
-                  <>
-                    <div className="cart-total-li bg-blue-100 p-2 rounded">
-                      <p className="cart-total-li-first">Coupon Applied</p>
-                      <p className="cart-total-li-first">{couponCode}</p>
+                {appliedCoupon && (
+                  <div className="cart-total-li bg-indigo-50 border border-dashed border-indigo-200 p-2.5 rounded-xl mt-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-wide">Voucher Applied</p>
+                      <p className="font-mono text-xs font-bold text-indigo-700">{appliedCoupon.code}</p>
                     </div>
-                    <div className="flex flex-row-reverse text-xs">
+                    <button
+                      onClick={handleRemoveCoupon}
+                      className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-full transition-colors"
+                      title="Remove Coupon"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Coupon Section Input */}
+              {!appliedCoupon && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-xs font-semibold text-gray-700 mb-2">Have a promo code?</p>
+                  <div className="flex gap-2 w-full">
+                    <input
+                      type="text"
+                      className="min-w-0 flex-1 py-2 px-3 rounded-lg border border-gray-200 bg-white text-xs uppercase font-mono focus:border-black focus:outline-none transition-colors"
+                      placeholder="Enter code"
+                      value={inputCouponCode}
+                      onChange={(e) => setInputCouponCode(e.target.value)}
+                    />
+                    <button
+                      className="flex-shrink-0 px-4 py-2 bg-black text-white text-xs rounded-lg hover:bg-gray-800 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      onClick={() => handleApplyCouponCode(inputCouponCode)}
+                      disabled={applyingLocal || inputCouponCode.trim() === ""}
+                    >
+                      {applyingLocal ? "..." : "Apply"}
+                    </button>
+                  </div>
+
+                  {/* Inline suggestion block */}
+                  {firstOrderCoupon && (
+                    <div className="mt-2.5 p-2 bg-indigo-50 border border-dashed border-indigo-200 rounded-lg flex items-center justify-between gap-2 text-xs w-full">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Sparkles className="text-indigo-600 flex-shrink-0" size={13} />
+                        <span className="font-semibold text-indigo-950 text-[10px] truncate">
+                          1st Order Gift: Use <span className="font-mono font-bold text-indigo-700">{firstOrderCoupon.code}</span>
+                        </span>
+                      </div>
                       <button
-                        className="text-red-500 hover:bg-red-100 p-1 rounded font-semibold"
-                        // onClick={() => dispatch(removeCoupon())}
+                        onClick={() => handleApplyCouponCode(firstOrderCoupon.code)}
+                        className="flex-shrink-0 text-[10px] font-bold text-indigo-700 hover:text-indigo-900 bg-white border border-indigo-150 px-2 py-0.5 rounded shadow-sm transition-all"
                       >
-                        Remove Coupon
+                        Apply
                       </button>
                     </div>
-                  </>
-                )} */}
-              </div>
-              <div className="cart-total-li">
+                  )}
+                </div>
+              )}
+
+              <div className="cart-total-li mt-4 pt-4 border-t border-gray-100">
                 <p className="font-semibold text-gray-500">Total</p>
                 <p className="font-semibold">{finalTotal}₹</p>
               </div>

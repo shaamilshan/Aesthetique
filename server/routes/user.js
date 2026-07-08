@@ -61,6 +61,8 @@ const {
   getCoupons,
   applyCoupon,
   removeCoupon,
+  getFirstOrderCoupon,
+  checkCoupon,
 } = require("../controllers/user/couponController");
 
 const {
@@ -142,6 +144,8 @@ router.delete("/wishlist-delete-item/:productId", deleteOneProductFromWishlist);
 router.get("/coupons", getCoupons);
 router.post("/coupon-apply", applyCoupon);
 router.get("/coupon-remove", removeCoupon);
+router.get("/first-order-coupon", getFirstOrderCoupon);
+router.post("/coupon-check", checkCoupon);
 // Reviews
 router.get("/reviews/:id", readProductReviews);
 router.get("/review/:id", readProductReview);

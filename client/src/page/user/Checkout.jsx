@@ -430,7 +430,7 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                <TotalAndSubTotal />
+                <TotalAndSubTotal addressAdded={!!selectedAddress || (!user && !!guestAddress)} />
 
                 <button
                   className="mt-6 w-full bg-black text-white uppercase font-semibold text-sm py-3 rounded-md hover:bg-gray-900 transition-colors"

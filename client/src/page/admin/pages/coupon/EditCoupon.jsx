@@ -51,9 +51,9 @@ const CreateCoupon = () => {
     expirationDate: "",
     used: "",
     isActive: "",
+    isFirstOrder: false,
   });
 
-  // Form-ik validation schema
   const validationSchema = Yup.object().shape({
     code: Yup.string().required("Code is required"),
     description: Yup.string().required("Description is required"),
@@ -61,7 +61,12 @@ const CreateCoupon = () => {
     value: Yup.number().min(0).required("Value is required"),
     minimumPurchaseAmount: Yup.number().min(0).required("Value is required"),
     maximumUses: Yup.number().min(0).required("Value is required"),
-    expirationDate: Yup.date().required("Expiry date is required"),
+    isFirstOrder: Yup.boolean(),
+    expirationDate: Yup.date().when("isFirstOrder", {
+      is: true,
+      then: (schema) => schema.notRequired(),
+      otherwise: (schema) => schema.required("Expiry date is required"),
+    }),
   });
 
   useEffect(() => {
@@ -74,6 +79,7 @@ const CreateCoupon = () => {
           expirationDate: getPassedDateOnwardDateForInput(
             data.coupon.expirationDate
           ),
+          isFirstOrder: !!data.coupon.isFirstOrder,
         });
       } catch (error) {
         console.error(error);
@@ -130,7 +136,8 @@ const CreateCoupon = () => {
           validationSchema={validationSchema}
           enableReinitialize
         >
-          <Form className="lg:flex gap-5 items-start">
+          {({ values }) => (
+            <Form className="lg:flex gap-5 items-start">
             <div className="admin-div lg:w-2/3">
               <p>
                 <label htmlFor="code" className="admin-label">
@@ -178,6 +185,23 @@ const CreateCoupon = () => {
                 name="type"
                 component="div"
                 className="text-black"
+              />
+
+              <p className="flex items-center gap-2 mt-6">
+                <Field
+                  type="checkbox"
+                  name="isFirstOrder"
+                  id="isFirstOrder"
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="isFirstOrder" className="admin-label !mb-0 cursor-pointer text-sm font-semibold text-gray-700">
+                  First Order Only (Valid for user's first purchase only)
+                </label>
+              </p>
+              <ErrorMessage
+                name="isFirstOrder"
+                component="div"
+                className="text-red-500 text-xs"
               />
             </div>
 
@@ -268,27 +292,30 @@ const CreateCoupon = () => {
                   component="span"
                 />
               </div>
-              <div className="admin-div">
-                <p>
-                  <label htmlFor="expirationDate" className="admin-label">
-                    Expiry Date
-                  </label>
-                </p>
-                <Field
-                  name="expirationDate"
-                  type="date"
-                  min={dateFromTomorrow}
-                  placeholder="Type the coupon code here"
-                  className="admin-input"
-                />
-                <ErrorMessage
-                  className="text-sm text-black"
-                  name="expirationDate"
-                  component="span"
-                />
-              </div>
+              {!values.isFirstOrder && (
+                <div className="admin-div">
+                  <p>
+                    <label htmlFor="expirationDate" className="admin-label">
+                      Expiry Date
+                    </label>
+                  </p>
+                  <Field
+                    name="expirationDate"
+                    type="date"
+                    min={dateFromTomorrow}
+                    placeholder="Type the coupon code here"
+                    className="admin-input"
+                  />
+                  <ErrorMessage
+                    className="text-sm text-black"
+                    name="expirationDate"
+                    component="span"
+                  />
+                </div>
+              )}
             </div>
           </Form>
+          )}
         </Formik>
       </div>
     </>

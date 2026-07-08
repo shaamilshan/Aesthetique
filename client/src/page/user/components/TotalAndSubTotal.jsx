@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeCoupon } from "../../../redux/actions/user/cartActions";
 
-const TotalAndSubTotal = () => {
+const TotalAndSubTotal = ({ addressAdded }) => {
   const dispatch = useDispatch();
 
   // const { totalPrice, shipping, discount, tax, couponType, couponCode } =
@@ -52,8 +52,16 @@ const TotalAndSubTotal = () => {
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">Shipping</span>
-          <span className={shipping === 0 ? "text-green-600 font-medium" : "font-medium"}>
-            {shipping === 0 ? "Free" : `₹${shipping}`}
+          <span className={shipping === 0 && addressAdded ? "text-green-600 font-medium" : "font-medium"}>
+            {addressAdded === undefined ? (
+              <span className="text-gray-400 text-xs">Calculated at checkout</span>
+            ) : !addressAdded ? (
+              <span className="text-gray-400 text-xs italic font-normal">Calculating...</span>
+            ) : shipping === 0 ? (
+              "Free"
+            ) : (
+              `₹${shipping}`
+            )}
           </span>
         </div>
         {parseInt(tax) > 0 && (

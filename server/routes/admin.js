@@ -3,6 +3,7 @@ const upload = require("../middleware/upload");
 
 const router = express.Router();
 const requirePermission = require("../middleware/requirePermission");
+const { requireAdminAuth } = require("../middleware/requireAuth");
 
 const {
   getProducts,
@@ -198,8 +199,8 @@ router.get('/setting/marquee', getMarqueeAnnouncements);
 router.put('/setting/marquee', updateMarqueeAnnouncements);
 
 // Site settings (keyed)
-router.get('/setting/:key', getSetting);
-router.put('/setting/:key', upsertSetting);
+router.get('/setting/:key', requireAdminAuth, getSetting);
+router.put('/setting/:key', requireAdminAuth, upsertSetting);
 
 // Announcement Controllers
 router.get('/announcements', getAllAnnouncements);

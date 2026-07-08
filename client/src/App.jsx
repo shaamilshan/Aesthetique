@@ -97,6 +97,7 @@ import AllManagerOrders from "./page/admin/pages/Order/AllManagerOrders";
 import OldRegister from "./page/auth/OldRegister";
 import ProductPageDesign from "./page/ProductPageDesign";
 import NewsletterModal from "./components/NewsletterModal";
+import FirstOrderPromo from "./components/FirstOrderPromo";
 
 function App() {
   const { user } = useSelector((state) => state.user);
@@ -136,6 +137,7 @@ function App() {
         <InnerNavFooter user={user} />
         {/* {user ? user.role === "user" && <CategorySection /> : <CategorySection />} */}
         <NewsletterModal />
+        <FirstOrderPromo />
 
         <Routes>
             <Route

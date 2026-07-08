@@ -75,6 +75,9 @@ const getCoupon = async (req, res) => {
 const addCoupon = async (req, res) => {
   try {
     const body = req.body;
+    if (body.isFirstOrder && !body.expirationDate) {
+      body.expirationDate = new Date("2099-12-31");
+    }
 
     const coupon = await Coupon.create(body);
 
@@ -94,6 +97,9 @@ const editCoupon = async (req, res) => {
     }
 
     let formData = req.body;
+    if (formData.isFirstOrder && !formData.expirationDate) {
+      formData.expirationDate = new Date("2099-12-31");
+    }
 
     const coupon = await Coupon.findOneAndUpdate(
       { _id: id },

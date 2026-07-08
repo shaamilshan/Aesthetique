@@ -16,7 +16,14 @@ const TableRow = ({ index, length, coupon }) => {
       className={`${classes} hover:bg-gray-200 active:bg-gray-300 cursor-pointer`}
     >
       <td className="admin-table-row">{index + 1}</td>
-      <td className="admin-table-row">{coupon.code}</td>
+      <td className="admin-table-row">
+        <span className="font-mono font-semibold">{coupon.code}</span>
+        {coupon.isFirstOrder && (
+          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            1st Order Only
+          </span>
+        )}
+      </td>
       <td className="admin-table-row capitalize">{coupon.type}</td>
       <td className="admin-table-row">{coupon.value}</td>
       <td className="admin-table-row">

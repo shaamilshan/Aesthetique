@@ -1,15 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { applyCoupon, removeCoupon } from "../../../redux/actions/user/cartActions";
-import { Ticket, X, Check } from "lucide-react";
+import { Ticket, X, Check, Sparkles } from "lucide-react";
+import axios from "axios";
+import { URL } from "../../../Common/api";
+import { config } from "../../../Common/configurations";
 
 const VoucherCodeSection = () => {
   const dispatch = useDispatch();
   const { couponCode, discount, couponType, loading } = useSelector(
     (state) => state.cart
   );
+  const { user } = useSelector((state) => state.user);
   
   const [inputCouponCode, setInputCouponCode] = useState("");
+  const [firstOrderCoupon, setFirstOrderCoupon] = useState(null);
+
+  useEffect(() => {
+    const fetchFirstOrderCoupon = async () => {
+      try {
+        const { data } = await axios.get(`${URL}/user/first-order-coupon`, config);
+        if (data && data.coupon) {
+          setFirstOrderCoupon(data.coupon);
+        }
+      } catch (err) {
+        console.error("Error fetching first order coupon:", err);
+      }
+    };
+    if (user) {
+      fetchFirstOrderCoupon();
+    }
+  }, [user]);
 
   useEffect(() => {
     setInputCouponCode(couponCode);
@@ -101,6 +122,25 @@ const VoucherCodeSection = () => {
           <p className="text-xs text-gray-500">
             Enter your voucher code to get instant discount on your order
           </p>
+
+          {firstOrderCoupon && !couponCode && (
+            <div className="mt-3 p-3 bg-indigo-50 border border-dashed border-indigo-200 rounded-xl flex items-center justify-between gap-2 text-sm font-sans">
+              <div className="flex items-center gap-2">
+                <Sparkles className="text-indigo-600 flex-shrink-0" size={16} />
+                <span className="font-semibold text-indigo-900 text-xs">
+                  1st Order Gift: Use <span className="font-mono font-bold text-indigo-700">{firstOrderCoupon.code}</span>
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  dispatch(applyCoupon(firstOrderCoupon.code));
+                }}
+                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 bg-white border border-indigo-200 px-2.5 py-1 rounded-lg shadow-sm transition-all"
+              >
+                Apply
+              </button>
+            </div>
+          )}
         </div>
       )}
 
