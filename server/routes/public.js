@@ -78,6 +78,8 @@ router.get('/share/product/:id', async (req, res) => {
   <meta property="og:title" content="${product.name} | BM Aesthetique">
   <meta property="og:description" content="${product.description ? product.description.replace(/["\n\r]/g, ' ').slice(0, 150) : "Premium aesthetic product"}">
   <meta property="og:image" content="${imageUrl}">
+  <meta property="og:image:width" content="600">
+  <meta property="og:image:height" content="315">
   <meta property="og:url" content="${productUrl}">
 
   <!-- Twitter -->
