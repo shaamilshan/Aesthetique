@@ -62,7 +62,7 @@ router.get('/share/product/:id', async (req, res) => {
       imageUrl = `${protocol}://${host}/api/img/${imageUrl}`;
     }
 
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const clientUrl = req.query.frontend || process.env.CLIENT_URL || "http://localhost:5173";
     const productUrl = `${clientUrl}/product/${id}`;
 
     res.setHeader("Content-Type", "text/html");

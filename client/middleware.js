@@ -18,8 +18,8 @@ export default function middleware(request) {
         apiBaseUrl = apiBaseUrl.slice(0, -1);
       }
 
-      // Redirect crawler to backend share preview route
-      return Response.redirect(`${apiBaseUrl}/public/share/product/${productId}`, 302);
+      // Redirect crawler to backend share preview route with the frontend origin as a parameter
+      return Response.redirect(`${apiBaseUrl}/public/share/product/${productId}?frontend=${encodeURIComponent(url.origin)}`, 302);
     }
   }
 
