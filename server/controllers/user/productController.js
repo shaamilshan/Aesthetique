@@ -111,12 +111,9 @@ const getProduct = async (req, res) => {
       throw Error("Invalid ID!!!");
     }
 
-    const product = await Product.findOne({ _id: id }).populate("category", {
-      name: 1,
-    });
-
-    console.log(product);
-    
+    const product = await Product.findOne({ _id: id })
+      .populate("category", { name: 1 })
+      .lean();
 
     res.status(200).json({ product });
   } catch (error) {

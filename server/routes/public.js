@@ -1,5 +1,11 @@
 const express = require("express");
 const { getBanners, getActiveHomeBanner, getAllHomeBanners } = require("../controllers/global/bannerController");
+const Product = require("../model/productModel");
+
+// Simple in-memory cache for Open Graph metadata
+const ogCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes TTL
+
 const { getPublicFaqs } = require("../controllers/global/faqController");
 const { getPublicSetting } = require("../controllers/global/settingController");
 const { getCategories } = require("../controllers/global/collectionController");
@@ -47,8 +53,15 @@ router.post('/webhook/razorpay', razorpayWebhook);
 router.get('/share/product/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const Product = require("../model/productModel");
-    const product = await Product.findById(id);
+    
+    // Check in-memory cache first
+    const cached = ogCache.get(id);
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
+      res.setHeader("Content-Type", "text/html");
+      return res.send(cached.html);
+    }
+
+    const product = await Product.findById(id).select("name description imageURL").lean();
     if (!product) {
       return res.status(404).send("Product not found");
     }
@@ -76,8 +89,7 @@ router.get('/share/product/:id', async (req, res) => {
     const clientUrl = req.query.frontend || process.env.CLIENT_URL || "http://localhost:5173";
     const productUrl = `${clientUrl}/product/${id}`;
 
-    res.setHeader("Content-Type", "text/html");
-    return res.send(`
+    const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,7 +124,19 @@ router.get('/share/product/:id', async (req, res) => {
   <p>Redirecting to <a href="${productUrl}">${product.name}</a>...</p>
 </body>
 </html>
-    `);
+    `;
+
+    // Cache the generated HTML
+    ogCache.set(id, { html, timestamp: Date.now() });
+    
+    // Evict oldest entry if cache exceeds 1000 items
+    if (ogCache.size > 1000) {
+      const oldestKey = ogCache.keys().next().value;
+      ogCache.delete(oldestKey);
+    }
+
+    res.setHeader("Content-Type", "text/html");
+    return res.send(html);
   } catch (error) {
     console.error("Error generating share preview:", error);
     res.status(500).send("Server Error");

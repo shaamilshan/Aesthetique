@@ -151,17 +151,23 @@ const SingleProduct = () => {
     }
   };
 
-  const searchParamsString = searchParams.toString();
-
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
 
-    dispatch(getUserProducts(searchParamsString));
     loadProduct();
-  }, [id, dispatch, searchParamsString]);
+  }, [id]);
+
+  useEffect(() => {
+    if (product && product.category) {
+      const categoryId = product.category._id || product.category;
+      dispatch(getUserProducts(`category=${categoryId}&limit=5`));
+    } else if (product && product._id) {
+      dispatch(getUserProducts("limit=5"));
+    }
+  }, [product, dispatch]);
 
   // Dynamically update document head tags for sharing previews
   useEffect(() => {

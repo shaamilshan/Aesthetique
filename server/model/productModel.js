@@ -156,15 +156,15 @@ const productsSchema = new Schema(
     },
   },
   { 
-    timestamps: true,
-    // Add indexes for performance
-    indexes: [
-      { name: 1 },
-      { category: 1 },
-      { status: 1 },
-    ]
+    timestamps: true
   }
 );
+
+// Correctly define database indexes for performance
+productsSchema.index({ name: 1 });
+productsSchema.index({ category: 1 });
+productsSchema.index({ status: 1 });
+productsSchema.index({ price: 1 });
 
 const Products = mongoose.model("Products", productsSchema);
 
