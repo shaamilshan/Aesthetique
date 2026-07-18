@@ -10,14 +10,9 @@ export default function middleware(request) {
     if (match) {
       const productId = match[1];
       
-      // Read VITE_BASE_URL environment variable configured in Vercel settings
-      let apiBaseUrl = process.env.VITE_BASE_URL || 'http://localhost:3000/api';
+      // Dynamically resolve the backend API URL relative to the active domain (since both are hosted on Vercel)
+      const apiBaseUrl = `${url.origin}/api`;
       
-      // Strip trailing slash if any
-      if (apiBaseUrl.endsWith('/')) {
-        apiBaseUrl = apiBaseUrl.slice(0, -1);
-      }
-
       // Redirect crawler to backend share preview route with the frontend origin as a parameter
       return Response.redirect(`${apiBaseUrl}/public/share/product/${productId}?frontend=${encodeURIComponent(url.origin)}`, 302);
     }
