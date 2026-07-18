@@ -94,14 +94,16 @@ const SingleProduct = () => {
     : [product.imageURL];
 
   const handleShare = async () => {
-    // Use the backend OG Proxy share link so WhatsApp crawler parses title and image
-    const shareUrl = `${URL}/public/share/product/${id}`;
+    // Generate the main frontend URL for the user to share
+    const productUrl = `${window.location.origin}/product/${id}`;
+    const shareText = `Check out ${product.name} on BM Aesthetique\n${productUrl}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: document.title,
-          url: shareUrl,
+          title: product.name,
+          text: `Check out ${product.name} on BM Aesthetique`,
+          url: productUrl,
         });
         console.log('Content shared successfully');
       } catch (error) {
@@ -109,7 +111,7 @@ const SingleProduct = () => {
       }
     } else {
       // Fallback: Copy to clipboard
-      navigator.clipboard.writeText(shareUrl).then(
+      navigator.clipboard.writeText(shareText).then(
         () => {
           setCopied(true);
           setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
