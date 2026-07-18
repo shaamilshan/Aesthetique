@@ -149,18 +149,68 @@ const createOrder = async (req, res) => {
       markup: 1,
     });
 
-    if (cart && cart.coupon) {
+    if (cart && cart.appliedCoupons && cart.appliedCoupons.length > 0) {
       const Coupon = require("../../model/couponModel");
-      const appliedCoupon = await Coupon.findById(cart.coupon);
-      if (appliedCoupon && appliedCoupon.isFirstOrder) {
-        const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
-        if (existingOrder) {
-          cart.coupon = null;
-          cart.couponCode = null;
-          cart.discount = null;
-          cart.type = null;
+      const currentDate = new Date();
+
+      for (const applied of cart.appliedCoupons) {
+        const appliedCoupon = await Coupon.findById(applied.coupon);
+        let isValid = true;
+
+        if (appliedCoupon) {
+          if (!appliedCoupon.isActive) {
+            isValid = false;
+          } else if (appliedCoupon.expirationDate && new Date(appliedCoupon.expirationDate) <= currentDate) {
+            isValid = false;
+          } else if (appliedCoupon.maximumUses !== null && appliedCoupon.maximumUses !== undefined && appliedCoupon.used >= appliedCoupon.maximumUses) {
+            isValid = false;
+          } else if (appliedCoupon.isFirstOrder) {
+            const User = require("../../model/userModel");
+            const user = await User.findById(_id);
+            const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
+            if (existingOrder || (user && (user.hasPlacedFirstOrder || user.firstOrderOfferUsed))) {
+              isValid = false;
+            }
+          }
+
+          if (isValid) {
+            const hasApplicableProducts = appliedCoupon.applicableProducts && appliedCoupon.applicableProducts.length > 0;
+            let applicableSum = 0;
+            let hasMatchingProduct = false;
+
+            cart.items.forEach((item) => {
+              if (item.product) {
+                const isApplicable = !hasApplicableProducts || appliedCoupon.applicableProducts.some(
+                  (pId) => pId.toString() === item.product._id.toString()
+                );
+                if (isApplicable) {
+                  applicableSum += item.product.price * item.quantity;
+                  hasMatchingProduct = true;
+                }
+              }
+            });
+
+            if (hasApplicableProducts && !hasMatchingProduct) {
+              isValid = false;
+            } else if (applicableSum < appliedCoupon.minimumPurchaseAmount) {
+              isValid = false;
+            }
+          }
+        } else {
+          isValid = false;
+        }
+
+        if (!isValid) {
+          cart.appliedCoupons = cart.appliedCoupons.filter(c => c.code !== applied.code);
+          cart.items.forEach(item => {
+            if (item.appliedCouponCode === applied.code) {
+              item.discount = 0;
+              item.appliedCouponCode = null;
+            }
+          });
+          cart.discount = cart.appliedCoupons.reduce((sum, c) => sum + c.discount, 0);
           await cart.save();
-          throw Error("This coupon is only valid for your first order. Please checkout again.");
+          throw Error(`Voucher code "${applied.code}" is no longer valid. Please checkout again.`);
         }
       }
     }
@@ -194,6 +244,8 @@ const createOrder = async (req, res) => {
       price: item.product.price,
       markup: item.product.markup || 0,
       attributes: item.attributes || new Map(), // Ensure attributes is always a Map
+      discount: item.discount || 0,
+      appliedCouponCode: item.appliedCouponCode || null,
     }));
 
     let orderData = {
@@ -202,7 +254,6 @@ const createOrder = async (req, res) => {
       products: products,
       subTotal: sum,
       shipping: shippingCharge,
-      // tax: parseInt(sum * 0.08),
       tax: 0, // No tax
       totalPrice: sumWithTax,
       paymentMode,
@@ -213,10 +264,9 @@ const createOrder = async (req, res) => {
         },
       ],
       ...(notes ? { notes } : {}),
-      ...(cart.coupon ? { coupon: cart.coupon } : {}),
-      ...(cart.couponCode ? { couponCode: cart.couponCode } : {}),
-      ...(cart.discount ? { discount: cart.discount } : {}),
-      ...(cart.type ? { couponType: cart.type } : {}),
+      discount: cart.discount || 0,
+      appliedCoupons: cart.appliedCoupons || [],
+      couponCode: (cart.appliedCoupons || []).map(c => c.code).join(", ") || undefined,
     };
 
     cart.items.map(async (item) => {
@@ -263,6 +313,13 @@ const createOrder = async (req, res) => {
 
     if (order) {
       await Cart.findByIdAndDelete(cart._id);
+      const User = require("../../model/userModel");
+      await User.findByIdAndUpdate(_id, {
+        $set: {
+          hasPlacedFirstOrder: true,
+          firstOrderOfferUsed: true,
+        }
+      });
     }
 
     // Try to send confirmation email to user (non-blocking) and attach invoice
@@ -376,13 +433,15 @@ const createOrder = async (req, res) => {
       }
     }
 
-    if (cart.coupon) {
-      await Coupon.findOneAndUpdate(
-        { _id: cart.coupon },
-        {
-          $inc: { used: 1 },
-        }
-      );
+    if (cart.appliedCoupons && cart.appliedCoupons.length > 0) {
+      for (const applied of cart.appliedCoupons) {
+        await Coupon.findOneAndUpdate(
+          { _id: applied.coupon },
+          {
+            $inc: { used: 1 },
+          }
+        );
+      }
     }
 
     res.status(200).json({ order });
@@ -857,21 +916,41 @@ const buyNow = async (req, res) => {
       const currentDate = new Date();
       const coupon = await Coupon.findOne({
         code: { $regex: new RegExp(`^${req.body.couponCode.trim()}$`, "i") },
-        expirationDate: { $gt: currentDate },
       });
 
       if (!coupon) {
         throw Error("Coupon not found!!");
       }
 
-      if (coupon.used === coupon.maximumUses) {
+      if (!coupon.isActive) {
+        throw Error("Coupon is inactive");
+      }
+
+      if (coupon.expirationDate && new Date(coupon.expirationDate) <= currentDate) {
+        throw Error("Coupon has expired");
+      }
+
+      if (coupon.maximumUses !== null && coupon.maximumUses !== undefined && coupon.used >= coupon.maximumUses) {
         throw Error("Coupon Usage Limit Reached");
       }
 
       if (coupon.isFirstOrder) {
+        const User = require("../../model/userModel");
+        const user = await User.findById(_id);
         const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
-        if (existingOrder) {
+        if (existingOrder || (user && (user.hasPlacedFirstOrder || user.firstOrderOfferUsed))) {
           throw Error("This coupon is only valid for your first order!");
+        }
+      }
+
+      // Check product restrictions in buyNow
+      const hasApplicableProducts = coupon.applicableProducts && coupon.applicableProducts.length > 0;
+      if (hasApplicableProducts) {
+        const isApplicable = coupon.applicableProducts.some(
+          (pId) => pId.toString() === product._id.toString()
+        );
+        if (!isApplicable) {
+          throw Error("This coupon is not applicable to the selected product.");
         }
       }
 
@@ -883,7 +962,7 @@ const buyNow = async (req, res) => {
       if (coupon.type === "percentage") {
         discountAmount = (sum * coupon.value) / 100;
       } else {
-        discountAmount = coupon.value;
+        discountAmount = Math.min(coupon.value, sum);
       }
       sumWithTax -= discountAmount;
     }
@@ -925,6 +1004,16 @@ const buyNow = async (req, res) => {
     await updateProductList(id, -quantity, new Map());
 
     const order = await Order.create(orderData);
+
+    if (order) {
+      const User = require("../../model/userModel");
+      await User.findByIdAndUpdate(_id, {
+        $set: {
+          hasPlacedFirstOrder: true,
+          firstOrderOfferUsed: true,
+        }
+      });
+    }
 
     if (appliedCoupon) {
       const Coupon = require("../../model/couponModel");

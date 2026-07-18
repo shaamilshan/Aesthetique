@@ -266,9 +266,9 @@ const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const formData = req.body;
-    // Ensure longDescription is present (for new/old forms)
+    // Preserve existing longDescription if it is not sent in the update request
     if (typeof formData.longDescription === 'undefined') {
-      formData.longDescription = '';
+      delete formData.longDescription;
     }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {

@@ -185,7 +185,9 @@ const generateInvoicePDF = async (order) => {
 
         const unitPrice = Number(item?.price) || 0;
         const qty = Number(item?.quantity) || 0;
-        const lineTotal = unitPrice * qty;
+        const itemDiscount = Number(item?.discount) || 0;
+        const effectiveUnitPrice = unitPrice - (qty > 0 ? (itemDiscount / qty) : 0);
+        const lineTotal = effectiveUnitPrice * qty;
 
         // Get GST % and HSN from the populated product reference
         const gstPercent = Number(item?.productId?.gstPercent) || 0;
@@ -216,17 +218,37 @@ const generateInvoicePDF = async (order) => {
           hsnCode,
           String(qty),
           gstPercent > 0 ? `${gstPercent}%` : "-",
-          (unitPrice / (1 + gstPercent / 100)).toFixed(2),
+          (effectiveUnitPrice / (1 + gstPercent / 100)).toFixed(2),
           taxableAmt.toFixed(2)
         );
+
+        if (itemDiscount > 0) {
+          doc
+            .fontSize(5)
+            .fillColor("#16a34a")
+            .text(
+              `MRP: Rs. ${unitPrice.toFixed(2)} | Voucher: -Rs. ${itemDiscount.toFixed(2)}`,
+              70,
+              position + 8,
+              { width: 110 }
+            );
+          doc.fillColor("#111111"); // Reset font color
+        }
       }
 
       // Summary rows
       const subtotalPosition = invoiceTableTop + (i + 1) * 30;
       generateSummaryRow(doc, subtotalPosition, "MRP", `Rs. ${(order?.subTotal ?? 0).toFixed(2)}`);
 
+      // Discount row
+      let nextPosition = subtotalPosition;
+      if (order?.discount > 0) {
+        nextPosition = nextPosition + 18;
+        generateSummaryRow(doc, nextPosition, `Discount (${order.couponCode || "Voucher"})`, `-Rs. ${(order.discount).toFixed(2)}`);
+      }
+
       // Taxable Amount row
-      const taxablePosition = subtotalPosition + 18;
+      const taxablePosition = nextPosition + 18;
       generateSummaryRow(doc, taxablePosition, "Taxable Amount", `Rs. ${totalTaxableAmount.toFixed(2)}`);
 
       // GST total row (adjusted position)

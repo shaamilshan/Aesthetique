@@ -43,4 +43,65 @@ router.get('/razor-key', getKey);
 // Razorpay Webhook
 router.post('/webhook/razorpay', razorpayWebhook);
 
+// Open Graph Share Proxy for SPAs
+router.get('/share/product/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const Product = require("../model/productModel");
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+
+    const host = req.get("host");
+    const protocol = req.protocol;
+    
+    // Resolve absolute image URL
+    let imageUrl = product.imageURL;
+    if (imageUrl && !imageUrl.startsWith("http")) {
+      imageUrl = `${protocol}://${host}/api/img/${imageUrl}`;
+    }
+
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const productUrl = `${clientUrl}/product/${id}`;
+
+    res.setHeader("Content-Type", "text/html");
+    return res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${product.name} | BM Aesthetique">
+  <meta property="og:description" content="${product.description ? product.description.replace(/["\n\r]/g, ' ').slice(0, 150) : "Premium aesthetic product"}">
+  <meta property="og:image" content="${imageUrl}">
+  <meta property="og:url" content="${productUrl}">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${product.name} | BM Aesthetique">
+  <meta name="twitter:description" content="${product.description ? product.description.replace(/["\n\r]/g, ' ').slice(0, 150) : "Premium aesthetic product"}">
+  <meta name="twitter:image" content="${imageUrl}">
+
+  <title>${product.name} | BM Aesthetique</title>
+  
+  <script>
+    // Redirect browser to actual frontend product page
+    window.location.href = "${productUrl}";
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a href="${productUrl}">${product.name}</a>...</p>
+</body>
+</html>
+    `);
+  } catch (error) {
+    console.error("Error generating share preview:", error);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;

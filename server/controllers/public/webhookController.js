@@ -80,7 +80,11 @@ const razorpayWebhook = async (req, res) => {
       };
 
       // Execute the actual order creation logic seamlessly
-      if (pendingOrder.isGuest) {
+      if (pendingOrder.payload && pendingOrder.payload.isBuyNow) {
+        const { buyNow } = require("../user/orderController");
+        mockReq.params = { id: pendingOrder.payload.productId };
+        await buyNow(mockReq, mockRes);
+      } else if (pendingOrder.isGuest) {
         await createGuestOrder(mockReq, mockRes);
       } else {
         await createOrder(mockReq, mockRes);

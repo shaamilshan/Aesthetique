@@ -52,6 +52,10 @@ const couponSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    applicableProducts: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+      default: [],
+    },
   },
   { timestamps: true }
 );

@@ -91,6 +91,11 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.login(email, password);
 
+    if (user.isFirstLogin) {
+      await User.findByIdAndUpdate(user._id, { $set: { isFirstLogin: false } });
+      user.isFirstLogin = false;
+    }
+
     const token = createToken(user._id);
 
     res.cookie("user_token", token, cookieConfig);

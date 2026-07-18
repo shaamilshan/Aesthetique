@@ -24,20 +24,40 @@ const CartSchema = new Schema({
         type: Map,
         of: String,
       },
+      discount: {
+        type: Number,
+        default: 0,
+      },
+      appliedCouponCode: {
+        type: String,
+        default: null,
+      },
     },
   ],
-  coupon: {
-    type: Schema.Types.ObjectId,
-    ref: Coupon,
-  },
-  couponCode: {
-    type: String,
-  },
+  appliedCoupons: [
+    {
+      coupon: {
+        type: Schema.Types.ObjectId,
+        ref: Coupon,
+      },
+      code: {
+        type: String,
+      },
+      discount: {
+        type: Number,
+        default: 0,
+      },
+      type: {
+        type: String,
+      },
+      value: {
+        type: Number,
+      },
+    },
+  ],
   discount: {
     type: Number,
-  },
-  type: {
-    type: String,
+    default: 0,
   },
 });
 

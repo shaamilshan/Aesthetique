@@ -428,29 +428,7 @@ const SideNavbar = () => {
             </NavLink>
           )}
 
-          {(user?.role === "superAdmin" || user?.role === "admin") && (
-            <NavLink
-              to="/admin/settings"
-              className={({ isActive }) =>
-                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
-                  ? 'gap-3 px-4 py-2.5'
-                  : 'justify-center px-2 py-3'
-                } ${isActive
-                  ? "bg-gray-100 text-gray-900"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                }`
-              }
-              title={!isExpanded ? "Settings" : ""}
-            >
-              <SettingsIcon size={20} className="flex-shrink-0" />
-              {isExpanded && <span>Settings</span>}
-              {!isExpanded && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                  Settings
-                </div>
-              )}
-            </NavLink>
-          )}
+
         </nav>
 
         {/* Bottom section with logout */}
