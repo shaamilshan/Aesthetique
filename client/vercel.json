@@ -1,16 +1,19 @@
 {
-  "routes": [
+  "rewrites": [
     {
-      "src": "/product/(?<id>[^/]+)",
-      "headers": {
-        "User-Agent": ".*(WhatsApp|facebookexternalhit|twitterbot|discordbot|slackbot).*"
-      },
-      "dest": "https://bm-aesthetique.vercel.app/api/public/share/product/$id"
+      "source": "/product/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "User-Agent",
+          "value": ".*(WhatsApp|facebookexternalhit|Twitterbot|Discordbot|Slackbot|LinkedInBot|Googlebot|bingbot).*"
+        }
+      ],
+      "destination": "https://bm-aesthetique.vercel.app/api/public/share/product/:id"
     },
     {
-      "src": "/[^.]+",
-      "dest": "/",
-      "status": 200
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
