@@ -486,30 +486,30 @@ const SingleProduct = () => {
       {showStickyBar && <div className="h-20"></div>}
 
       {/* Breadcrumb navigation */}
-      <div className="container w-full flex my-3 sm:my-6 px-2">
-        <nav className="flex items-center text-sm font-Inter px-2 sm:px-5 md:px-0">
-          <span className="cursor-pointer font-semibold text-xs sm:text-sm hover:text-[#CC4254]" onClick={onHomeClick}>
+      <div className="w-full my-3 sm:my-6 px-4 sm:px-5 md:px-0 overflow-hidden">
+        <nav className="flex items-center text-sm font-Inter whitespace-nowrap overflow-hidden">
+          <span className="cursor-pointer font-semibold text-xs sm:text-sm hover:text-[#CC4254] flex-shrink-0" onClick={onHomeClick}>
             <span className="font-bold">Home</span>
           </span>
 
           {product.category && (
             <>
-              <span className="mx-1 text-gray-400">
+              <span className="mx-1 text-gray-400 flex-shrink-0">
                 <svg width="16" height="16" fill="none" viewBox="0 0 16 16" className="inline-block align-middle"><path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </span>
               <span
-                className="hover:text-[#CC4254] text-xs font-medium sm:text-sm cursor-pointer"
+                className="hover:text-[#CC4254] text-xs font-medium sm:text-sm cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-none inline-block align-middle"
                 onClick={onCategoryClick}
               >
                 {product.category.name}
               </span>
-              <span className="mx-1 text-gray-400">
+              <span className="mx-1 text-gray-400 flex-shrink-0">
                 <svg width="16" height="16" fill="none" viewBox="0 0 16 16" className="inline-block align-middle"><path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </span>
             </>
           )}
 
-          <span className="text-xs font-medium sm:text-sm truncate max-w-[150px] sm:max-w-none">
+          <span className="text-xs font-medium sm:text-sm overflow-hidden text-ellipsis whitespace-nowrap max-w-[100px] sm:max-w-none inline-block align-middle">
             {product.name}
           </span>
         </nav>
@@ -578,9 +578,18 @@ const SingleProduct = () => {
 
             {/* Product Name, Rating & Description */}
             <div className="mb-3">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold font-sans mb-2">
-                {product.name}
-              </h1>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold font-sans">
+                  {product.name}
+                </h1>
+                <button
+                  onClick={handleShare}
+                  className="flex-shrink-0 mt-1 p-2 rounded-full hover:bg-gray-100 text-gray-600 hover:text-black transition-colors"
+                  aria-label="Share product"
+                >
+                  <FaShareAlt size={16} />
+                </button>
+              </div>
               <p className="text-sm sm:text-base text-gray-700 mt-2">
                 {product.description}
               </p>
@@ -628,79 +637,57 @@ const SingleProduct = () => {
             )}
 
             {/* Quantity & Action Buttons */}
-            {/* Quantity & Action Buttons */}
-<div className="flex flex-col sm:flex-row gap-4 justify-between items-center w-full">
+            <div className="flex flex-col gap-4 w-full">
   
-  {/* Quantity Selector */}
-  {!isOutOfStock && (
-    <div className="w-auto">
-      <Quantity 
-        count={count} 
-        increment={increment}
-        decrement={decrement}
-        className="h-10" 
-      />
-    </div>
-  )}
+              {/* Quantity Selector - left aligned */}
+              {!isOutOfStock && (
+                <div className="w-fit">
+                  <Quantity 
+                    count={count} 
+                    increment={increment}
+                    decrement={decrement}
+                    className="h-10" 
+                  />
+                </div>
+              )}
 
-  {/* Action Buttons for Desktop */}
-  <div className="flex flex-wrap md:flex-nowrap flex-1 gap-3 justify-center md:justify-end w-full">
-    {!isOutOfStock ? (
-      <>
-        <Button
-          onClick={addToCart}
-          variant="outline"
-          size="lg"
-          disabled={cartLoading}
-          className="flex-1 rounded-full md:flex-none h-12 w-full md:w-auto border-gray-300"
-        >
-          <ShoppingCart size={18} className="mr-2" />
-          Add to Cart
-        </Button>
-        <Button
-          onClick={buyNow}
-          variant="destructive"
-          size="lg"
-          disabled={cartLoading}
-          className="flex-1 md:flex-none h-12 w-full md:w-auto bg-black hover:bg-gray-800 rounded-full border-none"
-        >
-          <Zap size={18} className="mr-2" />
-          Buy Now
-        </Button>
-      </>
-    ) : (
-      <Button
-        onClick={() => notifyManager(product._id, "stock", "restock")}
-        variant="outline"
-        size="lg"
-        className="flex-1 md:flex-none h-12 w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white border-none"
-      >
-        <Bell size={18} className="mr-2" />
-        Notify Me When Available
-      </Button>
-    )}
+              {/* Action Buttons */}
+              {!isOutOfStock ? (
+                <div className="flex gap-3 w-full">
+                  <Button
+                    onClick={addToCart}
+                    variant="outline"
+                    size="lg"
+                    disabled={cartLoading}
+                    className="flex-1 rounded-full h-12 border-gray-300"
+                  >
+                    <ShoppingCart size={18} className="mr-2" />
+                    Add to Cart
+                  </Button>
+                  <Button
+                    onClick={buyNow}
+                    variant="destructive"
+                    size="lg"
+                    disabled={cartLoading}
+                    className="flex-1 h-12 bg-black hover:bg-gray-800 rounded-full border-none"
+                  >
+                    <Zap size={18} className="mr-2" />
+                    Buy Now
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => notifyManager(product._id, "stock", "restock")}
+                  variant="outline"
+                  size="lg"
+                  className="h-12 w-full bg-blue-500 hover:bg-blue-600 text-white border-none rounded-full"
+                >
+                  <Bell size={18} className="mr-2" />
+                  Notify Me When Available
+                </Button>
+              )}
 
-    <Button
-      onClick={handleShare}
-      variant="ghost"
-      size="icon"
-      className="h-12 w-12"
-    >
-      <FaShareAlt size={18} />
-    </Button>
-    {/* Cart icon with badge (same style as Navbar mobile) */}
-    <button
-      aria-label="Cart"
-      onClick={() => navigate('/cart')}
-      className="relative p-0.5 rounded-md text-gray-700 hover:bg-gray-100 h-12 w-12 flex items-center justify-center"
-    >
-      <ShoppingCart className="h-5 w-5" />
-      {cartCount > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">{cartCount}</span>
-      )}
-    </button>
-  </div>
-</div>
+            </div>
 
 
             {/* Product Attributes */}
