@@ -35,7 +35,13 @@ const loginUsingGoogle = async (req, res) => {
       isActive: true,
       role: "user",
       isEmailVerified: true,
+      isFirstLogin: false,
+      hasPlacedFirstOrder: false,
+      firstOrderOfferUsed: false,
     });
+  } else if (user.isFirstLogin) {
+    await User.findByIdAndUpdate(user._id, { $set: { isFirstLogin: false } });
+    user.isFirstLogin = false;
   }
 
   const user_token = createToken(user._id);

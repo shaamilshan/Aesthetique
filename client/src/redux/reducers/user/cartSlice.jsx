@@ -82,6 +82,9 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.cart = [];
+        state.discount = 0;
+        state.couponType = "";
+        state.couponCode = "";
         toast.success("Cart Cleared");
       })
       .addCase(deleteEntireCart.rejected, (state, { payload }) => {
@@ -95,15 +98,11 @@ const cartSlice = createSlice({
       .addCase(deleteOneProduct.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.error = null;
-
-        const { productId } = payload;
-
-        state.cart = state.cart.filter((item) => {
-          // Keep items where product exists and id doesn't match; also keep items with missing product to avoid accidental deletion here
-          if (!item || !item.product || !item.product._id) return item;
-          return item.product._id !== productId;
-        });
-
+        state.cart = payload.cart?.items || [];
+        state.cartId = payload.cart?._id || "";
+        state.discount = payload.cart?.discount || 0;
+        state.couponType = payload.cart?.type || "";
+        state.couponCode = payload.cart?.couponCode || "";
         toast.success("Item Deleted");
       })
       .addCase(deleteOneProduct.rejected, (state, { payload }) => {
@@ -120,16 +119,11 @@ const cartSlice = createSlice({
       .addCase(incrementCount.fulfilled, (state, { payload }) => {
         state.countLoading = false;
         state.error = null;
-        const updatedCart = state.cart.map((cartItem) => {
-          if (cartItem && cartItem.product && cartItem.product._id === payload.updatedItem.product) {
-            return {
-              ...cartItem,
-              quantity: cartItem.quantity + 1,
-            };
-          }
-          return cartItem;
-        });
-        state.cart = updatedCart;
+        state.cart = payload.cart?.items || [];
+        state.cartId = payload.cart?._id || "";
+        state.discount = payload.cart?.discount || 0;
+        state.couponType = payload.cart?.type || "";
+        state.couponCode = payload.cart?.couponCode || "";
       })
       .addCase(incrementCount.rejected, (state, { payload }) => {
         state.countLoading = false;
@@ -142,16 +136,11 @@ const cartSlice = createSlice({
       .addCase(decrementCount.fulfilled, (state, { payload }) => {
         state.countLoading = false;
         state.error = null;
-        const updatedCart = state.cart.map((cartItem) => {
-          if (cartItem && cartItem.product && cartItem.product._id === payload.updatedItem.product) {
-            return {
-              ...cartItem,
-              quantity: cartItem.quantity - 1,
-            };
-          }
-          return cartItem;
-        });
-        state.cart = updatedCart;
+        state.cart = payload.cart?.items || [];
+        state.cartId = payload.cart?._id || "";
+        state.discount = payload.cart?.discount || 0;
+        state.couponType = payload.cart?.type || "";
+        state.couponCode = payload.cart?.couponCode || "";
       })
       .addCase(decrementCount.rejected, (state, { payload }) => {
         state.countLoading = false;

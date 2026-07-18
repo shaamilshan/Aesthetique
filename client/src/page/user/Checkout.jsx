@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { TiTick } from "react-icons/ti";
 import { BsArrowRight } from "react-icons/bs";
+import { HiX, HiLockClosed } from "react-icons/hi";
 
 import axios from "axios";
 import { URL } from "../../Common/api";
@@ -51,6 +52,9 @@ const Checkout = () => {
   }
 
   const finalTotal = totalPrice + shipping + tax - offer;
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [bypassLogin, setBypassLogin] = useState(false);
 
   // Address Selection (for logged-in users this is an _id; for guests it is the string "guest")
   const [selectedAddress, setSelectedAddress] = useState("");
@@ -308,6 +312,11 @@ const Checkout = () => {
       return;
     }
 
+    if (!user && !bypassLogin) {
+      setShowLoginModal(true);
+      return;
+    }
+
     // Address validation
     if (!user && !guestAddress) {
       toast.error("Please add a delivery address");
@@ -458,6 +467,64 @@ const Checkout = () => {
             </div>
           </div>
 
+        </div>
+      )}
+
+      {/* Login Prompt Modal */}
+      {showLoginModal && (
+        <div 
+          onClick={() => setShowLoginModal(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-sm w-full text-center relative border border-gray-100 transform scale-100 transition-all duration-300"
+          >
+            <button 
+              onClick={() => setShowLoginModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
+            >
+              <HiX className="w-5 h-5" />
+            </button>
+            <div className="flex justify-center mb-4">
+              <div className="bg-indigo-50 text-indigo-600 rounded-full p-3.5 shadow-inner animate-bounce">
+                <HiLockClosed className="w-8 h-8" />
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Login Required</h3>
+            <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+              To place your order and track shipping details, we recommend signing in.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link 
+                to="/login?redirect=/checkout" 
+                className="w-full py-2.5 px-4 bg-black hover:bg-gray-800 text-white font-semibold rounded-full shadow hover:shadow-md transition-all duration-200 text-sm text-center"
+              >
+                Log In
+              </Link>
+              <Link 
+                to="/register?redirect=/checkout" 
+                className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold border border-gray-300 rounded-full hover:border-gray-400 transition-all duration-200 text-sm text-center"
+              >
+                Create Account
+              </Link>
+              <button 
+                onClick={() => {
+                  setBypassLogin(true);
+                  setShowLoginModal(false);
+                }}
+                className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-full transition-all duration-200 text-sm"
+              >
+                Checkout as Guest
+              </button>
+              <button 
+                onClick={() => setShowLoginModal(false)}
+                className="w-full text-xs text-gray-400 hover:text-gray-500 transition-colors mt-1 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>

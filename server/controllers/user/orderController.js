@@ -152,15 +152,79 @@ const createOrder = async (req, res) => {
     if (cart && cart.coupon) {
       const Coupon = require("../../model/couponModel");
       const appliedCoupon = await Coupon.findById(cart.coupon);
-      if (appliedCoupon && appliedCoupon.isFirstOrder) {
-        const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
-        if (existingOrder) {
+      if (appliedCoupon) {
+        if (!appliedCoupon.isActive) {
           cart.coupon = null;
           cart.couponCode = null;
           cart.discount = null;
           cart.type = null;
           await cart.save();
-          throw Error("This coupon is only valid for your first order. Please checkout again.");
+          throw Error("Coupon is inactive. Please checkout again.");
+        }
+        const currentDate = new Date();
+        if (appliedCoupon.expirationDate && new Date(appliedCoupon.expirationDate) <= currentDate) {
+          cart.coupon = null;
+          cart.couponCode = null;
+          cart.discount = null;
+          cart.type = null;
+          await cart.save();
+          throw Error("Coupon has expired. Please checkout again.");
+        }
+        if (appliedCoupon.maximumUses !== null && appliedCoupon.maximumUses !== undefined && appliedCoupon.used >= appliedCoupon.maximumUses) {
+          cart.coupon = null;
+          cart.couponCode = null;
+          cart.discount = null;
+          cart.type = null;
+          await cart.save();
+          throw Error("Coupon usage limit reached. Please checkout again.");
+        }
+        if (appliedCoupon.isFirstOrder) {
+          const User = require("../../model/userModel");
+          const user = await User.findById(_id);
+          const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
+          if (existingOrder || (user && (user.hasPlacedFirstOrder || user.firstOrderOfferUsed))) {
+            cart.coupon = null;
+            cart.couponCode = null;
+            cart.discount = null;
+            cart.type = null;
+            await cart.save();
+            throw Error("This coupon is only valid for your first order. Please checkout again.");
+          }
+        }
+
+        // Selected products validation
+        const hasApplicableProducts = appliedCoupon.applicableProducts && appliedCoupon.applicableProducts.length > 0;
+        let applicableSum = 0;
+        let hasMatchingProduct = false;
+
+        cart.items.forEach(item => {
+          if (item.product) {
+            const isApplicable = !hasApplicableProducts || appliedCoupon.applicableProducts.some(
+              (pId) => pId.toString() === item.product._id.toString()
+            );
+            if (isApplicable) {
+              applicableSum += item.product.price * item.quantity;
+              hasMatchingProduct = true;
+            }
+          }
+        });
+
+        if (hasApplicableProducts && !hasMatchingProduct) {
+          cart.coupon = null;
+          cart.couponCode = null;
+          cart.discount = null;
+          cart.type = null;
+          await cart.save();
+          throw Error("Coupon is not applicable to any products in your cart. Please checkout again.");
+        }
+
+        if (applicableSum < appliedCoupon.minimumPurchaseAmount) {
+          cart.coupon = null;
+          cart.couponCode = null;
+          cart.discount = null;
+          cart.type = null;
+          await cart.save();
+          throw Error("Minimum purchase amount for applicable products not met. Please checkout again.");
         }
       }
     }
@@ -263,6 +327,13 @@ const createOrder = async (req, res) => {
 
     if (order) {
       await Cart.findByIdAndDelete(cart._id);
+      const User = require("../../model/userModel");
+      await User.findByIdAndUpdate(_id, {
+        $set: {
+          hasPlacedFirstOrder: true,
+          firstOrderOfferUsed: true,
+        }
+      });
     }
 
     // Try to send confirmation email to user (non-blocking) and attach invoice
@@ -857,21 +928,41 @@ const buyNow = async (req, res) => {
       const currentDate = new Date();
       const coupon = await Coupon.findOne({
         code: { $regex: new RegExp(`^${req.body.couponCode.trim()}$`, "i") },
-        expirationDate: { $gt: currentDate },
       });
 
       if (!coupon) {
         throw Error("Coupon not found!!");
       }
 
-      if (coupon.used === coupon.maximumUses) {
+      if (!coupon.isActive) {
+        throw Error("Coupon is inactive");
+      }
+
+      if (coupon.expirationDate && new Date(coupon.expirationDate) <= currentDate) {
+        throw Error("Coupon has expired");
+      }
+
+      if (coupon.maximumUses !== null && coupon.maximumUses !== undefined && coupon.used >= coupon.maximumUses) {
         throw Error("Coupon Usage Limit Reached");
       }
 
       if (coupon.isFirstOrder) {
+        const User = require("../../model/userModel");
+        const user = await User.findById(_id);
         const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
-        if (existingOrder) {
+        if (existingOrder || (user && (user.hasPlacedFirstOrder || user.firstOrderOfferUsed))) {
           throw Error("This coupon is only valid for your first order!");
+        }
+      }
+
+      // Check product restrictions in buyNow
+      const hasApplicableProducts = coupon.applicableProducts && coupon.applicableProducts.length > 0;
+      if (hasApplicableProducts) {
+        const isApplicable = coupon.applicableProducts.some(
+          (pId) => pId.toString() === product._id.toString()
+        );
+        if (!isApplicable) {
+          throw Error("This coupon is not applicable to the selected product.");
         }
       }
 
@@ -883,7 +974,7 @@ const buyNow = async (req, res) => {
       if (coupon.type === "percentage") {
         discountAmount = (sum * coupon.value) / 100;
       } else {
-        discountAmount = coupon.value;
+        discountAmount = Math.min(coupon.value, sum);
       }
       sumWithTax -= discountAmount;
     }
@@ -925,6 +1016,16 @@ const buyNow = async (req, res) => {
     await updateProductList(id, -quantity, new Map());
 
     const order = await Order.create(orderData);
+
+    if (order) {
+      const User = require("../../model/userModel");
+      await User.findByIdAndUpdate(_id, {
+        $set: {
+          hasPlacedFirstOrder: true,
+          firstOrderOfferUsed: true,
+        }
+      });
+    }
 
     if (appliedCoupon) {
       const Coupon = require("../../model/couponModel");

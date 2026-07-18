@@ -56,7 +56,13 @@ const Login = () => {
       if (user.role === "admin" || user.role === "superAdmin") {
         navigate("/admin/");
       } else {
-        navigate("/");
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+        if (redirect) {
+          navigate(redirect);
+        } else {
+          navigate("/");
+        }
       }
     }
     return () => {

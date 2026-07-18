@@ -1,13 +1,16 @@
 import * as Yup from "yup";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import BreadCrumbs from "../../Components/BreadCrumbs";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import ConfirmModal from "../../../../components/ConfirmModal";
 import { AiOutlineSave, AiOutlineClose } from "react-icons/ai";
 import { createCoupon } from "../../../../redux/actions/admin/couponsAction";
 import { getTomorrowOnwardsDateForInput } from "../../../../Common/functions";
+import axios from "axios";
+import { URL } from "../../../../Common/api";
+import { config } from "../../../../Common/configurations";
 
 const CreateCoupon = () => {
   const dispatch = useDispatch();
@@ -20,7 +23,20 @@ const CreateCoupon = () => {
     setShowModal(!showModal);
   };
 
-  const [formData, setFormData] = useState(new FormData());
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data } = await axios.get(`${URL}/admin/products?limit=200`, config);
+        setProducts(data.products || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const [formData, setFormData] = useState({});
   const showConfirm = (value) => {
     toggleModel();
 
@@ -42,6 +58,7 @@ const CreateCoupon = () => {
     maximumUses: 0,
     expirationDate: "",
     isFirstOrder: false,
+    applicableProducts: [],
   };
 
   const validationSchema = Yup.object().shape({
@@ -106,7 +123,7 @@ const CreateCoupon = () => {
           onSubmit={showConfirm}
           validationSchema={validationSchema}
         >
-          {({ values }) => (
+          {({ values, setFieldValue }) => (
             <Form className="lg:flex gap-5 items-start">
             <div className="admin-div lg:w-2/3">
               <p>
@@ -173,6 +190,40 @@ const CreateCoupon = () => {
                 component="div"
                 className="text-red-500 text-xs"
               />
+
+              {/* Selected Products list */}
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <p className="admin-label !mb-1">Applicable Products (Optional)</p>
+                <p className="text-xs text-gray-500 mb-3">
+                  If selected, this coupon will only apply to these products. Leave empty to apply to all products.
+                </p>
+                <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2 bg-white">
+                  {products.map((product) => {
+                    const isChecked = values.applicableProducts.includes(product._id);
+                    return (
+                      <label key={product._id} className="flex items-center gap-3 p-1 hover:bg-gray-50 rounded cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const nextVal = e.target.checked
+                              ? [...values.applicableProducts, product._id]
+                              : values.applicableProducts.filter((id) => id !== product._id);
+                            setFieldValue("applicableProducts", nextVal);
+                          }}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="font-medium text-gray-700">{product.name}</span>
+                        <span className="text-gray-400 text-xs">({product.category?.name || "No Category"})</span>
+                        <span className="ml-auto text-gray-500 text-xs">₹{product.price}</span>
+                      </label>
+                    );
+                  })}
+                  {products.length === 0 && (
+                    <p className="text-gray-400 text-sm">Loading products...</p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="lg:w-1/3">

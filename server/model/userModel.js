@@ -63,6 +63,18 @@ const UserSchema = new Schema(
       type: [String],
       default: [],
     },
+    isFirstLogin: {
+      type: Boolean,
+      default: true,
+    },
+    hasPlacedFirstOrder: {
+      type: Boolean,
+      default: false,
+    },
+    firstOrderOfferUsed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -3,6 +3,117 @@ const Cart = require("../../model/cartModel");
 const mongoose = require("mongoose");
 const Products = require("../../model/productModel");
 
+const getUpdatedCartHelper = async (userId) => {
+  let cart = await Cart.findOne({ user: userId })
+    .populate("items.product", {
+      name: 1,
+      imageURL: 1,
+      price: 1,
+      markup: 1,
+    });
+
+  if (cart && cart.coupon) {
+    const Coupon = require("../../model/couponModel");
+    const appliedCoupon = await Coupon.findById(cart.coupon);
+
+    let isValid = true;
+    let reason = "";
+
+    if (!appliedCoupon || !appliedCoupon.isActive) {
+      isValid = false;
+      reason = "Coupon not found or inactive";
+    } else {
+      const currentDate = new Date();
+      if (appliedCoupon.expirationDate && new Date(appliedCoupon.expirationDate) <= currentDate) {
+        isValid = false;
+        reason = "Coupon expired";
+      } else if (appliedCoupon.isFirstOrder) {
+        const Order = require("../../model/orderModel");
+        const existingOrder = await Order.findOne({ user: userId, status: { $ne: "canceled" } });
+        const User = require("../../model/userModel");
+        const user = await User.findById(userId);
+        if (existingOrder || (user && (user.hasPlacedFirstOrder || user.firstOrderOfferUsed))) {
+          isValid = false;
+          reason = "First order coupon is only valid for your first order";
+        }
+      }
+
+      // Calculate subtotal to check minimum purchase amount
+      if (isValid) {
+        const hasApplicableProducts = appliedCoupon.applicableProducts && appliedCoupon.applicableProducts.length > 0;
+        let applicableSum = 0;
+        let hasMatchingProduct = false;
+
+        if (cart.items && cart.items.length > 0) {
+          cart.items.forEach(item => {
+            if (item.product) {
+              const isApplicable = !hasApplicableProducts || appliedCoupon.applicableProducts.some(
+                (pId) => pId.toString() === item.product._id.toString()
+              );
+              if (isApplicable) {
+                applicableSum += item.product.price * item.quantity;
+                hasMatchingProduct = true;
+              }
+            }
+          });
+        }
+
+        if (hasApplicableProducts && !hasMatchingProduct) {
+          isValid = false;
+          reason = "Cart does not contain any products applicable to this coupon";
+        } else if (applicableSum < appliedCoupon.minimumPurchaseAmount) {
+          isValid = false;
+          reason = `Minimum purchase amount of ₹${appliedCoupon.minimumPurchaseAmount} is not reached for applicable products`;
+        } else {
+          // If valid, recalculate matching discount amount dynamically
+          let targetType = appliedCoupon.type;
+          let targetDiscount = appliedCoupon.value;
+
+          if (hasApplicableProducts) {
+            if (appliedCoupon.type === "percentage") {
+              targetType = "fixed";
+              targetDiscount = Math.round((applicableSum * appliedCoupon.value) / 100);
+            } else {
+              targetType = "fixed";
+              targetDiscount = Math.min(appliedCoupon.value, applicableSum);
+            }
+          } else {
+            if (appliedCoupon.type === "fixed") {
+              targetDiscount = Math.min(appliedCoupon.value, applicableSum);
+            }
+          }
+
+          if (cart.discount !== targetDiscount || cart.type !== targetType) {
+            cart.discount = targetDiscount;
+            cart.type = targetType;
+            await cart.save();
+          }
+        }
+      }
+    }
+
+    if (!isValid) {
+      console.log(`Removing coupon from cart for user ${userId} because: ${reason}`);
+      cart.coupon = null;
+      cart.couponCode = null;
+      cart.discount = null;
+      cart.type = null;
+      await cart.save();
+
+      // refetch to get clean populated state
+      cart = await Cart.findOne({ user: userId })
+        .populate("items.product", {
+          name: 1,
+          imageURL: 1,
+          price: 1,
+          markup: 1,
+        });
+    }
+  }
+
+  return cart;
+};
+
 const getCart = async (req, res) => {
   try {
     const token = req.cookies.user_token;
@@ -13,39 +124,7 @@ const getCart = async (req, res) => {
       throw Error("Invalid ID!!!");
     }
 
-    let cart = await Cart.findOne({ user: _id })
-      .populate("items.product", {
-        name: 1,
-        imageURL: 1,
-        price: 1,
-        markup: 1,
-      })
-      .sort({ createdAt: -1 });
-
-    if (cart && cart.coupon) {
-      const Coupon = require("../../model/couponModel");
-      const appliedCoupon = await Coupon.findById(cart.coupon);
-      if (appliedCoupon && appliedCoupon.isFirstOrder) {
-        const Order = require("../../model/orderModel");
-        const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
-        if (existingOrder) {
-          cart.coupon = null;
-          cart.couponCode = null;
-          cart.discount = null;
-          cart.type = null;
-          await cart.save();
-          // Refetch populated cart to ensure we return the cleared state
-          cart = await Cart.findOne({ user: _id })
-            .populate("items.product", {
-              name: 1,
-              imageURL: 1,
-              price: 1,
-              markup: 1,
-            })
-            .sort({ createdAt: -1 });
-        }
-      }
-    }
+    const cart = await getUpdatedCartHelper(_id);
 
     res.status(200).json({ cart });
   } catch (error) {
@@ -188,7 +267,8 @@ const addToCart = async (req, res) => {
       });
     }
 
-    res.status(200).json({ cart });
+    const updatedCart = await getUpdatedCartHelper(_id);
+    res.status(200).json({ cart: updatedCart });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -215,6 +295,8 @@ const deleteCart = async (req, res) => {
 const deleteOneProduct = async (req, res) => {
   try {
     const { cartId, productId } = req.params;
+    const token = req.cookies.user_token;
+    const { _id } = jwt.verify(token, process.env.SECRET);
 
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       throw Error("Invalid Product !!!");
@@ -233,9 +315,8 @@ const deleteOneProduct = async (req, res) => {
       throw Error("Invalid Product");
     }
 
-    console.log(updatedCart);
-
-    res.status(200).json({ productId });
+    const cart = await getUpdatedCartHelper(_id);
+    res.status(200).json({ cart });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -295,11 +376,11 @@ const incrementQuantity = async (req, res) => {
       { new: true }
     );
 
-    let [dataToSend] = cart.items.filter((item) => {
-      return item.product.toString() === productId;
-    });
+    const token = req.cookies.user_token;
+    const { _id } = jwt.verify(token, process.env.SECRET);
+    const updatedCart = await getUpdatedCartHelper(_id);
 
-    return res.status(200).json({ updatedItem: dataToSend });
+    return res.status(200).json({ cart: updatedCart });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -329,11 +410,11 @@ const decrementQuantity = async (req, res) => {
       { new: true }
     );
 
-    let [dataToSend] = cart.items.filter((item) => {
-      return item.product.toString() === productId;
-    });
+    const token = req.cookies.user_token;
+    const { _id } = jwt.verify(token, process.env.SECRET);
+    const updatedCart = await getUpdatedCartHelper(_id);
 
-    return res.status(200).json({ updatedItem: dataToSend });
+    return res.status(200).json({ cart: updatedCart });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
