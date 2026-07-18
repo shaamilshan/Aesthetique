@@ -96,7 +96,13 @@ const BuyNow = () => {
     try {
       const { data } = await axios.post(
         `${URL}/user/coupon-check`,
-        { code: code.trim(), subTotal: totalPrice },
+        {
+          code: code.trim(),
+          subTotal: totalPrice,
+          isBuyNow: true,
+          productId: product?._id,
+          quantity: quantity,
+        },
         config
       );
       setAppliedCoupon(data.coupon);
@@ -236,12 +242,23 @@ const BuyNow = () => {
       data: { key },
     } = await axios.get(`${URL}/user/razor-key`, { withCredentials: true });
 
+    const payload = {
+      address: selectedAddress,
+      notes: additionalNotes,
+      paymentMode: "razorPay",
+      isGuest: false,
+      isBuyNow: true,
+      productId: product?._id,
+      quantity: quantity,
+      couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+    };
+
     // making razor-pay order
     const {
       data: { order },
     } = await axios.post(
       `${URL}/user/razor-order`,
-      { amount: parseInt(finalTotal) }, //{ amount: parseInt(finalTotal / 100) },
+      { amount: parseInt(finalTotal), payload },
       config
     );
 

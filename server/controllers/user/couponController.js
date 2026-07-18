@@ -293,17 +293,29 @@ const checkCoupon = async (req, res) => {
       }
     }
 
-    const Cart = require("../../model/cartModel");
-    const cart = await Cart.findOne({ user: _id }).populate("items.product");
-    if (!cart) {
-      throw Error("Cart not found!");
+    let items = [];
+    if (req.body.isBuyNow || req.body.productId) {
+      const ProductModel = require("../../model/productModel");
+      const prodId = req.body.productId || (req.body.product && (req.body.product._id || req.body.product));
+      const prod = await ProductModel.findById(prodId);
+      if (!prod) {
+        throw Error("Product not found!");
+      }
+      items = [{ product: prod, quantity: req.body.quantity || 1 }];
+    } else {
+      const Cart = require("../../model/cartModel");
+      const cart = await Cart.findOne({ user: _id }).populate("items.product");
+      if (!cart) {
+        throw Error("Cart not found!");
+      }
+      items = cart.items;
     }
 
     const hasApplicableProducts = coupon.applicableProducts && coupon.applicableProducts.length > 0;
     let applicableSum = 0;
     let hasMatchingProduct = false;
 
-    cart.items.forEach((item) => {
+    items.forEach((item) => {
       if (item.product) {
         const isApplicable = !hasApplicableProducts || coupon.applicableProducts.some(
           (pId) => pId.toString() === item.product._id.toString()
@@ -316,7 +328,7 @@ const checkCoupon = async (req, res) => {
     });
 
     if (hasApplicableProducts && !hasMatchingProduct) {
-      throw Error("This coupon is not applicable to any products in your cart.");
+      throw Error(req.body.isBuyNow ? "This coupon is not applicable to this product." : "This coupon is not applicable to any products in your cart.");
     }
 
     if (applicableSum < coupon.minimumPurchaseAmount) {
