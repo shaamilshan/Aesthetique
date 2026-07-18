@@ -143,6 +143,14 @@ const SingleProduct = () => {
           }
         });
         setSelectedAttributes(defaultAttributes); // Update state with default attributes
+
+        // Fetch recommended products from the same category with a limit of 5
+        if (data.product.category) {
+          const categoryId = data.product.category._id || data.product.category;
+          dispatch(getUserProducts(`category=${categoryId}&limit=5`));
+        } else {
+          dispatch(getUserProducts("limit=5"));
+        }
       }
     } catch (error) {
       setLoading(false);
@@ -159,15 +167,6 @@ const SingleProduct = () => {
 
     loadProduct();
   }, [id]);
-
-  useEffect(() => {
-    if (product && product.category) {
-      const categoryId = product.category._id || product.category;
-      dispatch(getUserProducts(`category=${categoryId}&limit=5`));
-    } else if (product && product._id) {
-      dispatch(getUserProducts("limit=5"));
-    }
-  }, [product, dispatch]);
 
   // Dynamically update document head tags for sharing previews
   useEffect(() => {
