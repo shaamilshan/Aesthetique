@@ -13,8 +13,14 @@ export default function middleware(request) {
       // Dynamically resolve the backend API URL relative to the active domain (since both are hosted on Vercel)
       const apiBaseUrl = `${url.origin}/api`;
       
-      // Redirect crawler to backend share preview route with the frontend origin as a parameter
-      return Response.redirect(`${apiBaseUrl}/public/share/product/${productId}?frontend=${encodeURIComponent(url.origin)}`, 302);
+      // Fetch the preview HTML internally from the backend share route (reverse proxy)
+      const backendUrl = `${apiBaseUrl}/public/share/product/${productId}?frontend=${encodeURIComponent(url.origin)}`;
+      try {
+        const response = await fetch(backendUrl);
+        return response;
+      } catch (err) {
+        console.error("Vercel middleware fetch error:", err);
+      }
     }
   }
 
