@@ -86,20 +86,17 @@ const applyCoupon = async (req, res) => {
       throw Error("Cart not found!");
     }
 
-    let sum = 0;
-    let totalQuantity = 0;
-
-    cart.items.map((item) => {
-      if (item.product) {
-        sum = sum + item.product.price * item.quantity;
-        totalQuantity = totalQuantity + item.quantity;
-      }
-    });
+    // Check if coupon is already applied
+    const alreadyApplied = cart.appliedCoupons.some(c => c.code.toLowerCase() === coupon.code.toLowerCase());
+    if (alreadyApplied) {
+      throw Error("Voucher code already applied!");
+    }
 
     const hasApplicableProducts = coupon.applicableProducts && coupon.applicableProducts.length > 0;
     let applicableSum = 0;
     let hasMatchingProduct = false;
 
+    // We only apply this coupon to products that match
     cart.items.forEach((item) => {
       if (item.product) {
         const isApplicable = !hasApplicableProducts || coupon.applicableProducts.some(
@@ -120,44 +117,55 @@ const applyCoupon = async (req, res) => {
       throw Error(`Coupon Minimum Purchase Amount of ₹${coupon.minimumPurchaseAmount} is not reached for applicable products`);
     }
 
-    let finalDiscount = coupon.value;
-    let finalType = coupon.type;
+    // Apply the discount to eligible products
+    let totalDiscountAdded = 0;
+    cart.items.forEach((item) => {
+      if (item.product) {
+        const isApplicable = !hasApplicableProducts || coupon.applicableProducts.some(
+          (pId) => pId.toString() === item.product._id.toString()
+        );
 
-    if (hasApplicableProducts) {
-      if (coupon.type === "percentage") {
-        finalType = "fixed";
-        finalDiscount = Math.round((applicableSum * coupon.value) / 100);
-      } else {
-        finalType = "fixed";
-        finalDiscount = Math.min(coupon.value, applicableSum);
+        if (isApplicable) {
+          let itemDiscount = 0;
+          const lineTotal = item.product.price * item.quantity;
+
+          if (coupon.type === "percentage") {
+            itemDiscount = Math.round((lineTotal * coupon.value) / 100);
+          } else {
+            // Proportional distribution for fixed coupons
+            itemDiscount = Math.round((lineTotal / applicableSum) * coupon.value);
+          }
+
+          // Cap discount at item total
+          itemDiscount = Math.min(itemDiscount, lineTotal);
+
+          // Update item discount (or overwrite if this coupon gives a higher discount)
+          // To prevent multiple coupons discounting the same product in stacks,
+          // we can just associate the product with this new coupon
+          item.discount = itemDiscount;
+          item.appliedCouponCode = coupon.code;
+          totalDiscountAdded += itemDiscount;
+        }
       }
-    } else {
-      if (coupon.type === "fixed") {
-        finalDiscount = Math.min(coupon.value, applicableSum);
-      }
-    }
+    });
 
-    const updatedCart = await Cart.findOneAndUpdate(
-      { _id: cart._id },
-      {
-        $set: {
-          coupon: coupon._id,
-          couponCode: coupon.code,
-          discount: finalDiscount,
-          type: finalType,
-        },
-      },
-      { new: true }
-    );
+    // Add to appliedCoupons list
+    cart.appliedCoupons.push({
+      coupon: coupon._id,
+      code: coupon.code,
+      discount: totalDiscountAdded,
+      type: coupon.type,
+      value: coupon.value
+    });
 
-    if (!updatedCart) {
-      throw Error("Cart couldn't update!");
-    }
+    // Recompute cart total discount
+    cart.discount = cart.appliedCoupons.reduce((sum, c) => sum + c.discount, 0);
+
+    await cart.save();
 
     res.status(200).json({
-      discount: finalDiscount,
-      couponType: finalType,
-      couponCode: coupon.code,
+      discount: cart.discount,
+      appliedCoupons: cart.appliedCoupons,
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -166,6 +174,7 @@ const applyCoupon = async (req, res) => {
 
 const removeCoupon = async (req, res) => {
   try {
+    const { code } = req.query;
     const token = req.cookies.user_token;
 
     const { _id } = jwt.verify(token, process.env.SECRET);
@@ -174,20 +183,35 @@ const removeCoupon = async (req, res) => {
       throw Error("Invalid ID!!!");
     }
 
-    await Cart.findOneAndUpdate(
-      { user: _id },
-      {
-        $set: {
-          coupon: null,
-          couponCode: null,
-          discount: null,
-          type: null,
-        },
-      },
-      { new: true }
-    );
+    const cart = await Cart.findOne({ user: _id });
+    if (!cart) {
+      throw Error("Cart not found!");
+    }
 
-    res.status(200).json({ success: true });
+    if (code) {
+      // Remove specific coupon code
+      cart.appliedCoupons = cart.appliedCoupons.filter(c => c.code.toLowerCase() !== code.trim().toLowerCase());
+      cart.items.forEach(item => {
+        if (item.appliedCouponCode && item.appliedCouponCode.toLowerCase() === code.trim().toLowerCase()) {
+          item.discount = 0;
+          item.appliedCouponCode = null;
+        }
+      });
+    } else {
+      // Clear all
+      cart.appliedCoupons = [];
+      cart.items.forEach(item => {
+        item.discount = 0;
+        item.appliedCouponCode = null;
+      });
+    }
+
+    // Recompute total discount
+    cart.discount = cart.appliedCoupons.reduce((sum, c) => sum + c.discount, 0);
+
+    await cart.save();
+
+    res.status(200).json({ success: true, discount: cart.discount, appliedCoupons: cart.appliedCoupons });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

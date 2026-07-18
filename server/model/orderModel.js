@@ -71,6 +71,14 @@ const ProductSchema = new Schema({
     type: Map,
     of: String,
   },
+  discount: {
+    type: Number,
+    default: 0,
+  },
+  appliedCouponCode: {
+    type: String,
+    default: null,
+  },
 });
 
 const StatusHistorySchema = new Schema({
@@ -196,6 +204,27 @@ const OrderSchema = new Schema(
     couponType: {
       type: String,
     },
+    appliedCoupons: [
+      {
+        coupon: {
+          type: Schema.Types.ObjectId,
+          ref: Coupon,
+        },
+        code: {
+          type: String,
+        },
+        discount: {
+          type: Number,
+          default: 0,
+        },
+        type: {
+          type: String,
+        },
+        value: {
+          type: Number,
+        },
+      },
+    ],
     isRead: {
       type: Boolean,
       default: false,

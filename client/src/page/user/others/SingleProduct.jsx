@@ -94,13 +94,14 @@ const SingleProduct = () => {
     : [product.imageURL];
 
   const handleShare = async () => {
-    const currentUrl = window.location.href;
+    // Use the backend OG Proxy share link so WhatsApp crawler parses title and image
+    const shareUrl = `${URL}/public/share/product/${id}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
           title: document.title,
-          url: currentUrl,
+          url: shareUrl,
         });
         console.log('Content shared successfully');
       } catch (error) {
@@ -108,7 +109,7 @@ const SingleProduct = () => {
       }
     } else {
       // Fallback: Copy to clipboard
-      navigator.clipboard.writeText(currentUrl).then(
+      navigator.clipboard.writeText(shareUrl).then(
         () => {
           setCopied(true);
           setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
@@ -159,6 +160,43 @@ const SingleProduct = () => {
     dispatch(getUserProducts(searchParamsString));
     loadProduct();
   }, [id, dispatch, searchParamsString]);
+
+  // Dynamically update document head tags for sharing previews
+  useEffect(() => {
+    if (product) {
+      document.title = `${product.name} | BM Aesthetique`;
+
+      const setMetaTag = (property, content) => {
+        let tag = document.head.querySelector(`meta[property="${property}"]`);
+        if (!tag) {
+          tag = document.createElement("meta");
+          tag.setAttribute("property", property);
+          document.head.appendChild(tag);
+        }
+        tag.setAttribute("content", content);
+      };
+
+      const setMetaNameTag = (name, content) => {
+        let tag = document.head.querySelector(`meta[name="${name}"]`);
+        if (!tag) {
+          tag = document.createElement("meta");
+          tag.setAttribute("name", name);
+          document.head.appendChild(tag);
+        }
+        tag.setAttribute("content", content);
+      };
+
+      // Set Open Graph tags
+      setMetaTag("og:title", product.name);
+      setMetaTag("og:image", getImageUrl(product.imageURL, URL));
+      setMetaTag("og:description", product.description || "Premium aesthetic products from BM Aesthetique");
+      setMetaTag("og:url", window.location.href);
+      setMetaTag("og:type", "product");
+
+      // Set standard description tag
+      setMetaNameTag("description", product.description || "Premium aesthetic products from BM Aesthetique");
+    }
+  }, [product]);
 
   // Show bottom action bar only when scrolled down
   useEffect(() => {

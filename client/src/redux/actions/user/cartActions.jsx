@@ -174,10 +174,11 @@ export const applyCoupon = createAsyncThunk(
 
 export const removeCoupon = createAsyncThunk(
   "cart/removeCoupon",
-  async (_, { rejectWithValue }) => {
+  async (couponCode, { rejectWithValue }) => {
+    const url = couponCode ? `/user/coupon-remove?code=${couponCode}` : `/user/coupon-remove`;
     return commonReduxRequest(
       "get",
-      `/user/coupon-remove`,
+      url,
       {},
       appJson,
       rejectWithValue

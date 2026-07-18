@@ -23,6 +23,7 @@ const cartSlice = createSlice({
     discount: 0,
     couponType: "",
     couponCode: "",
+    appliedCoupons: [],
     countLoading: false,
   },
   reducers: {
@@ -53,6 +54,7 @@ const cartSlice = createSlice({
       state.discount = 0;
       state.couponType = "";
       state.couponCode = "";
+      state.appliedCoupons = [];
     },
   },
   extraReducers: (builder) => {
@@ -65,9 +67,10 @@ const cartSlice = createSlice({
         state.error = null;
         state.cart = payload.cart?.items || [];
         state.cartId = payload.cart?._id || "";
-        state.discount = payload.cart?.discount || "";
-        state.couponType = payload.cart?.type || "";
-        state.couponCode = payload.cart?.couponCode || "";
+        state.discount = payload.cart?.discount || 0;
+        state.appliedCoupons = payload.cart?.appliedCoupons || [];
+        state.couponType = "";
+        state.couponCode = "";
       })
       .addCase(getCart.rejected, (state, { payload }) => {
         state.loading = false;
@@ -101,8 +104,9 @@ const cartSlice = createSlice({
         state.cart = payload.cart?.items || [];
         state.cartId = payload.cart?._id || "";
         state.discount = payload.cart?.discount || 0;
-        state.couponType = payload.cart?.type || "";
-        state.couponCode = payload.cart?.couponCode || "";
+        state.appliedCoupons = payload.cart?.appliedCoupons || [];
+        state.couponType = "";
+        state.couponCode = "";
         toast.success("Item Deleted");
       })
       .addCase(deleteOneProduct.rejected, (state, { payload }) => {
@@ -122,8 +126,9 @@ const cartSlice = createSlice({
         state.cart = payload.cart?.items || [];
         state.cartId = payload.cart?._id || "";
         state.discount = payload.cart?.discount || 0;
-        state.couponType = payload.cart?.type || "";
-        state.couponCode = payload.cart?.couponCode || "";
+        state.appliedCoupons = payload.cart?.appliedCoupons || [];
+        state.couponType = "";
+        state.couponCode = "";
       })
       .addCase(incrementCount.rejected, (state, { payload }) => {
         state.countLoading = false;
@@ -139,8 +144,9 @@ const cartSlice = createSlice({
         state.cart = payload.cart?.items || [];
         state.cartId = payload.cart?._id || "";
         state.discount = payload.cart?.discount || 0;
-        state.couponType = payload.cart?.type || "";
-        state.couponCode = payload.cart?.couponCode || "";
+        state.appliedCoupons = payload.cart?.appliedCoupons || [];
+        state.couponType = "";
+        state.couponCode = "";
       })
       .addCase(decrementCount.rejected, (state, { payload }) => {
         state.countLoading = false;
@@ -154,9 +160,10 @@ const cartSlice = createSlice({
       .addCase(applyCoupon.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.error = null;
-        state.discount = payload.discount;
-        state.couponType = payload.couponType;
-        state.couponCode = payload.couponCode;
+        state.discount = payload.discount || 0;
+        state.appliedCoupons = payload.appliedCoupons || [];
+        state.couponType = "";
+        state.couponCode = "";
         toast.success("Coupon Applied");
       })
       .addCase(applyCoupon.rejected, (state, { payload }) => {
@@ -171,7 +178,8 @@ const cartSlice = createSlice({
       .addCase(removeCoupon.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.error = null;
-        state.discount = 0;
+        state.discount = payload.discount || 0;
+        state.appliedCoupons = payload.appliedCoupons || [];
         state.couponType = "";
         state.couponCode = "";
         toast.success("Coupon Removed");

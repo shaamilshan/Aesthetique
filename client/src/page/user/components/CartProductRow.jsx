@@ -93,6 +93,13 @@ const CartProductRow = ({ item, toggleProductConfirm }) => {
                 ))}
               </div>
             )}
+            
+            {/* Coupon discount details */}
+            {item.discount > 0 && (
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-green-600 font-semibold bg-green-50 border border-green-200 rounded px-2 py-0.5 w-fit">
+                <span>Voucher "{item.appliedCouponCode}" Applied: -₹{item.discount}</span>
+              </div>
+            )}
 
             {/* Price - moved to right column for consistent alignment */}
           </div>

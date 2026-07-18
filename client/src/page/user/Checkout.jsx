@@ -28,7 +28,7 @@ const Checkout = () => {
 
   // Cart from Redux
   const { cart, loading, error } = useSelector((state) => state.cart);
-  const { totalPrice, shipping, discount, tax, couponType, couponCode } = useSelector(
+  const { totalPrice, shipping, discount, tax, couponType, couponCode, appliedCoupons } = useSelector(
     (state) => state.cart
   );
   const { addresses } = useSelector((state) => state.address);
@@ -249,7 +249,8 @@ const Checkout = () => {
         items: buildGuestItems(),
         discount: user ? discount : 0,
         couponType: user ? couponType : "",
-        couponCode: user ? couponCode : "",
+        couponCode: user ? (appliedCoupons || []).map(c => c.code).join(", ") : couponCode || "",
+        appliedCoupons: user ? appliedCoupons : [],
       };
 
       const {

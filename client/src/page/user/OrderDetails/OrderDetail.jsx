@@ -250,9 +250,25 @@ const OrderDetail = () => {
                     </div>
                     <div className="flex-1">
                       <div className="font-medium">{item.productId?.name || item.productName}</div>
-                      <div className="text-xs text-gray-500">Qty: {item.quantity} • {item.price}₹</div>
+                      <div className="text-xs text-gray-500 flex flex-wrap items-center gap-2">
+                        <span>Qty: {item.quantity} • {item.price}₹</span>
+                        {item.discount > 0 && (
+                          <span className="text-green-600 font-semibold bg-green-50 border border-green-200 rounded px-1.5 py-0.5">
+                            Voucher Applied: -{item.discount}₹ ({item.appliedCouponCode})
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="font-semibold">{(item.price * item.quantity) || 0}₹</div>
+                    <div className="font-semibold text-right">
+                      {item.discount > 0 ? (
+                        <div>
+                          <span className="text-gray-400 text-sm line-through mr-2">{(item.price * item.quantity)}₹</span>
+                          <span className="text-green-600">{(item.price * item.quantity - item.discount)}₹</span>
+                        </div>
+                      ) : (
+                        <span>{(item.price * item.quantity) || 0}₹</span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -266,6 +282,12 @@ const OrderDetail = () => {
                   <div className="flex justify-between"><span>Sub total</span><span>{orderData.subTotal || 0}₹</span></div>
                   <div className="flex justify-between"><span>Shipping</span><span>{orderData.shipping === 0 ? 'Free' : orderData.shipping || 0}</span></div>
                   <div className="flex justify-between"><span>Discount</span><span>{orderData.discount || 0}₹</span></div>
+                  {orderData.appliedCoupons && orderData.appliedCoupons.map((c, i) => (
+                    <div key={i} className="flex justify-between pl-4 text-xs text-green-600">
+                      <span>• Voucher "{c.code}"</span>
+                      <span>-{c.discount}₹</span>
+                    </div>
+                  ))}
                   <div className="flex justify-between"><span>Tax</span><span>{orderData.tax || 0}₹</span></div>
                   <div className="flex justify-between font-bold border-t pt-2"><span>Total</span><span>{orderData.totalPrice || 0}₹</span></div>
                 </div>

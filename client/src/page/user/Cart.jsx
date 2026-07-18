@@ -24,7 +24,7 @@ import EmptyCart from "../../assets/emptyCart.png";
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { cart, loading, error, cartId, couponCode } = useSelector(
+  const { cart, loading, error, cartId, couponCode, appliedCoupons } = useSelector(
     (state) => state.cart
   );
   const { user } = useSelector((state) => state.user);
@@ -59,7 +59,6 @@ const Cart = () => {
   // Calculating the total with the data and updating it when ever there is a change
   useEffect(() => {
     dispatch(calculateTotalPrice());
-    setInputCouponCode(couponCode);
   }, [cart]);
 
   // Applying coupon to cart
@@ -177,18 +176,21 @@ const Cart = () => {
                           className="flex-1 py-2.5 px-4 rounded-xl border border-gray-200 bg-white text-sm focus:border-black focus:outline-none transition-colors"
                           placeholder="Enter code"
                           value={inputCouponCode}
-                          onChange={(e) => setInputCouponCode(e.target.value)}
-                          disabled={couponCode !== ""}
+                          onChange={(e) => setInputCouponCode(e.target.value.toUpperCase())}
+                          disabled={loading}
                         />
                         <button
                           className="px-5 py-2.5 bg-black text-white text-sm rounded-xl hover:bg-gray-800 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
-                          onClick={dispatchApplyCoupon}
-                          disabled={couponCode !== "" || inputCouponCode.trim() === ""}
+                          onClick={() => {
+                            dispatchApplyCoupon();
+                            setInputCouponCode("");
+                          }}
+                          disabled={inputCouponCode.trim() === "" || loading}
                         >
                           Apply
                         </button>
                       </div>
-                      {firstOrderCoupon && !couponCode && (
+                      {firstOrderCoupon && !(appliedCoupons && appliedCoupons.some(c => c.code.toLowerCase() === firstOrderCoupon.code.toLowerCase())) && (
                         <div className="mt-3 p-3 bg-indigo-50 border border-dashed border-indigo-200 rounded-xl flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <Sparkles className="text-indigo-600 flex-shrink-0" size={16} />
@@ -206,12 +208,16 @@ const Cart = () => {
                           </button>
                         </div>
                       )}
-                      {couponCode && (
-                        <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          <span>"{couponCode}" applied</span>
+                      {appliedCoupons && appliedCoupons.length > 0 && (
+                        <div className="mt-3 space-y-1.5">
+                          {appliedCoupons.map((c, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-sm text-green-600">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              <span>Voucher "{c.code}" applied (-₹{c.discount})</span>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>

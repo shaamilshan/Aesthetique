@@ -5,9 +5,7 @@ import { removeCoupon } from "../../../redux/actions/user/cartActions";
 const TotalAndSubTotal = ({ addressAdded }) => {
   const dispatch = useDispatch();
 
-  // const { totalPrice, shipping, discount, tax, couponType, couponCode } =
-  //   useSelector((state) => state.cart);
-  const { totalPrice, shipping, discount, couponType, couponCode, cart } =
+  const { totalPrice, shipping, discount, couponType, couponCode, cart, appliedCoupons } =
     useSelector((state) => state.cart);
 
   // Set tax to 0
@@ -15,7 +13,9 @@ const TotalAndSubTotal = ({ addressAdded }) => {
 
   let offer = 0;
 
-  if (couponType === "percentage") {
+  if (appliedCoupons && appliedCoupons.length > 0) {
+    offer = appliedCoupons.reduce((sum, c) => sum + c.discount, 0);
+  } else if (couponType === "percentage") {
     offer = (totalPrice * discount) / 100;
   } else {
     offer = discount;
@@ -86,7 +86,24 @@ const TotalAndSubTotal = ({ addressAdded }) => {
           </div>
         )}
 
-        {couponCode !== "" && (
+        {appliedCoupons && appliedCoupons.length > 0 ? (
+          <div className="space-y-2 mt-2">
+            {appliedCoupons.map((c, i) => (
+              <div key={i} className="flex items-center justify-between bg-green-50 rounded-lg p-2.5">
+                <div>
+                  <span className="text-sm text-green-700 font-semibold">{c.code}</span>
+                  <span className="text-xs text-green-600 block">Saved ₹{c.discount}</span>
+                </div>
+                <button
+                  className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors"
+                  onClick={() => dispatch(removeCoupon(c.code))}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : couponCode ? (
           <div className="flex items-center justify-between bg-green-50 rounded-lg p-2.5 mt-2">
             <span className="text-sm text-green-700 font-medium">{couponCode}</span>
             <button
@@ -96,7 +113,7 @@ const TotalAndSubTotal = ({ addressAdded }) => {
               Remove
             </button>
           </div>
-        )}
+        ) : null}
       </div>
 
       <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-100">

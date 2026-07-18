@@ -149,82 +149,68 @@ const createOrder = async (req, res) => {
       markup: 1,
     });
 
-    if (cart && cart.coupon) {
+    if (cart && cart.appliedCoupons && cart.appliedCoupons.length > 0) {
       const Coupon = require("../../model/couponModel");
-      const appliedCoupon = await Coupon.findById(cart.coupon);
-      if (appliedCoupon) {
-        if (!appliedCoupon.isActive) {
-          cart.coupon = null;
-          cart.couponCode = null;
-          cart.discount = null;
-          cart.type = null;
-          await cart.save();
-          throw Error("Coupon is inactive. Please checkout again.");
-        }
-        const currentDate = new Date();
-        if (appliedCoupon.expirationDate && new Date(appliedCoupon.expirationDate) <= currentDate) {
-          cart.coupon = null;
-          cart.couponCode = null;
-          cart.discount = null;
-          cart.type = null;
-          await cart.save();
-          throw Error("Coupon has expired. Please checkout again.");
-        }
-        if (appliedCoupon.maximumUses !== null && appliedCoupon.maximumUses !== undefined && appliedCoupon.used >= appliedCoupon.maximumUses) {
-          cart.coupon = null;
-          cart.couponCode = null;
-          cart.discount = null;
-          cart.type = null;
-          await cart.save();
-          throw Error("Coupon usage limit reached. Please checkout again.");
-        }
-        if (appliedCoupon.isFirstOrder) {
-          const User = require("../../model/userModel");
-          const user = await User.findById(_id);
-          const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
-          if (existingOrder || (user && (user.hasPlacedFirstOrder || user.firstOrderOfferUsed))) {
-            cart.coupon = null;
-            cart.couponCode = null;
-            cart.discount = null;
-            cart.type = null;
-            await cart.save();
-            throw Error("This coupon is only valid for your first order. Please checkout again.");
-          }
-        }
+      const currentDate = new Date();
 
-        // Selected products validation
-        const hasApplicableProducts = appliedCoupon.applicableProducts && appliedCoupon.applicableProducts.length > 0;
-        let applicableSum = 0;
-        let hasMatchingProduct = false;
+      for (const applied of cart.appliedCoupons) {
+        const appliedCoupon = await Coupon.findById(applied.coupon);
+        let isValid = true;
 
-        cart.items.forEach(item => {
-          if (item.product) {
-            const isApplicable = !hasApplicableProducts || appliedCoupon.applicableProducts.some(
-              (pId) => pId.toString() === item.product._id.toString()
-            );
-            if (isApplicable) {
-              applicableSum += item.product.price * item.quantity;
-              hasMatchingProduct = true;
+        if (appliedCoupon) {
+          if (!appliedCoupon.isActive) {
+            isValid = false;
+          } else if (appliedCoupon.expirationDate && new Date(appliedCoupon.expirationDate) <= currentDate) {
+            isValid = false;
+          } else if (appliedCoupon.maximumUses !== null && appliedCoupon.maximumUses !== undefined && appliedCoupon.used >= appliedCoupon.maximumUses) {
+            isValid = false;
+          } else if (appliedCoupon.isFirstOrder) {
+            const User = require("../../model/userModel");
+            const user = await User.findById(_id);
+            const existingOrder = await Order.findOne({ user: _id, status: { $ne: "canceled" } });
+            if (existingOrder || (user && (user.hasPlacedFirstOrder || user.firstOrderOfferUsed))) {
+              isValid = false;
             }
           }
-        });
 
-        if (hasApplicableProducts && !hasMatchingProduct) {
-          cart.coupon = null;
-          cart.couponCode = null;
-          cart.discount = null;
-          cart.type = null;
-          await cart.save();
-          throw Error("Coupon is not applicable to any products in your cart. Please checkout again.");
+          if (isValid) {
+            const hasApplicableProducts = appliedCoupon.applicableProducts && appliedCoupon.applicableProducts.length > 0;
+            let applicableSum = 0;
+            let hasMatchingProduct = false;
+
+            cart.items.forEach((item) => {
+              if (item.product) {
+                const isApplicable = !hasApplicableProducts || appliedCoupon.applicableProducts.some(
+                  (pId) => pId.toString() === item.product._id.toString()
+                );
+                if (isApplicable) {
+                  applicableSum += item.product.price * item.quantity;
+                  hasMatchingProduct = true;
+                }
+              }
+            });
+
+            if (hasApplicableProducts && !hasMatchingProduct) {
+              isValid = false;
+            } else if (applicableSum < appliedCoupon.minimumPurchaseAmount) {
+              isValid = false;
+            }
+          }
+        } else {
+          isValid = false;
         }
 
-        if (applicableSum < appliedCoupon.minimumPurchaseAmount) {
-          cart.coupon = null;
-          cart.couponCode = null;
-          cart.discount = null;
-          cart.type = null;
+        if (!isValid) {
+          cart.appliedCoupons = cart.appliedCoupons.filter(c => c.code !== applied.code);
+          cart.items.forEach(item => {
+            if (item.appliedCouponCode === applied.code) {
+              item.discount = 0;
+              item.appliedCouponCode = null;
+            }
+          });
+          cart.discount = cart.appliedCoupons.reduce((sum, c) => sum + c.discount, 0);
           await cart.save();
-          throw Error("Minimum purchase amount for applicable products not met. Please checkout again.");
+          throw Error(`Voucher code "${applied.code}" is no longer valid. Please checkout again.`);
         }
       }
     }
@@ -258,6 +244,8 @@ const createOrder = async (req, res) => {
       price: item.product.price,
       markup: item.product.markup || 0,
       attributes: item.attributes || new Map(), // Ensure attributes is always a Map
+      discount: item.discount || 0,
+      appliedCouponCode: item.appliedCouponCode || null,
     }));
 
     let orderData = {
@@ -266,7 +254,6 @@ const createOrder = async (req, res) => {
       products: products,
       subTotal: sum,
       shipping: shippingCharge,
-      // tax: parseInt(sum * 0.08),
       tax: 0, // No tax
       totalPrice: sumWithTax,
       paymentMode,
@@ -277,10 +264,9 @@ const createOrder = async (req, res) => {
         },
       ],
       ...(notes ? { notes } : {}),
-      ...(cart.coupon ? { coupon: cart.coupon } : {}),
-      ...(cart.couponCode ? { couponCode: cart.couponCode } : {}),
-      ...(cart.discount ? { discount: cart.discount } : {}),
-      ...(cart.type ? { couponType: cart.type } : {}),
+      discount: cart.discount || 0,
+      appliedCoupons: cart.appliedCoupons || [],
+      couponCode: (cart.appliedCoupons || []).map(c => c.code).join(", ") || undefined,
     };
 
     cart.items.map(async (item) => {
@@ -447,13 +433,15 @@ const createOrder = async (req, res) => {
       }
     }
 
-    if (cart.coupon) {
-      await Coupon.findOneAndUpdate(
-        { _id: cart.coupon },
-        {
-          $inc: { used: 1 },
-        }
-      );
+    if (cart.appliedCoupons && cart.appliedCoupons.length > 0) {
+      for (const applied of cart.appliedCoupons) {
+        await Coupon.findOneAndUpdate(
+          { _id: applied.coupon },
+          {
+            $inc: { used: 1 },
+          }
+        );
+      }
     }
 
     res.status(200).json({ order });

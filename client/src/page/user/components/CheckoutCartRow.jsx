@@ -48,6 +48,13 @@ const CheckoutCartRow = ({ item }) => {
           </div>
         )}
 
+        {item.discount > 0 && (
+          <div className="mt-1">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-800">
+              Voucher saved ₹{item.discount}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="text-right min-w-[72px]">

@@ -12,25 +12,35 @@ const getUpdatedCartHelper = async (userId) => {
       markup: 1,
     });
 
-  if (cart && cart.coupon) {
+  if (cart && cart.appliedCoupons && cart.appliedCoupons.length > 0) {
     const Coupon = require("../../model/couponModel");
-    const appliedCoupon = await Coupon.findById(cart.coupon);
+    const Order = require("../../model/orderModel");
+    const User = require("../../model/userModel");
 
-    let isValid = true;
-    let reason = "";
+    const currentDate = new Date();
+    let cartChanged = false;
 
-    if (!appliedCoupon || !appliedCoupon.isActive) {
-      isValid = false;
-      reason = "Coupon not found or inactive";
-    } else {
-      const currentDate = new Date();
-      if (appliedCoupon.expirationDate && new Date(appliedCoupon.expirationDate) <= currentDate) {
+    // Reset item discount fields before recalculation
+    cart.items.forEach(item => {
+      item.discount = 0;
+      item.appliedCouponCode = null;
+    });
+
+    const validCoupons = [];
+
+    for (const applied of cart.appliedCoupons) {
+      const couponDoc = await Coupon.findById(applied.coupon);
+      let isValid = true;
+      let reason = "";
+
+      if (!couponDoc || !couponDoc.isActive) {
+        isValid = false;
+        reason = "Coupon not found or inactive";
+      } else if (couponDoc.expirationDate && new Date(couponDoc.expirationDate) <= currentDate) {
         isValid = false;
         reason = "Coupon expired";
-      } else if (appliedCoupon.isFirstOrder) {
-        const Order = require("../../model/orderModel");
+      } else if (couponDoc.isFirstOrder) {
         const existingOrder = await Order.findOne({ user: userId, status: { $ne: "canceled" } });
-        const User = require("../../model/userModel");
         const user = await User.findById(userId);
         if (existingOrder || (user && (user.hasPlacedFirstOrder || user.firstOrderOfferUsed))) {
           isValid = false;
@@ -38,68 +48,83 @@ const getUpdatedCartHelper = async (userId) => {
         }
       }
 
-      // Calculate subtotal to check minimum purchase amount
       if (isValid) {
-        const hasApplicableProducts = appliedCoupon.applicableProducts && appliedCoupon.applicableProducts.length > 0;
+        const hasApplicableProducts = couponDoc.applicableProducts && couponDoc.applicableProducts.length > 0;
         let applicableSum = 0;
         let hasMatchingProduct = false;
 
-        if (cart.items && cart.items.length > 0) {
-          cart.items.forEach(item => {
-            if (item.product) {
-              const isApplicable = !hasApplicableProducts || appliedCoupon.applicableProducts.some(
-                (pId) => pId.toString() === item.product._id.toString()
-              );
-              if (isApplicable) {
-                applicableSum += item.product.price * item.quantity;
-                hasMatchingProduct = true;
-              }
+        cart.items.forEach(item => {
+          if (item.product) {
+            const isApplicable = !hasApplicableProducts || couponDoc.applicableProducts.some(
+              (pId) => pId.toString() === item.product._id.toString()
+            );
+            if (isApplicable) {
+              applicableSum += item.product.price * item.quantity;
+              hasMatchingProduct = true;
             }
-          });
-        }
+          }
+        });
 
         if (hasApplicableProducts && !hasMatchingProduct) {
           isValid = false;
           reason = "Cart does not contain any products applicable to this coupon";
-        } else if (applicableSum < appliedCoupon.minimumPurchaseAmount) {
+        } else if (applicableSum < couponDoc.minimumPurchaseAmount) {
           isValid = false;
-          reason = `Minimum purchase amount of ₹${appliedCoupon.minimumPurchaseAmount} is not reached for applicable products`;
+          reason = "Minimum purchase amount not reached for applicable products";
         } else {
-          // If valid, recalculate matching discount amount dynamically
-          let targetType = appliedCoupon.type;
-          let targetDiscount = appliedCoupon.value;
+          // Calculate item-level discounts
+          let couponTotalDiscount = 0;
+          cart.items.forEach(item => {
+            if (item.product) {
+              const isApplicable = !hasApplicableProducts || couponDoc.applicableProducts.some(
+                (pId) => pId.toString() === item.product._id.toString()
+              );
 
-          if (hasApplicableProducts) {
-            if (appliedCoupon.type === "percentage") {
-              targetType = "fixed";
-              targetDiscount = Math.round((applicableSum * appliedCoupon.value) / 100);
-            } else {
-              targetType = "fixed";
-              targetDiscount = Math.min(appliedCoupon.value, applicableSum);
-            }
-          } else {
-            if (appliedCoupon.type === "fixed") {
-              targetDiscount = Math.min(appliedCoupon.value, applicableSum);
-            }
-          }
+              if (isApplicable) {
+                let itemDiscount = 0;
+                const lineTotal = item.product.price * item.quantity;
 
-          if (cart.discount !== targetDiscount || cart.type !== targetType) {
-            cart.discount = targetDiscount;
-            cart.type = targetType;
-            await cart.save();
+                if (couponDoc.type === "percentage") {
+                  itemDiscount = Math.round((lineTotal * couponDoc.value) / 100);
+                } else {
+                  itemDiscount = Math.round((lineTotal / applicableSum) * couponDoc.value);
+                }
+
+                itemDiscount = Math.min(itemDiscount, lineTotal);
+                item.discount = itemDiscount;
+                item.appliedCouponCode = couponDoc.code;
+                couponTotalDiscount += itemDiscount;
+              }
+            }
+          });
+
+          if (applied.discount !== couponTotalDiscount) {
+            applied.discount = couponTotalDiscount;
+            cartChanged = true;
           }
+          validCoupons.push(applied);
         }
+      }
+
+      if (!isValid) {
+        console.log(`Removing coupon ${applied.code} from cart for user ${userId} because: ${reason}`);
+        cartChanged = true;
       }
     }
 
-    if (!isValid) {
-      console.log(`Removing coupon from cart for user ${userId} because: ${reason}`);
-      cart.coupon = null;
-      cart.couponCode = null;
-      cart.discount = null;
-      cart.type = null;
-      await cart.save();
+    if (cart.appliedCoupons.length !== validCoupons.length) {
+      cart.appliedCoupons = validCoupons;
+      cartChanged = true;
+    }
 
+    const totalDiscount = cart.appliedCoupons.reduce((sum, c) => sum + c.discount, 0);
+    if (cart.discount !== totalDiscount) {
+      cart.discount = totalDiscount;
+      cartChanged = true;
+    }
+
+    if (cartChanged) {
+      await cart.save();
       // refetch to get clean populated state
       cart = await Cart.findOne({ user: userId })
         .populate("items.product", {
