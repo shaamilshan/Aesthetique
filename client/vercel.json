@@ -1,6 +1,13 @@
 {
   "routes": [
     {
+      "src": "/product/(?<id>[^/]+)",
+      "headers": {
+        "User-Agent": ".*(WhatsApp|facebookexternalhit|twitterbot|discordbot|slackbot).*"
+      },
+      "dest": "/api/public/share/product/$id"
+    },
+    {
       "src": "/[^.]+",
       "dest": "/",
       "status": 200
