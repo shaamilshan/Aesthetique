@@ -62,6 +62,17 @@ router.get('/share/product/:id', async (req, res) => {
       imageUrl = `${protocol}://${host}/api/img/${imageUrl}`;
     }
 
+    // Determine image mime type
+    let imageType = "image/jpeg";
+    if (imageUrl.toLowerCase().endsWith(".png")) {
+      imageType = "image/png";
+    } else if (imageUrl.toLowerCase().endsWith(".webp")) {
+      imageType = "image/webp";
+    } else if (imageUrl.toLowerCase().endsWith(".gif")) {
+      imageType = "image/gif";
+    }
+    const secureImageUrl = imageUrl.startsWith("http://") ? imageUrl.replace("http://", "https://") : imageUrl;
+
     const clientUrl = req.query.frontend || process.env.CLIENT_URL || "http://localhost:5173";
     const productUrl = `${clientUrl}/product/${id}`;
 
@@ -78,6 +89,10 @@ router.get('/share/product/:id', async (req, res) => {
   <meta property="og:title" content="${product.name} | BM Aesthetique">
   <meta property="og:description" content="${product.description ? product.description.replace(/["\n\r]/g, ' ').slice(0, 150) : "Premium aesthetic product"}">
   <meta property="og:image" content="${imageUrl}">
+  <meta property="og:image:secure_url" content="${secureImageUrl}">
+  <meta property="og:image:type" content="${imageType}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:url" content="${productUrl}">
 
   <!-- Twitter -->
