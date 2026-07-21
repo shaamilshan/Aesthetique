@@ -422,15 +422,13 @@ const Checkout = () => {
             {/* Order Summary Session */}
             <aside className="w-full lg:w-96 mt-6 lg:mt-0">
               <div className="bg-white shadow sticky top-28 rounded-lg p-6 border border-gray-100">
-                {/* Voucher section — only for logged-in users (server needs auth for coupons) */}
-                {user && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
-                    <div className="bg-white">
-                      <VoucherCodeSection />
-                    </div>
+                {/* Voucher section — visible for all; guests get a login prompt */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
+                  <div className="bg-white">
+                    <VoucherCodeSection />
                   </div>
-                )}
+                </div>
                 <h3 className="font-semibold text-lg mb-3">Order Summary</h3>
                 <div className="divide-y divide-gray-100 space-y-3 mb-3">
                   <div className="pt-1 pb-3">
