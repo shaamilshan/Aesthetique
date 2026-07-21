@@ -92,7 +92,6 @@ const cartSlice = createSlice({
       })
       .addCase(deleteEntireCart.rejected, (state, { payload }) => {
         state.loading = false;
-        state.cart = [];
         state.error = payload;
       })
       .addCase(deleteOneProduct.pending, (state) => {
@@ -101,17 +100,25 @@ const cartSlice = createSlice({
       .addCase(deleteOneProduct.fulfilled, (state, { payload }) => {
         state.loading = false;
         state.error = null;
-        state.cart = payload.cart?.items || [];
-        state.cartId = payload.cart?._id || "";
-        state.discount = payload.cart?.discount || 0;
-        state.appliedCoupons = payload.cart?.appliedCoupons || [];
-        state.couponType = "";
-        state.couponCode = "";
+        // Server returns full cart; guest returns { productId }
+        if (payload.cart) {
+          state.cart = payload.cart.items || [];
+          state.cartId = payload.cart._id || "";
+          state.discount = payload.cart.discount || 0;
+          state.appliedCoupons = payload.cart.appliedCoupons || [];
+          state.couponType = "";
+          state.couponCode = "";
+        } else if (payload.productId) {
+          // Guest flow: remove the item locally from the existing cart state
+          state.cart = state.cart.filter((item) => {
+            const pid = item.product?._id || item.product;
+            return pid !== payload.productId;
+          });
+        }
         toast.success("Item Deleted");
       })
       .addCase(deleteOneProduct.rejected, (state, { payload }) => {
         state.loading = false;
-        state.cart = [];
         state.error = payload;
       })
 
@@ -123,12 +130,25 @@ const cartSlice = createSlice({
       .addCase(incrementCount.fulfilled, (state, { payload }) => {
         state.countLoading = false;
         state.error = null;
-        state.cart = payload.cart?.items || [];
-        state.cartId = payload.cart?._id || "";
-        state.discount = payload.cart?.discount || 0;
-        state.appliedCoupons = payload.cart?.appliedCoupons || [];
-        state.couponType = "";
-        state.couponCode = "";
+        // Server returns full cart; guest returns { updatedItem }
+        if (payload.cart) {
+          state.cart = payload.cart.items || [];
+          state.cartId = payload.cart._id || "";
+          state.discount = payload.cart.discount || 0;
+          state.appliedCoupons = payload.cart.appliedCoupons || [];
+          state.couponType = "";
+          state.couponCode = "";
+        } else if (payload.updatedItem) {
+          // Guest flow: update quantity locally
+          const pid = payload.updatedItem.product;
+          state.cart = state.cart.map((item) => {
+            const itemPid = item.product?._id || item.product;
+            if (itemPid === pid) {
+              return { ...item, quantity: (item.quantity || 0) + 1 };
+            }
+            return item;
+          });
+        }
       })
       .addCase(incrementCount.rejected, (state, { payload }) => {
         state.countLoading = false;
@@ -141,12 +161,27 @@ const cartSlice = createSlice({
       .addCase(decrementCount.fulfilled, (state, { payload }) => {
         state.countLoading = false;
         state.error = null;
-        state.cart = payload.cart?.items || [];
-        state.cartId = payload.cart?._id || "";
-        state.discount = payload.cart?.discount || 0;
-        state.appliedCoupons = payload.cart?.appliedCoupons || [];
-        state.couponType = "";
-        state.couponCode = "";
+        // Server returns full cart; guest returns { updatedItem }
+        if (payload.cart) {
+          state.cart = payload.cart.items || [];
+          state.cartId = payload.cart._id || "";
+          state.discount = payload.cart.discount || 0;
+          state.appliedCoupons = payload.cart.appliedCoupons || [];
+          state.couponType = "";
+          state.couponCode = "";
+        } else if (payload.updatedItem) {
+          // Guest flow: update quantity locally, remove if quantity reaches 0
+          const pid = payload.updatedItem.product;
+          state.cart = state.cart
+            .map((item) => {
+              const itemPid = item.product?._id || item.product;
+              if (itemPid === pid) {
+                return { ...item, quantity: Math.max(0, (item.quantity || 0) - 1) };
+              }
+              return item;
+            })
+            .filter((item) => (item.quantity || 0) > 0);
+        }
       })
       .addCase(decrementCount.rejected, (state, { payload }) => {
         state.countLoading = false;
