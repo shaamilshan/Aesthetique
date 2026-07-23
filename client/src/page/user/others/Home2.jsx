@@ -48,25 +48,15 @@ export default function Home2(props) {
         </MotionSection>
       </div>
 
-         {/* Full-width OurProducts section */}
-      <MotionSection className="w-full">
-        <OurProducts id="products" />
-      </MotionSection>
-
       <div className="max-w-screen-2xl mx-auto px-4">
         <MotionSection className="w-full">
           <AboutUs id="about" />
         </MotionSection>
       </div>
 
-      {/* Banner 1 - Between About Us and Products */}
-  {!loading && banners.banner1?.images && banners.banner1.images.length > 0 && (
-  // small horizontal padding on mobile so banners have a little breathing room
-  <MotionSection className="px-2 md:px-8 lg:px-12">
-          {/* Use responsive aspect-ratio + min-height so the hero keeps its composition on small screens
-              - lg: use the wide desktop ratio derived from current layout (152/45)
-              - md: use 16:9 for tablets
-              - default/mobile: 16:9 with a min height to avoid collapsing to a tiny/square area */}
+      {/* Banner 1 - After About Us section */}
+      {!loading && banners.banner1?.images && banners.banner1.images.length > 0 && (
+        <MotionSection className="px-2 md:px-8 lg:px-12">
           <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
             {banners.banner1?.images && banners.banner1.images.length > 1 ? (
               <BannerCarousel
@@ -84,11 +74,9 @@ export default function Home2(props) {
         </MotionSection>
       )}
 
-      {/* Banner 2 - Right below Banner 1, before Products */}
-  {!loading && banners.banner2?.images && banners.banner2.images.length > 0 && (
-  // reduce vertical gap on mobile; keep larger spacing on md/lg
-  <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.06}>
-          {/* Match Banner1 behaviour on smaller screens to keep ratio consistent and avoid square crops */}
+      {/* Banner 2 - Below Banner 1, before Products */}
+      {!loading && banners.banner2?.images && banners.banner2.images.length > 0 && (
+        <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.06}>
           <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
             {banners.banner2?.images && banners.banner2.images.length > 1 ? (
               <BannerCarousel
@@ -106,13 +94,14 @@ export default function Home2(props) {
         </MotionSection>
       )}
 
-   
+      {/* OurProducts section */}
+      <MotionSection className="w-full mt-4 md:mt-16">
+        <OurProducts id="products" />
+      </MotionSection>
 
       {/* Banner 3 - Between Products and Contact */}
-  {!loading && banners.banner3?.images && banners.banner3.images.length > 0 && (
-        // reduce vertical gap on mobile; keep larger spacing on md/lg (match Banner2)
+      {!loading && banners.banner3?.images && banners.banner3.images.length > 0 && (
         <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.08}>
-          {/* Match Banner1/Banner2 behaviour so all banners share the same responsive ratio and spacing */}
           <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl lg:aspect-[152/45] md:aspect-[16/9] aspect-[16/9] min-h-[220px]">
             {banners.banner3?.images && banners.banner3.images.length > 1 ? (
               <BannerCarousel
@@ -130,8 +119,7 @@ export default function Home2(props) {
         </MotionSection>
       )}
 
-      <div className="max-w-screen-2xl mx-auto px-4">
-        {/* <CounterStats/> */}
+      <div className="max-w-screen-2xl mx-auto px-4 mt-4 md:mt-16">
         <MotionSection className="w-full" delay={0.04}>
           <TestimonialSection id="testimonials" />
         </MotionSection>
