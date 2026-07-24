@@ -37,7 +37,7 @@ export default function BannerCarousel({ images = [], alt = 'Banner', className 
       <Slider {...settings}>
         {images.map((src, i) => (
           <div key={i} className="w-full h-full">
-            <img src={src} alt={`${alt} ${i + 1}`} className="w-full h-full object-cover object-[50%_20%]" />
+            <img src={src} alt={`${alt} ${i + 1}`} className="w-full h-full object-cover" />
           </div>
         ))}
       </Slider>

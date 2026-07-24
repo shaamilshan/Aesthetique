@@ -56,8 +56,8 @@ export default function Home2(props) {
 
       {/* Banner 1 - After About Us section */}
       {!loading && banners.banner1?.images && banners.banner1.images.length > 0 && (
-        <MotionSection className="px-2 md:px-8 lg:px-12">
-          <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl aspect-[16/9]">
+        <MotionSection className="w-full">
+          <div className="relative w-full overflow-hidden aspect-[1600/699]">
             {banners.banner1?.images && banners.banner1.images.length > 1 ? (
               <BannerCarousel
                 images={banners.banner1.images.map(src => src.startsWith?.("http") ? src : `${URL}/img/${src}`)}
@@ -67,7 +67,7 @@ export default function Home2(props) {
               <img
                 src={banners.banner1.images?.[0]?.startsWith?.("http") ? banners.banner1.images?.[0] : `${URL}/img/${banners.banner1.image}`}
                 alt="Home Banner"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
               />
             )}
           </div>
@@ -76,8 +76,8 @@ export default function Home2(props) {
 
       {/* Banner 2 - Below Banner 1, before Products */}
       {!loading && banners.banner2?.images && banners.banner2.images.length > 0 && (
-        <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.06}>
-          <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl aspect-[16/9]">
+        <MotionSection className="w-full" delay={0.06}>
+          <div className="relative w-full overflow-hidden aspect-[1600/699]">
             {banners.banner2?.images && banners.banner2.images.length > 1 ? (
               <BannerCarousel
                 images={banners.banner2.images.map(src => src.startsWith?.("http") ? src : `${URL}/img/${src}`)}
@@ -87,7 +87,7 @@ export default function Home2(props) {
               <img
                 src={banners.banner2.images?.[0]?.startsWith?.("http") ? banners.banner2.images?.[0] : `${URL}/img/${banners.banner2.image}`}
                 alt="Home Banner 2"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
               />
             )}
           </div>
@@ -101,8 +101,8 @@ export default function Home2(props) {
 
       {/* Banner 3 - Between Products and Contact */}
       {!loading && banners.banner3?.images && banners.banner3.images.length > 0 && (
-        <MotionSection className="px-2 md:px-8 lg:px-12 mt-4 md:mt-16" delay={0.08}>
-          <div className="relative w-full rounded-md md:rounded-3xl overflow-hidden shadow-xl aspect-[16/9]">
+        <MotionSection className="w-full" delay={0.08}>
+          <div className="relative w-full overflow-hidden aspect-[1600/699]">
             {banners.banner3?.images && banners.banner3.images.length > 1 ? (
               <BannerCarousel
                 images={banners.banner3.images.map(src => src.startsWith?.("http") ? src : `${URL}/img/${src}`)}
@@ -112,7 +112,7 @@ export default function Home2(props) {
               <img
                 src={banners.banner3.images?.[0]?.startsWith?.("http") ? banners.banner3.images?.[0] : `${URL}/img/${banners.banner3.image}`}
                 alt="Home Banner 3"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
               />
             )}
           </div>

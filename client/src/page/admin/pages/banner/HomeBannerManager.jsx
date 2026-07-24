@@ -207,7 +207,7 @@ const HomeBannerManager = () => {
           <li>• <strong>Banner 2:</strong> Appears below Banner 1, before Products</li>
           <li>• <strong>Banner 3:</strong> Appears between Products and Contact sections</li>
           <li>• Upload images for each banner slot (banners without images won't be shown)</li>
-          <li>• Recommended image size: 1920x1080px or similar aspect ratio</li>
+          <li>• Recommended image size: 1600x699px or similar aspect ratio</li>
         </ul>
       </div>
     </div>
