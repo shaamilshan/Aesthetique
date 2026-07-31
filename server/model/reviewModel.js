@@ -9,7 +9,17 @@ const reviewSchema = new Schema(
     user: {
       type: Schema.Types.ObjectId,
       ref: User,
-      required: [true, "User reference is required"],
+      required: false,
+    },
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      trim: true,
     },
     product: {
       type: Schema.Types.ObjectId,

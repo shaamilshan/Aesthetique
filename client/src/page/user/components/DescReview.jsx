@@ -11,6 +11,8 @@ const DescReview = ({ product: initialProduct, id }) => {
   const [error, setError] = useState(null);
   const [product, setProduct] = useState(initialProduct);
   const [newReview, setNewReview] = useState({ 
+    name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "",
+    email: user?.email || "",
     rating: 0, 
     title: "",
     body: ""
@@ -18,13 +20,24 @@ const DescReview = ({ product: initialProduct, id }) => {
   const [userHasReviewed, setUserHasReviewed] = useState(false);
   const [userReviewId, setUserReviewId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedImages, setSelectedImages] = useState([]); // [{ file: File, preview: string }]
   const [lightbox, setLightbox] = useState({
     isOpen: false,
     images: [],
     currentIndex: 0
   });
-  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setNewReview((prev) => ({
+        ...prev,
+        name: prev.name || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        email: prev.email || user.email || ""
+      }));
+    }
+  }, [user]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -145,9 +158,13 @@ const DescReview = ({ product: initialProduct, id }) => {
   const handleAddReview = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setShowLoginModal(true);
+    if (!newReview.name.trim()) {
+      setError("Please enter your name");
+      return;
+    }
+
+    if (!newReview.email.trim()) {
+      setError("Please enter your email");
       return;
     }
   
@@ -157,7 +174,7 @@ const DescReview = ({ product: initialProduct, id }) => {
     }
   
     if (!newReview.title.trim()) {
-      setError("Please select a review title");
+      setError("Please enter or select a review title");
       return;
     }
   
@@ -166,9 +183,14 @@ const DescReview = ({ product: initialProduct, id }) => {
       return;
     }
   
+    setIsSubmitting(true);
+    setUploadProgress(0);
+
     try {
       const formData = new FormData();
       formData.append("product", id);
+      formData.append("name", newReview.name.trim());
+      formData.append("email", newReview.email.trim());
       formData.append("rating", newReview.rating);
       formData.append("title", newReview.title);
       formData.append("body", newReview.body);
@@ -185,15 +207,29 @@ const DescReview = ({ product: initialProduct, id }) => {
             "Content-Type": "multipart/form-data",
           },
           withCredentials: true,
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setUploadProgress(percentCompleted);
+            }
+          }
         }
       );
   
-      const updatedReviews = [...reviews, {...data.review, isUserReview: true}];
+      const updatedReviews = [...reviews, {...data.review, isUserReview: data.review.user?._id === user?._id}];
       setReviews(updatedReviews);
       updateRatingCounts(updatedReviews);
-      setUserHasReviewed(true);
-      setUserReviewId(data.review._id);
-      setNewReview({ rating: 0, title: "", body: "" });
+      if (user) {
+        setUserHasReviewed(true);
+        setUserReviewId(data.review._id);
+      }
+      setNewReview({
+        name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "",
+        email: user?.email || "",
+        rating: 0,
+        title: "",
+        body: ""
+      });
       // Revoke the object URLs to avoid memory leak
       selectedImages.forEach((img) => window.URL.revokeObjectURL(img.preview));
       setSelectedImages([]);
@@ -201,6 +237,9 @@ const DescReview = ({ product: initialProduct, id }) => {
     } catch (error) {
       console.error("Error adding review:", error);
       setError(error.response?.data?.error || "Failed to add review");
+    } finally {
+      setIsSubmitting(false);
+      setUploadProgress(0);
     }
   };
   
@@ -357,13 +396,16 @@ const DescReview = ({ product: initialProduct, id }) => {
                     className={`border-b py-4 hover:bg-gray-50 px-3 transition-colors duration-200 ${review.isUserReview ? 'bg-blue-50' : ''}`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                      <div className="flex items-center mb-2 sm:mb-0">
+                      <div className="flex items-center flex-wrap gap-2 mb-2 sm:mb-0">
+                        <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                          {review.name || (review.user ? `${review.user.firstName || ''} ${review.user.lastName || ''}`.trim() : "Guest")}
+                        </span>
                         {renderStars(review.rating)}
-                        <span className="ml-2 text-gray-600 text-xs sm:text-sm"> 
+                        <span className="text-gray-500 text-xs sm:text-sm"> 
                           {new Date(review.createdAt).toLocaleDateString()}
                         </span>
                         {review.isUserReview && (
-                          <span className="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded">
                             Your Review
                           </span>
                         )}
@@ -416,9 +458,41 @@ const DescReview = ({ product: initialProduct, id }) => {
               <div className="mt-6 bg-gray-50 p-4 sm:p-6 rounded-lg">
                 <h3 className="text-lg sm:text-xl font-semibold mb-4">Add a Review</h3>
                 <form onSubmit={handleAddReview} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-xs sm:text-sm text-gray-700">
+                        Your Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={newReview.name}
+                        onChange={(e) =>
+                          setNewReview({ ...newReview, name: e.target.value })
+                        }
+                        placeholder="Enter your name"
+                        className="w-full p-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 bg-white"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-xs sm:text-sm text-gray-700">
+                        Your Email <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        value={newReview.email}
+                        onChange={(e) =>
+                          setNewReview({ ...newReview, email: e.target.value })
+                        }
+                        placeholder="Enter your email"
+                        className="w-full p-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 bg-white"
+                        required
+                      />
+                    </div>
+                  </div>
                   <div className="">
                     <label className="block mb-2 font-semibold sm:text-lg text-center text-gray-700">
-                      Your Rating
+                      Your Rating <span className="text-red-500">*</span>
                     </label>
                     <div className="flex justify-center">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -431,7 +505,7 @@ const DescReview = ({ product: initialProduct, id }) => {
                               : "text-gray-300 hover:text-yellow-300"
                           }`}
                           onClick={() =>
-                            setNewReview({ ...newReview, rating: star, title: "" })
+                            setNewReview((prev) => ({ ...prev, rating: star }))
                           }
                         >
                           ★
@@ -440,35 +514,48 @@ const DescReview = ({ product: initialProduct, id }) => {
                     </div>
                   </div>
 
-                  {newReview.rating > 0 && (
-                    <div className="mb-4">
-                      <label className="block mb-2 text-sm sm:text-base text-gray-700">
-                        Select a Review Title
-                      </label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {getReviewTitles(newReview.rating).map((title) => (
-                          <button
-                            key={title}
-                            type="button"
-                            className={`py-2 px-3 text-xs sm:text-sm border rounded-lg transition-colors duration-300 ${
-                              newReview.title === title
-                                ? "bg-red-500 text-white"
-                                : "bg-white text-gray-700 hover:bg-gray-100"
-                            }`}
-                            onClick={() => setNewReview({ ...newReview, title })}
-                          >
-                            {title}
-                          </button>
-                        ))}
+                  <div>
+                    <label className="block mb-1.5 font-semibold text-xs sm:text-sm text-gray-700">
+                      Review Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={newReview.title}
+                      onChange={(e) =>
+                        setNewReview({ ...newReview, title: e.target.value })
+                      }
+                      placeholder="Write down your review title (e.g. Exceptional product!)"
+                      className="w-full p-2.5 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-black bg-white"
+                      required
+                    />
+                    {newReview.rating > 0 && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500 mb-1.5 font-medium">Or choose a suggested title:</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {getReviewTitles(newReview.rating).map((suggestedTitle) => (
+                            <button
+                              key={suggestedTitle}
+                              type="button"
+                              className={`py-1 px-2.5 text-xs border rounded-full transition-colors duration-200 ${
+                                newReview.title === suggestedTitle
+                                  ? "bg-black text-white border-black font-medium"
+                                  : "bg-white text-gray-600 hover:bg-gray-100 border-gray-300"
+                              }`}
+                              onClick={() => setNewReview({ ...newReview, title: suggestedTitle })}
+                            >
+                              {suggestedTitle}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   <div>
-                    <label className="block mb-2 text-sm sm:text-base text-gray-700">
-                      Your Review
+                    <label className="block mb-1.5 font-semibold text-xs sm:text-sm text-gray-700">
+                      Your Review <span className="text-red-500">*</span>
                     </label>
-                    <div className="w-full border border-gray-300 rounded-lg overflow-hidden focus-within:border-gray-500 bg-white">
+                    <div className="w-full border border-gray-300 rounded-lg overflow-hidden focus-within:border-black bg-white">
                       <textarea
                         value={newReview.body}
                         onChange={(e) =>
@@ -502,7 +589,7 @@ const DescReview = ({ product: initialProduct, id }) => {
 
                         <div className="flex items-center">
                           {selectedImages.length < 3 ? (
-                            <label className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:border-red-500 hover:text-red-500 rounded-md text-gray-500 text-xs sm:text-sm transition-colors duration-200">
+                            <label className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 hover:border-black hover:text-black rounded-md text-gray-500 text-xs sm:text-sm transition-colors duration-200">
                               <HiCamera className="w-4 h-4" />
                               <span className="font-medium text-xs sm:text-sm">Add Photo ({selectedImages.length}/3)</span>
                               <input
@@ -523,8 +610,8 @@ const DescReview = ({ product: initialProduct, id }) => {
 
                   <button
                     type="submit"
-                    className="w-full bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-600 transition-colors duration-300 text-sm sm:text-base"
-                    disabled={!newReview.rating || !newReview.title}
+                    disabled={isSubmitting}
+                    className="w-full bg-black text-white py-2.5 px-4 rounded-full hover:bg-gray-800 transition-colors duration-300 text-sm sm:text-base font-semibold cursor-pointer shadow hover:shadow-md disabled:opacity-75 disabled:cursor-not-allowed"
                   >
                     Submit Review
                   </button>
@@ -539,6 +626,46 @@ const DescReview = ({ product: initialProduct, id }) => {
             )}
           </div>
       </div>
+
+      {/* Uploading Progress Modal Popup */}
+      {isSubmitting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center border border-gray-100 flex flex-col items-center">
+            {/* Animated Spinner Ring */}
+            <div className="relative w-16 h-16 mb-4 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-4 border-red-100"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-red-500 border-t-transparent animate-spin"></div>
+              <HiCamera className="w-6 h-6 text-red-500 animate-pulse" />
+            </div>
+
+            <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-1">
+              {selectedImages.length > 0 ? "Uploading & Submitting" : "Submitting Review"}
+            </h3>
+            
+            <p className="text-xs sm:text-sm text-gray-500 mb-4 leading-relaxed">
+              {selectedImages.length > 0
+                ? `Uploading ${selectedImages.length} photo${selectedImages.length > 1 ? 's' : ''} and publishing your review...`
+                : "Please wait while we save your review..."}
+            </p>
+
+            {/* Progress Bar (If uploading images) */}
+            {selectedImages.length > 0 && (
+              <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden p-0.5 border border-gray-200">
+                <div 
+                  className="bg-red-500 h-full rounded-full transition-all duration-300" 
+                  style={{ width: `${Math.max(uploadProgress, 8)}%` }}
+                ></div>
+              </div>
+            )}
+
+            {selectedImages.length > 0 && (
+              <span className="text-xs font-bold text-red-500 mt-2">
+                {uploadProgress}% Complete
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Lightbox Modal */}
       {lightbox.isOpen && lightbox.images.length > 0 && (
@@ -585,55 +712,6 @@ const DescReview = ({ product: initialProduct, id }) => {
               <HiChevronRight className="w-8 h-8 sm:w-10 sm:h-10" />
             </button>
           )}
-        </div>
-      )}
-
-      {/* Login Prompt Modal */}
-      {showLoginModal && (
-        <div 
-          onClick={() => setShowLoginModal(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-sm w-full text-center relative border border-gray-100 transform scale-100 transition-all duration-300"
-          >
-            <button 
-              onClick={() => setShowLoginModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
-            >
-              <HiX className="w-5 h-5" />
-            </button>
-            <div className="flex justify-center mb-4">
-              <div className="bg-red-50 text-red-500 rounded-full p-3.5 shadow-inner animate-bounce">
-                <HiLockClosed className="w-8 h-8" />
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Login Required</h3>
-            <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-              To write a review and upload photos, you must be signed in to your account.
-            </p>
-            <div className="flex flex-col gap-3">
-              <a 
-                href="/login" 
-                className="w-full py-2.5 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-full shadow hover:shadow-md transition-all duration-200 text-sm animate-pulse"
-              >
-                Log In
-              </a>
-              <a 
-                href="/register" 
-                className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold border border-gray-300 rounded-full hover:border-gray-400 transition-all duration-200 text-sm"
-              >
-                Create Account
-              </a>
-              <button 
-                onClick={() => setShowLoginModal(false)}
-                className="w-full text-xs text-gray-400 hover:text-gray-500 transition-colors mt-1 font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

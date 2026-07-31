@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { URL } from "../../../Common/api";
 import { getImageUrl } from "../../../Common/functions";
 import { createReview } from "../../../redux/actions/user/reviewActions";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 const StarRating = () => {
   const [rating, setRating] = useState(0);
@@ -38,20 +38,26 @@ const StarRating = () => {
 
 const ProductReview = ({ closeToggle, id, reviewProduct }) => {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user) || {};
+
   const initialValues = {
+    name: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "",
+    email: user?.email || "",
     rating: "",
     title: "",
     body: "",
   };
 
   const validationSchema = Yup.object().shape({
+    name: Yup.string().required("Name is required"),
+    email: Yup.string().email("Invalid email address").required("Email is required"),
     rating: Yup.number().required("Rating is required"),
-    title: Yup.string(),
-    body: Yup.string(),
+    title: Yup.string().required("Title is required"),
+    body: Yup.string().required("Feedback is required"),
   });
 
   const handleSubmit = async (value) => {
-    const createAction = dispatch(
+    const createAction = await dispatch(
       createReview({ ...value, order: id, product: reviewProduct._id })
     );
     if (createReview.fulfilled.match(createAction)) {
@@ -90,11 +96,39 @@ const ProductReview = ({ closeToggle, id, reviewProduct }) => {
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
+          enableReinitialize
           onSubmit={handleSubmit}
         >
           <Form>
+            <label htmlFor="name">
+              <p>Your Name</p>
+              <Field
+                name="name"
+                className="w-full py-2 px-4 rounded mt-1 border"
+                placeholder="Enter your name"
+              />
+              <ErrorMessage
+                className="text-sm text-red-500 block"
+                name="name"
+                component="span"
+              />
+            </label>
+            <label htmlFor="email">
+              <p className="mt-3">Your Email</p>
+              <Field
+                name="email"
+                type="email"
+                className="w-full py-2 px-4 rounded mt-1 border"
+                placeholder="Enter your email"
+              />
+              <ErrorMessage
+                className="text-sm text-red-500 block"
+                name="email"
+                component="span"
+              />
+            </label>
             <label htmlFor="rating">
-              <p>Rating</p>
+              <p className="mt-3">Rating</p>
 
               <Field name="rating" as={StarRating} />
               <ErrorMessage

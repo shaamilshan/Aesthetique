@@ -8,24 +8,22 @@ const User = require("../../model/userModel");
 // Creating a new review for each product
 const createNewReview = async (req, res) => {
   try {
+    let userId = null;
     const token = req.cookies.user_token;
-    if (!token) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.SECRET);
+        userId = decoded._id;
+      } catch (jwtError) {
+        // Token invalid/expired - treat as guest or ignore error
+      }
     }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.SECRET);
-    } catch (jwtError) {
-      return res.status(401).json({ error: "Invalid or expired token" });
-    }
-
-    const { _id } = decoded;
-    const { product, rating, title, body } = req.body;
+    const { product, rating, title, body, name, email } = req.body;
 
     // Validate input fields
-    if (!product || rating === undefined || !title || !body) {
-      return res.status(400).json({ error: "Missing required review fields" });
+    if (!product || rating === undefined || !title || !body || !name || !email) {
+      return res.status(400).json({ error: "Missing required review fields (name, email, rating, title, body)" });
     }
 
     const ratingNum = Number(rating);
@@ -45,10 +43,13 @@ const createNewReview = async (req, res) => {
       imagePaths = req.files.map(file => file.path || file.filename);
     }
 
-    const existingReview = await Review.findOne({ 
-      user: _id, 
-      product 
-    });
+    let existingReview = null;
+    if (userId) {
+      existingReview = await Review.findOne({ 
+        user: userId, 
+        product 
+      });
+    }
     
     let review;
     let isNewReview = false;
@@ -58,6 +59,8 @@ const createNewReview = async (req, res) => {
       existingReview.rating = ratingNum;
       existingReview.title = title;
       existingReview.body = body;
+      existingReview.name = name;
+      existingReview.email = email;
       existingReview.isUpdated = true;
       if (imagePaths.length > 0) {
         existingReview.images = imagePaths;
@@ -66,7 +69,9 @@ const createNewReview = async (req, res) => {
     } else {
       // Create new review
       review = await Review.create({
-        user: _id,
+        user: userId || null,
+        name,
+        email,
         product,
         rating: ratingNum,
         title,
@@ -132,18 +137,20 @@ const readProductReviews = async (req, res) => {
     // Prepare response with additional metadata
     const reviewsResponse = reviews.map(review => ({
       _id: review._id,
+      name: review.name || (review.user ? `${review.user.firstName || ''} ${review.user.lastName || ''}`.trim() : "Guest"),
+      email: review.email || "",
       rating: review.rating,
       title: review.title,
       body: review.body,
       images: review.images || [],
       createdAt: review.createdAt,
       isUpdated: review.isUpdated,
-      user: {
+      user: review.user ? {
         _id: review.user._id,
         firstName: review.user.firstName,
         lastName: review.user.lastName,
         profileImgURL: review.user.profileImgURL
-      }
+      } : null
     }));
 
     let currentUserId = null;
