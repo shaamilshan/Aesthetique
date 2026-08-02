@@ -326,7 +326,7 @@ const createOrder = async (req, res) => {
     try {
       const populated = await Order.findById(order._id)
         .populate("user", { firstName: 1, lastName: 1, email: 1, phoneNumber: 1 })
-        .populate("products.productId", { name: 1, price: 1, gstPercent: 1, hsnCode: 1, batchNo: 1, expiryDate: 1 });
+        .populate("products.productId", { name: 1, price: 1, markup: 1, gstPercent: 1, hsnCode: 1, batchNo: 1, expiryDate: 1 });
       const userEmail = populated?.user?.email;
       const customerName = `${populated?.user?.firstName || ''} ${populated?.user?.lastName || ''}`.trim();
 

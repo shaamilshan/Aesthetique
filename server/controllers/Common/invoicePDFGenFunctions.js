@@ -176,6 +176,8 @@ const generateInvoicePDF = async (order) => {
 
       // Table body — reverse-calculate GST from inclusive price
       const products = Array.isArray(order?.products) ? order.products : [];
+      let totalMRP = 0;
+      let totalProductDiscount = 0;
       let totalTaxableAmount = 0;
       let totalGstAmount = 0;
 
@@ -183,10 +185,20 @@ const generateInvoicePDF = async (order) => {
         const item = products[i];
         const position = invoiceTableTop + (i + 1) * 30;
 
-        const unitPrice = Number(item?.price) || 0;
+        const sellingPrice = Number(item?.price) || 0;
+        const markup = Number(item?.markup) > 0 
+          ? Number(item.markup) 
+          : (Number(item?.productId?.markup) > 0 ? Number(item.productId.markup) : 0);
+        const itemMRP = markup > sellingPrice ? markup : sellingPrice;
         const qty = Number(item?.quantity) || 0;
-        const itemDiscount = Number(item?.discount) || 0;
-        const effectiveUnitPrice = unitPrice - (qty > 0 ? (itemDiscount / qty) : 0);
+
+        const productDiscount = (itemMRP - sellingPrice) * qty;
+        const itemVoucherDiscount = Number(item?.discount) || 0;
+
+        totalMRP += itemMRP * qty;
+        totalProductDiscount += productDiscount;
+
+        const effectiveUnitPrice = sellingPrice - (qty > 0 ? (itemVoucherDiscount / qty) : 0);
         const lineTotal = effectiveUnitPrice * qty;
 
         // Get GST % and HSN from the populated product reference
@@ -194,7 +206,6 @@ const generateInvoicePDF = async (order) => {
         const hsnCode = item?.productId?.hsnCode || "";
 
         // Reverse-calculate: price is GST-inclusive
-        // Base (taxable) = lineTotal / (1 + gstPercent/100)
         let taxableAmt = lineTotal;
         let gstAmt = 0;
         if (gstPercent > 0) {
@@ -222,12 +233,23 @@ const generateInvoicePDF = async (order) => {
           taxableAmt.toFixed(2)
         );
 
-        if (itemDiscount > 0) {
+        const notes = [];
+        if (itemMRP > sellingPrice) {
+          const offerPct = Math.round(((itemMRP - sellingPrice) / itemMRP) * 100);
+          notes.push(`MRP: Rs. ${itemMRP.toFixed(2)} (-Rs. ${productDiscount.toFixed(2)}${offerPct > 0 ? ` / ${offerPct}% Off` : ''})`);
+        } else {
+          notes.push(`MRP: Rs. ${itemMRP.toFixed(2)}`);
+        }
+        if (itemVoucherDiscount > 0) {
+          notes.push(`Voucher: -Rs. ${itemVoucherDiscount.toFixed(2)}`);
+        }
+
+        if (notes.length > 0) {
           doc
             .fontSize(5)
             .fillColor("#16a34a")
             .text(
-              `MRP: Rs. ${unitPrice.toFixed(2)} | Voucher: -Rs. ${itemDiscount.toFixed(2)}`,
+              notes.join(" | "),
               70,
               position + 8,
               { width: 110 }
@@ -238,12 +260,17 @@ const generateInvoicePDF = async (order) => {
 
       // Summary rows
       const subtotalPosition = invoiceTableTop + (i + 1) * 30;
-      generateSummaryRow(doc, subtotalPosition, "MRP", `Rs. ${(order?.subTotal ?? 0).toFixed(2)}`);
+      const displayMRP = totalMRP > 0 ? totalMRP : (order?.subTotal ?? 0);
+      generateSummaryRow(doc, subtotalPosition, "MRP", `Rs. ${displayMRP.toFixed(2)}`);
 
-      // Discount row
       let nextPosition = subtotalPosition;
+      if (totalProductDiscount > 0) {
+        nextPosition += 18;
+        generateSummaryRow(doc, nextPosition, "Product Discount", `-Rs. ${totalProductDiscount.toFixed(2)}`);
+      }
+
       if (order?.discount > 0) {
-        nextPosition = nextPosition + 18;
+        nextPosition += 18;
         generateSummaryRow(doc, nextPosition, `Discount (${order.couponCode || "Voucher"})`, `-Rs. ${(order.discount).toFixed(2)}`);
       }
 
@@ -260,9 +287,8 @@ const generateInvoicePDF = async (order) => {
       const shippingAmt = Number(order?.shipping) || 0;
       generateSummaryRow(doc, shippingPosition, "Shipping", shippingAmt > 0 ? `Rs. ${shippingAmt.toFixed(2)}` : "Free");
 
-      // Grand total (subTotal - discount + shipping)
-      const calculatedTotal = (order?.subTotal ?? 0) - (order?.discount ?? 0) + (Number(order?.shipping) || 0);
-      const grandTotal = calculatedTotal >= 0 ? calculatedTotal : (order?.totalPrice ?? 0);
+      // Grand total
+      const grandTotal = Math.max(0, displayMRP - totalProductDiscount - (order?.discount || 0) + shippingAmt);
       const totalPosition = shippingPosition + 22;
       generateSummaryRow(doc, totalPosition, "Total", `Rs. ${grandTotal.toFixed(2)}`, true);
 
