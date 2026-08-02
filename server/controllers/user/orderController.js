@@ -229,7 +229,7 @@ const createOrder = async (req, res) => {
     if (cart.discount && cart.type === "percentage") {
       const discountAmount = (sum * cart.discount) / 100;
       sumWithTax -= discountAmount;
-    } else if (cart.discount && cart.type === "fixed") {
+    } else if (cart.discount) {
       sumWithTax -= cart.discount;
     }
 
