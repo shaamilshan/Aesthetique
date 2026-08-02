@@ -260,9 +260,11 @@ const generateInvoicePDF = async (order) => {
       const shippingAmt = Number(order?.shipping) || 0;
       generateSummaryRow(doc, shippingPosition, "Shipping", shippingAmt > 0 ? `Rs. ${shippingAmt.toFixed(2)}` : "Free");
 
-      // Grand total (same as order.totalPrice — includes product prices + shipping)
+      // Grand total (subTotal - discount + shipping)
+      const calculatedTotal = (order?.subTotal ?? 0) - (order?.discount ?? 0) + (Number(order?.shipping) || 0);
+      const grandTotal = calculatedTotal >= 0 ? calculatedTotal : (order?.totalPrice ?? 0);
       const totalPosition = shippingPosition + 22;
-      generateSummaryRow(doc, totalPosition, "Total", `Rs. ${(order?.totalPrice ?? 0).toFixed(2)}`, true);
+      generateSummaryRow(doc, totalPosition, "Total", `Rs. ${grandTotal.toFixed(2)}`, true);
 
       // GST note explaining that product prices are inclusive of GST
       const notePosition = totalPosition + 30;
