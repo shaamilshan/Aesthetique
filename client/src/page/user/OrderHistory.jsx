@@ -172,7 +172,13 @@ const OrderHistory = () => {
                       </div>
 
                       <div className="text-right flex flex-col items-end gap-2">
-                        <p className="font-bold text-gray-900">₹{Number(item.totalPrice).toLocaleString()}</p>
+                        <p className="font-bold text-gray-900">
+                          ₹{Number(
+                            item.subTotal !== undefined && item.discount !== undefined
+                              ? Math.max(0, (Number(item.subTotal) || 0) - (Number(item.discount) || 0) + (Number(item.shipping) || 0) + (Number(item.tax) || 0))
+                              : item.totalPrice
+                          ).toLocaleString()}
+                        </p>
                         <Link to={`detail/${item.orderId || item._id}`} className="inline-flex items-center gap-2 text-black hover:text-gray-700 font-medium transition-colors duration-200">
                           View Details <BsArrowRight className="text-sm" />
                         </Link>

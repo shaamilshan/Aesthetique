@@ -193,7 +193,7 @@ const TrackOrder = () => {
                 </div>
                 <div className="flex justify-between text-lg font-bold text-gray-900 pt-2">
                   <span>Total Amount</span>
-                  <span>₹{order.totalPrice}</span>
+                  <span>₹{order.subTotal !== undefined ? Math.max(0, (Number(order.subTotal) || 0) - (Number(order.discount) || 0) + (Number(order.shipping) || 0) + (Number(order.tax) || 0)) : order.totalPrice}</span>
                 </div>
               </div>
             </div>

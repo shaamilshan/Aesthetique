@@ -163,7 +163,11 @@ const OrderDetail = () => {
               </div>
               <div>
                 <div className="text-sm text-gray-500">Total</div>
-                <div className="text-lg font-bold">{orderData.totalPrice}₹</div>
+                <div className="text-lg font-bold">
+                  {orderData.subTotal !== undefined
+                    ? Math.max(0, (Number(orderData.subTotal) || 0) - (Number(orderData.discount) || 0) + (Number(orderData.shipping) || 0) + (Number(orderData.tax) || 0))
+                    : orderData.totalPrice}₹
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 {orderData.status === 'shipped' && (

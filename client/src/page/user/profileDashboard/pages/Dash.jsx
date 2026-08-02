@@ -186,7 +186,9 @@ const Dash = () => {
                           <div className="text-right">
                             {(() => {
                               // try multiple fields for total: API may return different names
-                              const totalRaw = order.totalPrice ?? order.totalAmount ?? order.total ?? order.amount ?? order.finalTotal ?? order.grandTotal;
+                              const totalRaw = (order.subTotal !== undefined && order.discount !== undefined)
+                                ? Math.max(0, (Number(order.subTotal) || 0) - (Number(order.discount) || 0) + (Number(order.shipping) || 0) + (Number(order.tax) || 0))
+                                : (order.totalPrice ?? order.totalAmount ?? order.total ?? order.amount ?? order.finalTotal ?? order.grandTotal);
                               const showTotal = totalRaw !== null && totalRaw !== undefined && totalRaw !== "";
                               return (
                                 <>
