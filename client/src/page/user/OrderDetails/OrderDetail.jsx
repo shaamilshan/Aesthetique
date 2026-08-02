@@ -289,7 +289,14 @@ const OrderDetail = () => {
                     </div>
                   ))}
                   <div className="flex justify-between"><span>Tax</span><span>{orderData.tax || 0}₹</span></div>
-                  <div className="flex justify-between font-bold border-t pt-2"><span>Total</span><span>{orderData.totalPrice || 0}₹</span></div>
+                  <div className="flex justify-between font-bold border-t pt-2">
+                    <span>Total</span>
+                    <span>
+                      {orderData.subTotal !== undefined
+                        ? Math.max(0, (Number(orderData.subTotal) || 0) - (Number(orderData.discount) || 0) + (Number(orderData.shipping) || 0) + (Number(orderData.tax) || 0))
+                        : orderData.totalPrice || 0}₹
+                    </span>
+                  </div>
                 </div>
                 <div className="mt-4">
                   <h4 className="font-semibold">Shipping Address</h4>

@@ -298,7 +298,11 @@ const OrderDetails = () => {
               </div>
               <div className="cart-total-li">
                 <p className="font-semibold text-gray-500">Total</p>
-                <p className="font-semibold">{orderData.totalPrice}₹</p>
+                <p className="font-semibold">
+                  {orderData.subTotal !== undefined
+                    ? Math.max(0, (Number(orderData.subTotal) || 0) - (Number(orderData.discount) || 0) + (Number(orderData.shipping) || 0) + (Number(orderData.tax) || 0))
+                    : orderData.totalPrice}₹
+                </p>
               </div>
             </div>
           </div>

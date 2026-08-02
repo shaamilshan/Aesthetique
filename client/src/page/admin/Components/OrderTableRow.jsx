@@ -57,7 +57,9 @@ const OrderTableRow = ({ item, index, toggleUpdateModal, classes }) => {
         {item.user ? `${item.user.firstName} ${item.user.lastName}` : (item.guestEmail || "Guest")}
       </td>
       <td className={`admin-table-row ${!isRead ? "font-bold text-gray-900" : "text-gray-400 font-normal"}`}>
-        {item.totalPrice}₹
+        {item.subTotal !== undefined && item.discount !== undefined
+          ? Math.max(0, (Number(item.subTotal) || 0) - (Number(item.discount) || 0) + (Number(item.shipping) || 0) + (Number(item.tax) || 0))
+          : item.totalPrice}₹
       </td>
       <td className={`admi{/* n-table-row ${!isRead ? "font-bold text-gray-900" : "text-gray-400 font-normal"}`}>
         {date.format(new Date(item.deliveryDate), "MMM DD YYYY")}
