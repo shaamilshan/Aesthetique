@@ -20,30 +20,11 @@ import { HiX } from "react-icons/hi";
 // Default fallback promo image asset
 import popup1 from "@/assets/others/popup1.jpg";
 
-const defaultOffers = [
-  {
-    id: "offer-1",
-    headline: "Join Our\nMailing List",
-    subtitle: "Stay Informed! Monthly Tips, Tracks and Discount.",
-    buttonText: "BUY NOW",
-    imageUrl: "",
-    productId: ""
-  },
-  {
-    id: "offer-2",
-    headline: "Exclusive\nGlow Deal",
-    subtitle: "Get 20% OFF Hyaluronic Boost Serum today!",
-    buttonText: "BUY NOW",
-    imageUrl: "",
-    productId: ""
-  }
-];
-
 const Settings = () => {
   const [popupData, setPopupData] = useState({
     isActive: true,
     autoSlide: true,
-    offers: defaultOffers
+    offers: []
   });
 
   const [previewModalIndex, setPreviewModalIndex] = useState(null);
@@ -63,8 +44,7 @@ const Settings = () => {
           const val = settingRes.value;
           let loadedOffers = val.offers;
 
-          // Backward compatibility if single offer was stored
-          if (!Array.isArray(loadedOffers) || loadedOffers.length === 0) {
+          if (!Array.isArray(loadedOffers)) {
             if (val.headline || val.imageUrl || val.productId) {
               loadedOffers = [{
                 id: "offer-1",
@@ -75,7 +55,7 @@ const Settings = () => {
                 productId: val.productId || ""
               }];
             } else {
-              loadedOffers = defaultOffers;
+              loadedOffers = [];
             }
           }
 
@@ -133,8 +113,8 @@ const Settings = () => {
   const handleAddOffer = () => {
     const newOffer = {
       id: `offer-${Date.now()}`,
-      headline: `Special Offer ${popupData.offers.length + 1}`,
-      subtitle: "Limited Time Discount",
+      headline: "",
+      subtitle: "",
       buttonText: "BUY NOW",
       imageUrl: "",
       productId: ""
@@ -146,14 +126,36 @@ const Settings = () => {
   };
 
   const handleDeleteOffer = (indexToDelete) => {
-    if (popupData.offers.length <= 1) {
-      toast.error("At least one offer is required.");
-      return;
-    }
-
     setPopupData(prev => {
       const filtered = prev.offers.filter((_, idx) => idx !== indexToDelete);
       return { ...prev, offers: filtered };
+    });
+
+    // Re-index imagePreviews and imageFiles to clear stale previews and shift indices
+    setImagePreviews(prev => {
+      const next = {};
+      Object.keys(prev).forEach(keyStr => {
+        const key = parseInt(keyStr, 10);
+        if (key < indexToDelete) {
+          next[key] = prev[key];
+        } else if (key > indexToDelete) {
+          next[key - 1] = prev[key];
+        }
+      });
+      return next;
+    });
+
+    setImageFiles(prev => {
+      const next = {};
+      Object.keys(prev).forEach(keyStr => {
+        const key = parseInt(keyStr, 10);
+        if (key < indexToDelete) {
+          next[key] = prev[key];
+        } else if (key > indexToDelete) {
+          next[key - 1] = prev[key];
+        }
+      });
+      return next;
     });
 
     if (previewModalIndex === indexToDelete) {
@@ -249,7 +251,7 @@ const Settings = () => {
         <div className="flex items-center justify-between p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
           <div className="space-y-0.5">
             <span className="text-sm font-bold text-gray-900 flex items-center gap-2">
-              {/* <Sparkles size={18} className="text-amber-500" /> */}
+              <Sparkles size={18} className="text-amber-500" />
               Enable Popup Modal
             </span>
             <p className="text-xs text-gray-500">Show promo popup on visitor arrival.</p>
@@ -307,133 +309,148 @@ const Settings = () => {
 
         {/* Full-Width Responsive Table */}
         <div className="overflow-x-auto border border-gray-200 rounded-2xl shadow-sm">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-700 font-bold uppercase tracking-wider text-[11px]">
-                <th className="py-3.5 px-3 text-center">#</th>
-                <th className="py-3.5 px-4 min-w-[130px]">Banner Image</th>
-                <th className="py-3.5 px-4 min-w-[180px]">Headline Title</th>
-                <th className="py-3.5 px-4 min-w-[180px]">Subtitle</th>
-                <th className="py-3.5 px-4 min-w-[200px]">Target Product</th>
-                <th className="py-3.5 px-4 min-w-[120px]">Button Label</th>
-                <th className="py-3.5 px-3 text-center min-w-[100px]">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white font-medium text-gray-800">
-              {popupData.offers.map((offer, index) => (
-                <tr 
-                  key={offer.id || index}
-                  className="hover:bg-gray-50/60 transition-colors"
-                >
-                  {/* Number */}
-                  <td className="py-3 px-3 text-center">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold bg-gray-100 text-gray-700">
-                      {index + 1}
-                    </span>
-                  </td>
-
-                  {/* Banner Image */}
-                  <td className="py-3 px-4">
-                    <div className="flex flex-col gap-2">
-                      <div className="w-24 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center shrink-0">
-                        {imagePreviews[index] || offer.imageUrl ? (
-                          <img
-                            src={imagePreviews[index] || getImageUrl(offer.imageUrl, URL)}
-                            alt={`Offer ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <ImageIcon size={20} className="text-gray-400" />
-                        )}
-                      </div>
-
-                      <label className="cursor-pointer inline-flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-[10px] font-bold px-2.5 py-1.5 rounded-lg transition-colors text-gray-700">
-                        <Upload size={13} />
-                        <span>Upload File</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageChange(e, index)}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                  </td>
-
-                  {/* Headline Title */}
-                  <td className="py-3 px-4">
-                    <textarea
-                      rows={2}
-                      value={offer.headline || ""}
-                      onChange={(e) => handleUpdateOffer(index, "headline", e.target.value)}
-                      placeholder="Headline..."
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-serif focus:outline-none focus:ring-1 focus:ring-black"
-                    />
-                  </td>
-
-                  {/* Subtitle */}
-                  <td className="py-3 px-4">
-                    <textarea
-                      rows={2}
-                      value={offer.subtitle || ""}
-                      onChange={(e) => handleUpdateOffer(index, "subtitle", e.target.value)}
-                      placeholder="Subtitle..."
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-black"
-                    />
-                  </td>
-
-                  {/* Target Product */}
-                  <td className="py-3 px-4">
-                    <select
-                      value={offer.productId || ""}
-                      onChange={(e) => handleUpdateOffer(index, "productId", e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-black font-medium"
-                    >
-                      <option value="">-- Select Product --</option>
-                      {products.map(prod => (
-                        <option key={prod._id} value={prod._id}>
-                          {prod.name} (₹{prod.price})
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-
-                  {/* Button Label */}
-                  <td className="py-3 px-4">
-                    <input
-                      type="text"
-                      value={offer.buttonText || "BUY NOW"}
-                      onChange={(e) => handleUpdateOffer(index, "buttonText", e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-black"
-                    />
-                  </td>
-
-                  {/* Actions (Eye Preview Button & Delete Button) */}
-                  <td className="py-3 px-3 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setPreviewModalIndex(index)}
-                        className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
-                        title="Live Preview Offer"
-                      >
-                        <Eye size={17} />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteOffer(index)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete Row"
-                      >
-                        <Trash2 size={17} />
-                      </button>
-                    </div>
-                  </td>
+          {popupData.offers.length > 0 ? (
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-700 font-bold uppercase tracking-wider text-[11px]">
+                  <th className="py-3.5 px-3 text-center">#</th>
+                  <th className="py-3.5 px-4 min-w-[130px]">Banner Image</th>
+                  <th className="py-3.5 px-4 min-w-[180px]">Headline Title</th>
+                  <th className="py-3.5 px-4 min-w-[180px]">Subtitle</th>
+                  <th className="py-3.5 px-4 min-w-[200px]">Target Product</th>
+                  <th className="py-3.5 px-4 min-w-[120px]">Button Label</th>
+                  <th className="py-3.5 px-3 text-center min-w-[100px]">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white font-medium text-gray-800">
+                {popupData.offers.map((offer, index) => (
+                  <tr 
+                    key={offer.id || index}
+                    className="hover:bg-gray-50/60 transition-colors"
+                  >
+                    {/* Number */}
+                    <td className="py-3 px-3 text-center">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold bg-gray-100 text-gray-700">
+                        {index + 1}
+                      </span>
+                    </td>
+
+                    {/* Banner Image */}
+                    <td className="py-3 px-4">
+                      <div className="flex flex-col gap-2">
+                        <div className="w-24 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center shrink-0">
+                          {imagePreviews[index] || offer.imageUrl ? (
+                            <img
+                              src={imagePreviews[index] || getImageUrl(offer.imageUrl, URL)}
+                              alt={`Offer ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon size={20} className="text-gray-400" />
+                          )}
+                        </div>
+
+                        <label className="cursor-pointer inline-flex items-center justify-center gap-1 bg-gray-100 hover:bg-gray-200 text-[10px] font-bold px-2.5 py-1.5 rounded-lg transition-colors text-gray-700">
+                          <Upload size={13} />
+                          <span>Upload File</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageChange(e, index)}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </td>
+
+                    {/* Headline Title */}
+                    <td className="py-3 px-4">
+                      <textarea
+                        rows={2}
+                        value={offer.headline || ""}
+                        onChange={(e) => handleUpdateOffer(index, "headline", e.target.value)}
+                        placeholder="Headline..."
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-serif focus:outline-none focus:ring-1 focus:ring-black"
+                      />
+                    </td>
+
+                    {/* Subtitle */}
+                    <td className="py-3 px-4">
+                      <textarea
+                        rows={2}
+                        value={offer.subtitle || ""}
+                        onChange={(e) => handleUpdateOffer(index, "subtitle", e.target.value)}
+                        placeholder="Subtitle..."
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-black"
+                      />
+                    </td>
+
+                    {/* Target Product */}
+                    <td className="py-3 px-4">
+                      <select
+                        value={offer.productId || ""}
+                        onChange={(e) => handleUpdateOffer(index, "productId", e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-black font-medium"
+                      >
+                        <option value="">-- Select Product --</option>
+                        {products.map(prod => (
+                          <option key={prod._id} value={prod._id}>
+                            {prod.name} (₹{prod.price})
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+
+                    {/* Button Label */}
+                    <td className="py-3 px-4">
+                      <input
+                        type="text"
+                        value={offer.buttonText || "BUY NOW"}
+                        onChange={(e) => handleUpdateOffer(index, "buttonText", e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-black"
+                      />
+                    </td>
+
+                    {/* Actions (Eye Preview Button & Delete Button) */}
+                    <td className="py-3 px-3 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewModalIndex(index)}
+                          className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-lg transition-colors"
+                          title="Live Preview Offer"
+                        >
+                          <Eye size={17} />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteOffer(index)}
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete Row"
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="p-12 text-center text-gray-400 space-y-3">
+              <Sparkles size={36} className="mx-auto text-gray-300" />
+              <p className="text-sm font-semibold text-gray-600">No promotional offers configured</p>
+              <p className="text-xs text-gray-400">The popup modal will not be displayed on the store front when there are no offers.</p>
+              <button
+                type="button"
+                onClick={handleAddOffer}
+                className="mt-2 bg-black hover:bg-zinc-800 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all inline-flex items-center gap-1.5 shadow-sm"
+              >
+                <Plus size={14} /> Add First Offer
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Table Bottom Save Controls */}

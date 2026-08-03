@@ -12,21 +12,7 @@ import popup1 from "../assets/others/popup1.jpg";
 
 export default function NewsletterModal() {
   const [showModal, setShowModal] = useState(false);
-  const [promoData, setPromoData] = useState({
-    isActive: true,
-    autoSlide: true,
-    offers: [
-      {
-        id: "offer-1",
-        headline: "Join Our\nMailing List",
-        subtitle: "Stay Informed! Monthly Tips, Tracks and Discount.",
-        buttonText: "BUY NOW",
-        imageUrl: "",
-        productId: ""
-      }
-    ]
-  });
-
+  const [promoData, setPromoData] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [productsMap, setProductsMap] = useState({});
   const [isAdding, setIsAdding] = useState(false);
@@ -63,42 +49,33 @@ export default function NewsletterModal() {
         }
 
         if (isMounted) {
-          let offersList = [];
-          if (data && typeof data === "object") {
-            if (data.isActive === false) {
-              setPromoData(data);
-              return;
-            }
-
-            if (Array.isArray(data.offers) && data.offers.length > 0) {
-              offersList = data.offers;
-            } else if (data.headline || data.imageUrl || data.productId) {
-              offersList = [{
-                id: "offer-1",
-                headline: data.headline || "Join Our\nMailing List",
-                subtitle: data.subtitle || "Stay Informed! Monthly Tips, Tracks and Discount.",
-                buttonText: data.buttonText || "BUY NOW",
-                imageUrl: data.imageUrl || "",
-                productId: data.productId || ""
-              }];
-            }
+          if (!data || typeof data !== "object" || data.isActive === false) {
+            setPromoData({ isActive: false, offers: [] });
+            return;
           }
 
+          let offersList = [];
+          if (Array.isArray(data.offers)) {
+            offersList = data.offers;
+          } else if (data.headline || data.imageUrl || data.productId) {
+            offersList = [{
+              id: "offer-1",
+              headline: data.headline,
+              subtitle: data.subtitle,
+              buttonText: data.buttonText || "BUY NOW",
+              imageUrl: data.imageUrl || "",
+              productId: data.productId || ""
+            }];
+          }
+
+          // If there are no offers configured, do NOT show popup modal
           if (offersList.length === 0) {
-            offersList = [
-              {
-                id: "offer-1",
-                headline: "Join Our\nMailing List",
-                subtitle: "Stay Informed! Monthly Tips, Tracks and Discount.",
-                buttonText: "BUY NOW",
-                imageUrl: "",
-                productId: ""
-              }
-            ];
+            setPromoData({ isActive: false, offers: [] });
+            return;
           }
 
           setPromoData({
-            isActive: data?.isActive !== undefined ? data.isActive : true,
+            isActive: true,
             autoSlide: data?.autoSlide !== undefined ? data.autoSlide : true,
             offers: offersList
           });
@@ -122,22 +99,6 @@ export default function NewsletterModal() {
             if (isMounted) {
               setProductsMap(map);
             }
-          } else {
-            // Fallback product loading
-            try {
-              const allProdsRes = await axios.get(`${URL}/user/products`);
-              const prods = allProdsRes?.data?.products || allProdsRes?.data;
-              if (Array.isArray(prods) && prods.length > 0 && isMounted) {
-                const fallbackProd = prods[0];
-                setProductsMap({ [fallbackProd._id]: fallbackProd });
-                setPromoData((prev) => ({
-                  ...prev,
-                  offers: prev.offers.map((o) => ({ ...o, productId: o.productId || fallbackProd._id }))
-                }));
-              }
-            } catch (err) {
-              console.error("Failed to load fallback product:", err);
-            }
           }
 
           const timer = setTimeout(() => {
@@ -150,9 +111,6 @@ export default function NewsletterModal() {
         }
       } catch (error) {
         console.error("Error loading promo popup:", error);
-        if (isMounted) {
-          setShowModal(true);
-        }
       }
     };
 
@@ -165,7 +123,7 @@ export default function NewsletterModal() {
 
   // Handle auto-sliding between multiple offers
   useEffect(() => {
-    if (!showModal || !promoData.autoSlide || !promoData.offers || promoData.offers.length <= 1) {
+    if (!showModal || !promoData?.autoSlide || !promoData?.offers || promoData.offers.length <= 1) {
       if (slideTimerRef.current) clearInterval(slideTimerRef.current);
       return;
     }
@@ -181,7 +139,7 @@ export default function NewsletterModal() {
     return () => {
       if (slideTimerRef.current) clearInterval(slideTimerRef.current);
     };
-  }, [showModal, promoData.autoSlide, promoData.offers]);
+  }, [showModal, promoData]);
 
   const handleDotClick = (index) => {
     if (index === currentSlide) return;
@@ -197,6 +155,17 @@ export default function NewsletterModal() {
   const handleClose = () => {
     setShowModal(false);
   };
+
+  if (
+    !showModal || 
+    !promoData || 
+    promoData.isActive === false || 
+    !Array.isArray(promoData.offers) || 
+    promoData.offers.length === 0 || 
+    isAdminOrManager
+  ) {
+    return null;
+  }
 
   const currentOffer = promoData.offers[currentSlide] || promoData.offers[0] || {};
   const currentProduct = productsMap[currentOffer.productId] || Object.values(productsMap)[0] || null;
@@ -257,10 +226,6 @@ export default function NewsletterModal() {
       setIsAdding(false);
     }
   };
-
-  if (!showModal || !promoData || promoData.isActive === false || isAdminOrManager) {
-    return null;
-  }
 
   // Determine promo image source for active offer slide
   let promoImageSrc = popup1;
