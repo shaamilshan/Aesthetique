@@ -69,6 +69,7 @@ app.use("/api/manager", managerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/public", publicRoutes);
+app.use("/api/setting", publicRoutes);
 
 // Public API for accessing images
 app.use("/api/img", express.static(__dirname + "/public/products/"));

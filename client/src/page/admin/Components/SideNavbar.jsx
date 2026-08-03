@@ -70,8 +70,8 @@ const SideNavbar = () => {
   // Determine if a sidebar item should be visible for the current user
   const isVisible = (key) => {
     if (!user) return false;
-    if (user.role === "superAdmin") return true;
-    if (key === "dashboard") return true;
+    if (user.role === "superAdmin" || user.role === "admin") return true;
+    if (key === "dashboard" || key === "settings") return true;
     if (!user.permissions || !Array.isArray(user.permissions)) return false;
     // allow section-level permission (e.g., 'products') or action-level ('products:add')
     if (user.permissions.includes(key)) return true;
@@ -428,6 +428,29 @@ const SideNavbar = () => {
             </NavLink>
           )}
 
+          {isVisible("settings") && (
+            <NavLink
+              to="/admin/settings"
+              className={({ isActive }) =>
+                `flex items-center rounded-lg text-sm font-medium transition-colors relative group ${isExpanded
+                  ? 'gap-3 px-4 py-2.5'
+                  : 'justify-center px-2 py-3'
+                } ${isActive
+                  ? "bg-gray-100 text-gray-900"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`
+              }
+              title={!isExpanded ? "Popup Settings" : ""}
+            >
+              <SettingsIcon size={20} className="flex-shrink-0" />
+              {isExpanded && <span>Popup Settings</span>}
+              {!isExpanded && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Popup Settings
+                </div>
+              )}
+            </NavLink>
+          )}
 
         </nav>
 

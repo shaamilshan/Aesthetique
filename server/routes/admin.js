@@ -200,7 +200,7 @@ router.put('/setting/marquee', updateMarqueeAnnouncements);
 
 // Site settings (keyed)
 router.get('/setting/:key', requireAdminAuth, getSetting);
-router.put('/setting/:key', requireAdminAuth, upsertSetting);
+router.put('/setting/:key', requireAdminAuth, upload.any(), upsertSetting);
 
 // Announcement Controllers
 router.get('/announcements', getAllAnnouncements);
