@@ -7,7 +7,6 @@ const PendingOrderSchema = new Schema(
     isGuest: { type: Boolean, default: false },
     user: { type: Schema.Types.ObjectId, ref: "User" }, // If logged in
     payload: { type: Schema.Types.Mixed }, // Stores address, items, notes, guestEmail, etc.
-    expireAt: { type: Date, default: Date.now, expires: 86400 } // TTL index: auto-delete after 24 hours
   },
   { timestamps: true }
 );
