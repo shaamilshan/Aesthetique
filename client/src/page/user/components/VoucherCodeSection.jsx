@@ -131,13 +131,18 @@ const VoucherCodeSection = () => {
             <span className="text-sm font-medium">Apply another voucher code</span>
           </div>
           
-          {/* Guest login hint */}
+          {/* Guest login banner */}
           {!user && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
-              <LogIn size={14} className="text-amber-600 flex-shrink-0" />
-              <p className="text-xs text-amber-700">
-                <span className="font-semibold">Login required</span> — Vouchers can only be applied by logged-in users.
+            <div className="bg-gray-100/80 border border-gray-200/80 rounded-2xl p-4 my-2 shadow-sm">
+              <p className="text-gray-800 font-semibold text-sm mb-2.5">
+                Get Started &amp; grab best offers!
               </p>
+              <Link
+                to="/login?redirect=/checkout"
+                className="w-full py-2 px-4 bg-white border border-[#c0264d] text-[#c0264d] font-semibold rounded-xl text-center block hover:bg-rose-50/50 transition-colors text-sm shadow-sm"
+              >
+                Login / Register
+              </Link>
             </div>
           )}
 

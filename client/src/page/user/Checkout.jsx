@@ -4,8 +4,6 @@ import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { TiTick } from "react-icons/ti";
 import { BsArrowRight } from "react-icons/bs";
-import { HiX, HiLockClosed } from "react-icons/hi";
-
 import axios from "axios";
 import { URL } from "../../Common/api";
 import logo from "../../assets/others/bm-logo.png";
@@ -52,9 +50,6 @@ const Checkout = () => {
   }
 
   const finalTotal = totalPrice + shipping + tax - offer;
-
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [bypassLogin, setBypassLogin] = useState(false);
 
   // Address Selection (for logged-in users this is an _id; for guests it is the string "guest")
   const [selectedAddress, setSelectedAddress] = useState("");
@@ -313,11 +308,6 @@ const Checkout = () => {
       return;
     }
 
-    if (!user && !bypassLogin) {
-      setShowLoginModal(true);
-      return;
-    }
-
     // Address validation
     if (!user && !guestAddress) {
       toast.error("Please add a delivery address");
@@ -392,62 +382,57 @@ const Checkout = () => {
         <Loading />
       ) : (
         <div className="pt-20 px-4 lg:px-8 pb-16 bg-gray-50 min-h-screen">
-          <div className="max-w-6xl mx-auto lg:flex lg:items-stretch lg:gap-8">
-            <main className="lg:flex-1 lg:flex lg:flex-col">
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">Checkout</h1>
-                <p className="text-sm text-gray-500 mt-1">Review your items, choose delivery address and payment method.</p>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            <div className="col-span-1 lg:col-span-12 mb-2 lg:mb-0">
+              <h1 className="text-2xl font-bold text-gray-800">Checkout</h1>
+              <p className="text-sm text-gray-500 mt-1">Review your items, choose delivery address and payment method.</p>
+            </div>
+
+            {/* 1. Delivery Address: Mobile order-1, Desktop Col 1-7 */}
+            <div className="col-span-1 lg:col-span-7 order-1 bg-white shadow-sm rounded-lg p-6 border border-gray-100">
+              <AddressCheckoutSession
+                selectedAddress={selectedAddress}
+                setSelectedAddress={setSelectedAddress}
+                guestAddress={guestAddress}
+                setGuestAddress={setGuestAddress}
+              />
+            </div>
+
+            {/* 2. Voucher Section: Mobile order-2, Desktop Col 8-12 */}
+            <div className="col-span-1 lg:col-span-5 order-2 bg-white shadow-sm rounded-lg p-6 border border-gray-100">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
+              <VoucherCodeSection />
+            </div>
+
+            {/* 3. Payment Options: Mobile order-3, Desktop Col 1-7 */}
+            <div className="col-span-1 lg:col-span-7 order-3 bg-white shadow-sm rounded-lg p-6 border border-gray-100">
+              <h2 className="text-lg font-semibold mb-3">Payment Options</h2>
+              <CheckoutPaymentOption
+                handleSelectedPayment={handleSelectedPayment}
+                selectedPayment={selectedPayment}
+              />
+            </div>
+
+            {/* 4. Order Summary: Mobile order-4, Desktop Col 8-12 */}
+            <div className="col-span-1 lg:col-span-5 order-4 bg-white shadow-sm rounded-lg p-6 border border-gray-100">
+              <h3 className="font-semibold text-lg mb-3">Order Summary</h3>
+              <div className="divide-y divide-gray-100 space-y-3 mb-3">
+                <div className="pt-1 pb-3">
+                  {cart && cart.map((item, index) => (
+                    <CheckoutCartRow item={item} key={index} />
+                  ))}
+                </div>
               </div>
 
-              <div className="lg:flex lg:flex-col lg:h-full lg:gap-6">
-                <div className="bg-white shadow-sm rounded-lg p-6 mb-6 lg:mb-0 lg:flex-1">
-                  <AddressCheckoutSession
-                    selectedAddress={selectedAddress}
-                    setSelectedAddress={setSelectedAddress}
-                    guestAddress={guestAddress}
-                    setGuestAddress={setGuestAddress}
-                  />
-                </div>
+              <TotalAndSubTotal addressAdded={!!selectedAddress || (!user && !!guestAddress)} />
 
-                <div className="bg-white shadow-sm rounded-lg p-6 mb-6 lg:mb-0 lg:flex-1">
-                  <h2 className="text-lg font-semibold mb-3">Payment Options</h2>
-                  <CheckoutPaymentOption
-                    handleSelectedPayment={handleSelectedPayment}
-                    selectedPayment={selectedPayment}
-                  />
-                </div>
-              </div>
-            </main>
-
-            {/* Order Summary Session */}
-            <aside className="w-full lg:w-96 mt-6 lg:mt-0">
-              <div className="bg-white shadow sticky top-28 rounded-lg p-6 border border-gray-100">
-                {/* Voucher section — visible for all; guests get a login prompt */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Have a voucher?</h4>
-                  <div className="bg-white">
-                    <VoucherCodeSection />
-                  </div>
-                </div>
-                <h3 className="font-semibold text-lg mb-3">Order Summary</h3>
-                <div className="divide-y divide-gray-100 space-y-3 mb-3">
-                  <div className="pt-1 pb-3">
-                    {cart && cart.map((item, index) => (
-                      <CheckoutCartRow item={item} key={index} />
-                    ))}
-                  </div>
-                </div>
-
-                <TotalAndSubTotal addressAdded={!!selectedAddress || (!user && !!guestAddress)} />
-
-                <button
-                  className="mt-6 w-full bg-black text-white uppercase font-semibold text-sm py-3 rounded-md hover:bg-gray-900 transition-colors"
-                  onClick={placeOrder}
-                >
-                  Place order
-                </button>
-              </div>
-            </aside>
+              <button
+                className="mt-6 w-full bg-black text-white uppercase font-semibold text-sm py-3 rounded-md hover:bg-gray-900 transition-colors"
+                onClick={placeOrder}
+              >
+                Place order
+              </button>
+            </div>
           </div>
 
           {/* Full width Additional Notes */}
@@ -466,64 +451,6 @@ const Checkout = () => {
             </div>
           </div>
 
-        </div>
-      )}
-
-      {/* Login Prompt Modal */}
-      {showLoginModal && (
-        <div 
-          onClick={() => setShowLoginModal(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in"
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-sm w-full text-center relative border border-gray-100 transform scale-100 transition-all duration-300"
-          >
-            <button 
-              onClick={() => setShowLoginModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-1"
-            >
-              <HiX className="w-5 h-5" />
-            </button>
-            <div className="flex justify-center mb-4">
-              <div className="bg-indigo-50 text-indigo-600 rounded-full p-3.5 shadow-inner animate-bounce">
-                <HiLockClosed className="w-8 h-8" />
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Login Required</h3>
-            <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-              To place your order and track shipping details, we recommend signing in.
-            </p>
-            <div className="flex flex-col gap-3">
-              <Link 
-                to="/login?redirect=/checkout" 
-                className="w-full py-2.5 px-4 bg-black hover:bg-gray-800 text-white font-semibold rounded-full shadow hover:shadow-md transition-all duration-200 text-sm text-center"
-              >
-                Log In
-              </Link>
-              <Link 
-                to="/register?redirect=/checkout" 
-                className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold border border-gray-300 rounded-full hover:border-gray-400 transition-all duration-200 text-sm text-center"
-              >
-                Create Account
-              </Link>
-              <button 
-                onClick={() => {
-                  setBypassLogin(true);
-                  setShowLoginModal(false);
-                }}
-                className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-full transition-all duration-200 text-sm"
-              >
-                Checkout as Guest
-              </button>
-              <button 
-                onClick={() => setShowLoginModal(false)}
-                className="w-full text-xs text-gray-400 hover:text-gray-500 transition-colors mt-1 font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </>
