@@ -15,6 +15,7 @@ import ProductDetailsStarAndRating from "./components/ProductDetailsStarAndRatin
 import { addToBuyNowStore } from "../../redux/reducers/user/buyNowSlice";
 import ImageZoom from "../../components/ImageZoom";
 import FAQAccordion from "../../components/FAQAccordion";
+import ProductCoupons from "../../components/User/ProductCoupons";
 
 const ProductDetails = () => {  
   const { id } = useParams();
@@ -258,6 +259,9 @@ const ProductDetails = () => {
                   </>
                 )}
               </p>
+
+              {/* Available Coupons & Offers */}
+              <ProductCoupons productId={id} />
               {product.attributes &&
                 product.attributes.slice(0, 4).map((at, index) => (
                   <div key={index}>

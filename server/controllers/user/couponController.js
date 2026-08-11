@@ -379,10 +379,56 @@ const checkCoupon = async (req, res) => {
   }
 };
 
+const getProductCoupons = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const currentDate = new Date();
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ error: "Invalid product ID" });
+    }
+
+    const prodObjectId = new mongoose.Types.ObjectId(productId);
+
+    const coupons = await Coupon.find({
+      isActive: true,
+      $or: [
+        { expirationDate: { $exists: false } },
+        { expirationDate: null },
+        { expirationDate: { $gt: currentDate } }
+      ],
+      $and: [
+        {
+          $or: [
+            { maximumUses: null },
+            { maximumUses: { $exists: false } },
+            { maximumUses: 0 },
+            { $expr: { $lt: ["$used", "$maximumUses"] } }
+          ]
+        },
+        {
+          $or: [
+            { applicableProducts: { $size: 0 } },
+            { applicableProducts: { $exists: false } },
+            { applicableProducts: prodObjectId },
+            { applicableProducts: productId }
+          ]
+        }
+      ]
+    });
+
+    res.status(200).json({ coupons });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getCoupons,
   applyCoupon,
   removeCoupon,
   getFirstOrderCoupon,
   checkCoupon,
+  getProductCoupons,
 };
+

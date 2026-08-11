@@ -22,6 +22,7 @@ import ProductDetailsStarAndRating from "../components/ProductDetailsStarAndRati
 import { addToBuyNowStore } from "@/redux/reducers/user/buyNowSlice";
 import { getUserProducts } from "@/redux/actions/user/userProductActions";
 import FAQAccordion from "@/components/FAQAccordion";
+import ProductCoupons from "@/components/User/ProductCoupons";
 
 import { FaShareAlt } from "react-icons/fa";
 import "./singleproduct.css";
@@ -635,6 +636,9 @@ const SingleProduct = () => {
                 Currently out of stock
               </p>
             )}
+
+            {/* Available Coupons & Offers */}
+            <ProductCoupons productId={id} />
 
             {/* Quantity & Action Buttons */}
             <div className="flex flex-col gap-4 w-full">
