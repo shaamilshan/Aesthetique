@@ -132,28 +132,6 @@ const ProductCoupons = ({ productId }) => {
                   <p className="text-xs text-gray-600 mt-1 font-medium line-clamp-1">
                     {coupon.description}
                   </p>
-
-                  <div className="flex items-center gap-3 text-[11px] text-gray-500 mt-1 flex-wrap">
-                    {coupon.minimumPurchaseAmount > 0 ? (
-                      <span>
-                        Min. spend: <strong className="text-gray-700">₹{coupon.minimumPurchaseAmount}</strong>
-                      </span>
-                    ) : (
-                      <span className="text-emerald-600 font-medium">No minimum spend</span>
-                    )}
-                    {coupon.expirationDate && (
-                      <span>
-                        Valid till:{" "}
-                        <strong className="text-gray-700">
-                          {new Date(coupon.expirationDate).toLocaleDateString("en-IN", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </strong>
-                      </span>
-                    )}
-                  </div>
                 </div>
               </div>
 
